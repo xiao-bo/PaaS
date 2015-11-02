@@ -1,17 +1,17 @@
 import xmpp
 
-username = 'xiao'
+username = 'pig'
 passwd = '1119'
-to='pigwang@macbook.local'
-msg='hello :)'
+#to='pig@localhost'
+#msg='hello :)'
 
 
-client = xmpp.Client('macbook.local')
-client.connect(server=('macbook.local',5223))
+client = xmpp.Client('localhost')
+client.connect(server=('localhost',5222))
 client.auth(username, passwd, 'botty')
 client.sendInitPresence()
-message = xmpp.Message(to, msg)
-message.setAttr('type', 'chat')
+#message = xmpp.Message(to, msg)
+#message.setAttr('type', 'chat')
 
 
 def messageCB(sess,mess):
