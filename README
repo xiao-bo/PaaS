@@ -1,4 +1,4 @@
-
+/libstrophe/send.c   can send message to xmpp,  but install libstrophe library
 
 send.py can send message to user on spark through xmpp
 
