@@ -1,6 +1,22 @@
-/libstrophe/send.c  -- can send message to xmpp,  but there must be installed 
-libstrophe library https://github.com/strophe/libstrophe
+libstrophe/  -- This library in c language can send message to xmpp
 
+
+
+Please follow 2 step to configure:
+
+1.  ./bootstrap.sh
+
+2.  ./configure
+
+If you want to compiler
+
+make
+ 
+Send binary code in /example
+
+libstrophe library from https://github.com/strophe/libstrophe
+
+=============================
 
 python
 
