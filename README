@@ -8,13 +8,14 @@ Please follow 2 step to configure:
 
 2.  ./configure
 
-If you want to compiler
+If you want to compiler, please input 
 
-make
+'''make
  
-Send binary code in /example
+Generate binary code in /example
 
-libstrophe library from https://github.com/strophe/libstrophe
+libstrophe library from 
+https://github.com/strophe/libstrophe
 
 =============================
 
@@ -23,6 +24,6 @@ python
 install xmpp python package
 http://xmpppy.sourceforge.net/
 
-send.py can send message to user on spark through xmpp
+send.py      -- This file can send message to user on spark through xmpp
 
-receive.py can receive message from user on spark through xmpp
+receive.py   -- This file can receive message from user on spark through xmpp
