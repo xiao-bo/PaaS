@@ -1,13 +1,15 @@
 import xmpp
 
+servername='localhost'
+#servername='pass.org'
 username = 'pig'
 passwd = '1119'
 #to='pig@localhost'
 #msg='hello :)'
 
 
-client = xmpp.Client('localhost')
-client.connect(server=('localhost',5222))
+client = xmpp.Client(servername)
+client.connect(server=(servername,5222))
 client.auth(username, passwd, 'botty')
 client.sendInitPresence()
 #message = xmpp.Message(to, msg)
