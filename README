@@ -1,27 +1,26 @@
+#libstrophe
+
 libstrophe/  -- This library in c language can send message to xmpp
 
 
 
 Please follow 2 step to configure:
 
-'''
-1.  ./bootstrap.sh
-2.  ./configure
-'''
+
+	./bootstrap.sh
+	./configure
+
 If you want to compiler, please input 
 
-'''
-make
-''' 
+	make
 
 Generate binary code in /example
 
 libstrophe library from 
 https://github.com/strophe/libstrophe
 
-=============================
 
-python
+#python
 
 install xmpp python package
 http://xmpppy.sourceforge.net/
