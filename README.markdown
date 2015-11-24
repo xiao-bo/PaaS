@@ -1,4 +1,9 @@
-#libstrophe
+#PaaS project 
+
+There will use xmpp 
+
+
+# xmpp in c language
 
 libstrophe/  -- This library in c language can send message to xmpp
 
@@ -20,9 +25,9 @@ libstrophe library from
 https://github.com/strophe/libstrophe
 
 
-#python
+#xmpp in python
 
-install xmpp python package
+Install xmpp python package
 http://xmpppy.sourceforge.net/
 
 send.py      -- This file can send message to user on spark through xmpp
