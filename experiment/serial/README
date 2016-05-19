@@ -1,0 +1,3 @@
+analog_read.py is for edison read analog signal
+
+serial_read.py is for macbook read serial signal
