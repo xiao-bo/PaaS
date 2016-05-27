@@ -1,0 +1,2 @@
+arduino_receiver.py  will receive message from arduino , run on server
+arduino_sender.py will send message to server , run on arduino
