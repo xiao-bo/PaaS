@@ -1,3 +1,4 @@
+### for edison read analog signal
 import mraa
 import sys
 import time

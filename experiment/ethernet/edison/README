@@ -1,0 +1,3 @@
+client.py will send message to server for edison 
+
+server.py will receiver from client for mac

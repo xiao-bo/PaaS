@@ -1,4 +1,4 @@
-# Message Sender
+# Message Sender for edison 
 import os
 from socket import *
 host = "10.1.2.11" # set to IP address of target computer

@@ -1,3 +1,5 @@
+
+##serial_read.py is for macbook read serial signal
 import serial
 import datetime
 ser = serial.Serial(
