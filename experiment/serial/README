@@ -1,3 +1,3 @@
-analog_read.py is for edison read analog signal
+analog_read.py  read analog signal running on edison
 
-serial_read.py is for macbook read serial signal
+serial_read.py  read serial signal running on macbook

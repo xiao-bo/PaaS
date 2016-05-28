@@ -1,3 +1,0 @@
-client.py will send message to server , running on edison
-
-server.py will receiver from client ,running on server
