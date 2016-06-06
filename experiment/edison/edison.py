@@ -23,13 +23,21 @@ class Edison:
 		
 		pot=mraa.Aio(0)
 		potVal=float(pot.read())
-		#time.sleep(0.01)
 		return potVal
 	
 if __name__=='__main__':
 	client=Edison(host,port)
-	for x in range(1,10000):
-		potVal=client.analog_read()
-		client.send_message(str(potVal)+' '+str(datetime.datetime.now()))
-		#client.send_message(x)
+	#for x in range(1,10000):
+        fo=open("data.txt","wb")
+        while True:
+	    potVal=client.analog_read()
+            message=str(potVal)+' '+str(datetime.datetime.now())
+	    #client.send_message(str(potVal)+' '+str(datetime.datetime.now())
+            client.send_message(message)
+            fo.write(message+'\n')
+            print message
+            time.sleep(0.018)
+
+
+            #client.send_message(x)
 
