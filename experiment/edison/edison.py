@@ -17,7 +17,7 @@ class Edison:
 		addr=(self.host,self.port)
 		TCPSock = socket(AF_INET, SOCK_DGRAM)
 		TCPSock.sendto(str(message),addr)
-		TCPSock.close()
+		#TCPSock.close()
 	
 	def analog_read(self):
 		
@@ -30,14 +30,11 @@ if __name__=='__main__':
 	#for x in range(1,10000):
         fo=open("data.txt","wb")
         while True:
-	    potVal=client.analog_read()
+			potVal=client.analog_read()
             message=str(potVal)+' '+str(datetime.datetime.now())
-	    #client.send_message(str(potVal)+' '+str(datetime.datetime.now())
             client.send_message(message)
             fo.write(message+'\n')
             print message
-            time.sleep(0.018)
-
-
-            #client.send_message(x)
-
+            time.sleep(0.018)	
+		TCPSock.close()
+		fo.close()
