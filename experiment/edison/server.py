@@ -1,8 +1,8 @@
 # Message Receiver
 import os
-#import datatime 
 from socket import *
-
+import time
+import datetime
 host = ""
 port = 13000
 buf = 1024
@@ -25,11 +25,12 @@ class server:
 		TCPSock = socket(AF_INET, SOCK_DGRAM)
 		TCPSock.bind(addr)
 		print "Waiting to receive messages..."
-		fo=open("edison_data.txt","wb")
+		fo=open("data.txt","wb")
 		while True:
 			(data, addr) = TCPSock.recvfrom(buf)
-			print "Received message: " + data #+ "time "+str(datetime.datetime.now())
+			print "Received message: " + data + "mac time "+str(datetime.datetime.now())
 			fo.write(data+'\n')
+			#time.sleep(0.05)
 		fo.close()
 if __name__=="__main__":
 	macbook=server(port,host)
