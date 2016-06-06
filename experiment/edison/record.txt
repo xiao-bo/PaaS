@@ -1,0 +1,10 @@
+
+在mac
+time.sleep(1s)
+則time interval為5ms左右
+
+time.sleep(0.018)
+time interval為4ms
+
+time.sleep(0.001)
+time interval為0.1ms
