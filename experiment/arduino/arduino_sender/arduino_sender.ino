@@ -6,6 +6,10 @@ int sensorValue = 0;
 int outputValue = 0;
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE];
 
+const float pi =3.14;
+float lb = (sin(1018*pi/1000)+2.5)*1024/5;
+float ub = (sin(982*pi/1000)+2.5)*1024/5; 
+
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
 byte mac[] = {
@@ -49,10 +53,12 @@ void loop() {
     
    
     if (client.connected()){
+      if(ub>sensorValue&&sensorValue>lb){
         Serial.print("sensor value: ");
         Serial.println(sensorValue);
         client.print(sensorValue);  
-        delay(30);
+        delay(18);
+      }
     }  
 
     // if the server's disconnected, stop the client:
