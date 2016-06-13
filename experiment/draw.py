@@ -37,22 +37,25 @@ def box():
 	plt.show()
 
 def curve(index):
-	clock_shew=[]
+	
 	input_list=[]
 	#print dp.data_process()
 	input_list=dp.data_process()
 	#print clock_shew
-	#print input_list[index]
-	x = np.linspace(0, len(input_list[index]),len(input_list[index]))
+	#print input_list[0][0]
+	#print input_list[0][1]
+	#print input_list[0][2]
 
+	x = np.linspace(0, len(input_list[0][index]),len(input_list[0][index]))
+	print len(input_list[0][index])
 	with plt.style.context('fivethirtyeight'):
-	    plt.plot(x,input_list[index])
+	    plt.plot(x,input_list[0][index])
 	if index==0:
 		title='A-E'
 	elif index==1:
 		title='A-S'
 	elif index==2:
-		title='S-S'
+		title='E-S'
 	elif index==3:
 		title='S-S'
 	plt.title(title)
