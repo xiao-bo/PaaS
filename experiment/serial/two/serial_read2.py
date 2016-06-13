@@ -4,7 +4,7 @@ import serial
 import datetime
 import time
 ser = serial.Serial(
-    port='/dev/tty.usbmodem1411',\
+    port='/dev/tty.usbmodem1421',\
     baudrate=9600,)
 fo=open("data.txt","wb")
 while True:

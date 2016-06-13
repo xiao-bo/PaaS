@@ -26,9 +26,10 @@ const int analogOutPin = 9; // Analog output pin that the LED is attached to
 
 const float pi =3.14;
 int sensorValue = 0;        // value read from the pot
-float lb = (sin(1018*pi/1000)+2.5)*1024/5;
-float ub = (sin(982*pi/1000)+2.5)*1024/5; 
-
+float lb = (sin(1010*pi/1000)+2.5)*1024/5;
+float ub = (sin(990*pi/1000)+2.5)*1024/5; 
+int lb_i=floor(lb);
+int ub_i=floor(ub);
 
 void setup() {
   // initialize serial communications at 9600 bps:
@@ -38,15 +39,13 @@ void setup() {
 void loop() {
   // read the analog in value:
   sensorValue = analogRead(analogInPin);
-
-  //analogWrite(analogOutPin, outputValue);
-  if(ub>sensorValue&&sensorValue>lb){
+  if(ub_i>=sensorValue&&sensorValue>=lb_i){
     // print the results to the serial monitor:
-    Serial.print("sensor = ");
+    Serial.print("s=");
     Serial.println(sensorValue);
+    delay(10);
   }
   // wait 2 milliseconds before the next loop
   // for the analog-to-digital converter to settle
   // after the last reading:
-  delay(18);
 }

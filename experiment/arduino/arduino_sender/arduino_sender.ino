@@ -7,9 +7,10 @@ int outputValue = 0;
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE];
 
 const float pi =3.14;
-float lb = (sin(1018*pi/1000)+2.5)*1024/5;
-float ub = (sin(982*pi/1000)+2.5)*1024/5; 
-
+float lb = (sin(1010*pi/1000)+2.5)*1024/5;
+float ub = (sin(990*pi/1000)+2.5)*1024/5; 
+int lb_i=floor(lb);
+int ub_i=floor(ub);
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
 byte mac[] = {
@@ -39,28 +40,28 @@ void ethernet_connect(){
     } else {
         Serial.println("connection failed");
     }
-
+    Serial.println(lb);
 }
 
 
 void setup() {
     ethernet_connect();
+    
 }
 
 void loop() {
     sensorValue = analogRead(analogInPin);
     
-    
-   
     if (client.connected()){
-      if(ub>sensorValue&&sensorValue>lb){
-        Serial.print("sensor value: ");
-        Serial.println(sensorValue);
+    if(ub_i>=sensorValue&&sensorValue>=lb_i){
+        //Serial.print("sensor value: ");
+        //Serial.println(sensorValue);
         client.print(sensorValue);  
-        delay(18);
+        delay(10);
       }
+      //delay(0.1);
     }  
-
+    
     // if the server's disconnected, stop the client:
     if (!client.connected()) {
         Serial.println("disconnecting. retry after 3s");

@@ -21,16 +21,12 @@ try:
             while True:
                 # Receive the data one byte at a time
                 data = connection.recv(4)
-                #sys.stdout.write(data)
                 if data:
                     # Send back in uppercase
-					#print data
-					#print datetime.datetime.now()
-					#time.sleep(0.05)
 					ans=data+' '+str(datetime.datetime.now())
 					print ans
 					fo.write(ans+'\n')
-					connection.sendall(data.upper())
+					#connection.sendall(data.upper())
                 else:
                     print('no more data, closing connection.')
                     break
