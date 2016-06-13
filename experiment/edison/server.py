@@ -28,9 +28,9 @@ class server:
 		fo=open("data.txt","wb")
 		while True:
 			(data, addr) = TCPSock.recvfrom(buf)
-			print "Received message: " + data + "mac time "+str(datetime.datetime.now())
-			fo.write(data+'\n')
-			#time.sleep(0.05)
+			ans=data #": mac time "+str(datetime.datetime.now())
+			print ans
+			fo.write(ans+'\n')
 		fo.close()
 if __name__=="__main__":
 	macbook=server(port,host)
