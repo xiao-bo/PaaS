@@ -47,7 +47,7 @@ def curve(index):
 	#print input_list[0][2]
 
 	x = np.linspace(0, len(input_list[0][index]),len(input_list[0][index]))
-	print len(input_list[0][index])
+	#print len(input_list[0][index])
 	with plt.style.context('fivethirtyeight'):
 	    plt.plot(x,input_list[0][index])
 	if index==0:
@@ -57,7 +57,7 @@ def curve(index):
 	elif index==2:
 		title='E-S'
 	elif index==3:
-		title='S-S'
+		title='M-E'
 	plt.title(title)
 	plt.xlabel('Number of data')
 	plt.ylabel('Delay in second')
