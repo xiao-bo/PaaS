@@ -1,87 +1,27 @@
-
-def data_process():
-	### arduino timestamp
-	file_read=open('arduino/data.txt','r')
-	time_arduino=[]
+def read_file(filename,index):
+	##read data and append list
+	file_read=open(filename,'r')
+	timestamp=[]
 	for line in file_read:
-		ans=line.split(":")[2]
-		time_arduino.append(float(ans))
-	#print time_arduino
-	print '==========='
-	### edison timestamp
-	#file_read=open('edison/data.txt','r')
-	file_read=open('serial/two/new.txt','r')
-	time_edison=[]
-	for line in file_read:
-		ans=float(line.split(":")[2])
-		time_edison.append(ans)
-	#print time_edison
-	print '======='
-	### serial timestamp
+		ans=line.split(":")[index]
+		timestamp.append(float(ans))
 
-	file_read=open('serial/new.txt','r')
-	time_serial=[]
-	for line in file_read:
-		ans=float(line.split(":")[2])
-		time_serial.append(ans)
-	#print time_serial
-	
+	return timestamp
 
-	a_delay=align(time_arduino)
-	s_delay=align(time_serial)
-	e_delay=align(time_edison)
-	#s_delay=time_serial
-	#e_delay=time_edison
-	
-
-	
-	print 'aaaaaa'
-	#print a_delay
-	print '===eeeee'
-	#print e_delay
-	#print '===sss'
-	#print s_delay
-	#print '===a:'+str(a_delay[13])+' ===e: '+str(e_delay[13])
-	#print e_delay
-
-	a_e=[]
-	a_s=[]
-	e_s=[]
-	line=0
-	### evalute delay
-	for a,e in zip(a_delay,e_delay):
-		if a==0 or e==0 :
+def compute_delay(list_1,list_2):
+	delay=[]
+	for first,second in zip(list_1,list_2):
+		if first==0 or second==0 :
 			continue
-		elif a-e>-50: 
-			a_e.append(a-e)
-			#print 'line: '+str(line)+' a-e= '+str(a-e)
-	
-	for a,s in zip(a_delay,s_delay):
-		if a==0 or s==0 :
-			continue
-		elif a-s>-50: 
-			a_s.append(a-s)
-	
-	for e,s in zip(e_delay,s_delay):
-		if e==0 or s==0 :
-			continue
-		elif e-s>-50: 
-			e_s.append(e-s)
+		elif abs(first-second)<50:
+		### minute different will lead value larger 50
+			delay.append(first-second)
+			
+	return delay
 
-	##evalute average and summary 
-	avg_a_e=0
-	avg_a_s=0
-	avg_e_s=0
-	avg_a_e=sum(a_e)/len(a_e)
-	avg_a_s=sum(a_s)/len(a_s)
-	avg_e_s=sum(e_s)/len(e_s)
-	print e_s
-	print 'avg_a_e:'+str(avg_a_e)+' max:'+str(max(a_e))
-	print 'avg_a_s:'+str(avg_a_s)+' max:'+str(max(a_s))
-	print 'avg_a_s:'+str(avg_e_s)+' max:'+str(max(e_s))
-	return [a_e,a_s,e_s,[max(a_e),max(a_s),max(e_s)],[avg_a_e,avg_a_s,avg_e_s]]
 def align(time_list):
-	## count number of zero because x can't ++ in loop and lead number of loop shorter 
+	## count number of zero because x can't ++ in 
+	##loop and lead number of loop shorter 
 	count=0
 	for x in range(0,len(time_list)-1): 
 		diff=time_list[x+1]-time_list[x]
@@ -103,4 +43,64 @@ def align(time_list):
 
 	return time_list
 
-data_process()
+
+def data_process():
+	###read data and append list
+	timestamp_arduino=read_file("arduino/data.txt",2)
+	timestamp_edison_send=read_file('edison/data.txt',2)
+	timestamp_edison_receive=read_file('edison/data.txt',5)
+	timestamp_serial=read_file("serial/data.txt",2)
+	
+	
+	### insert integer 0.0 to recover miss part
+	timestamp_arduino=align(timestamp_arduino)
+	timestamp_edison_send=align(timestamp_edison_send)
+	timestamp_edison_receive=align(timestamp_edison_receive)
+	timestamp_serial=align(timestamp_serial)
+	
+
+	##debug message
+	'''
+	print '------------\ntimestamp_arduino\n------------'
+	print timestamp_arduino
+	print '------------\ntimestamp_edison_send\n------------'
+	print timestamp_edison_send
+	print '------------\ntimestamp_edison_receive\n------------'
+	print timestamp_edison_receive
+	print '------------\ntimestamp_serial\n------------'
+	print timestamp_serial
+	'''
+	
+	### compute delay between list
+	delay_arduino_edison=compute_delay(timestamp_arduino,timestamp_edison_send)
+	delay_arduino_serial=compute_delay(timestamp_arduino,timestamp_serial)
+	delay_edison_serial=compute_delay(timestamp_edison_send,timestamp_serial)
+	delay_edison_receive_send=compute_delay(timestamp_edison_receive,
+		timestamp_edison_send)
+	
+	
+	##evalute average and summary
+	avg_a_e=sum(delay_arduino_edison)/len(delay_arduino_edison)
+	avg_a_s=sum(delay_arduino_serial)/len(delay_arduino_serial)
+	avg_e_s=sum(delay_edison_serial)/len(delay_edison_serial)
+	avg_e_r_s=sum(delay_edison_receive_send)/len(delay_edison_receive_send)
+	
+	###debug message
+	'''
+	#print a_e
+	#print a_s
+	#print e_s
+	#print 'avg_a_e:'+str(avg_a_e)+' max:'+str(max(a_e))
+	#print 'avg_a_s:'+str(avg_a_s)+' max:'+str(max(a_s))
+	#print 'avg_a_s:'+str(avg_e_s)+' max:'+str(max(e_s))
+	'''
+	return [[delay_arduino_edison,delay_arduino_serial,delay_edison_serial
+			,delay_edison_receive_send],
+			[max(delay_arduino_edison),max(delay_arduino_serial),
+			max(delay_edison_serial),max(delay_edison_receive_send)],
+			[avg_a_e,avg_a_s,avg_e_s,avg_e_r_s]]
+	
+
+
+if __name__=='__main__':
+	data_process()
