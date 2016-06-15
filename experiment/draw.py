@@ -38,26 +38,20 @@ def box():
 
 def curve(index):
 	
-	input_list=[]
-	#print dp.data_process()
 	input_list=dp.data_process()
-	#print clock_shew
-	#print input_list[0][0]
-	#print input_list[0][1]
-	#print input_list[0][2]
 
 	x = np.linspace(0, len(input_list[0][index]),len(input_list[0][index]))
-	#print len(input_list[0][index])
+	
 	with plt.style.context('fivethirtyeight'):
 	    plt.plot(x,input_list[0][index])
 	if index==0:
-		title='A-E'
+		title='Arduino-Edison'
 	elif index==1:
-		title='A-S'
+		title='Arduino-Serial'
 	elif index==2:
-		title='E-S'
+		title='Edison-Serial'
 	elif index==3:
-		title='M-E'
+		title='Edison_receiver-send'
 	plt.title(title)
 	plt.xlabel('Number of data')
 	plt.ylabel('Delay in second')
