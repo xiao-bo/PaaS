@@ -1,0 +1,3 @@
+period.py   compute edison's period of reading data
+server.py receive edison's data and put server's timestamp
+edison.py analog read data and put edison's timestamp before send data to server.

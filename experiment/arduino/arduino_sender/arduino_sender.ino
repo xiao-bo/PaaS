@@ -4,11 +4,11 @@
 const int analogInPin = A0; 
 int sensorValue = 0;
 int outputValue = 0;
-char packetBuffer[UDP_TX_PACKET_MAX_SIZE];
+//char packetBuffer[UDP_TX_PACKET_MAX_SIZE];
 
 const float pi =3.14;
-float lb = (sin(1010*pi/1000)+2.5)*1024/5;
-float ub = (sin(990*pi/1000)+2.5)*1024/5; 
+float lb = (sin(1002*pi/1000)+2.5)*1024/5;
+float ub = (sin(998*pi/1000)+2.5)*1024/5; 
 int lb_i=floor(lb);
 int ub_i=floor(ub);
 // Enter a MAC address and IP address for your controller below.
@@ -16,7 +16,7 @@ int ub_i=floor(ub);
 byte mac[] = {
     0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
 };
-IPAddress ip(10,8,0,36);
+IPAddress ip(10,8,0,37);
 
 // Enter the IP address of the server you're connecting to:
 IPAddress server(10, 8, 0, 35);
@@ -57,7 +57,7 @@ void loop() {
         //Serial.print("sensor value: ");
         //Serial.println(sensorValue);
         client.print(sensorValue);  
-        delay(10);
+        delay(5);
       }
       //delay(0.1);
     }  

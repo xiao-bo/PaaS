@@ -4,15 +4,11 @@ import serial
 import datetime
 import time
 ser = serial.Serial(
-    port='/dev/tty.usbmodem1411',\
-    baudrate=9600,)
-fo=open("data.txt","wb")
+    port='/dev/tty.usbmodem1421',\
+    baudrate=115200,)
+fo=open("old.txt","wb")
 while True:
 	line=ser.readline()
-	#print line
-	#tmp=''.join(line.split('\n'))
-	#print tmp
-	#print tmp+(str(datetime.datetime.now())
 	ans=line+' '+str(datetime.datetime.now())+' '
 	print ans
 	fo.write(ans+'\n')

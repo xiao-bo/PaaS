@@ -1,49 +1,49 @@
 /*
   Analog input, analog output, serial output
 
- Reads an analog input pin, maps the result to a range from 0 to 255
- and uses the result to set the pulsewidth modulation (PWM) of an output pin.
- Also prints the results to the serial monitor.
+  Reads an analog input pin, maps the result to a range from 0 to 255
+  and uses the result to set the pulsewidth modulation (PWM) of an output pin.
+  Also prints the results to the serial monitor.
 
- The circuit:
- * potentiometer connected to analog pin 0.
+  The circuit:
+   potentiometer connected to analog pin 0.
    Center pin of the potentiometer goes to the analog pin.
    side pins of the potentiometer go to +5V and ground
- * LED connected from digital pin 9 to ground
+   LED connected from digital pin 9 to ground
 
- created 29 Dec. 2008
- modified 9 Apr 2012
- by Tom Igoe
+  created 29 Dec. 2008
+  modified 9 Apr 2012
+  by Tom Igoe
 
- This example code is in the public domain.
+  This example code is in the public domain.
 
- */
+*/
 
 // These constants won't change.  They're used to give names
 // to the pins used:
 const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
 const int analogOutPin = 9; // Analog output pin that the LED is attached to
 
-const float pi =3.14;
+const float pi = 3.14;
 int sensorValue = 0;        // value read from the pot
-float lb = (sin(1010*pi/1000)+2.5)*1024/5;
-float ub = (sin(990*pi/1000)+2.5)*1024/5; 
-int lb_i=floor(lb);
-int ub_i=floor(ub);
+float lb = (sin(1002 * pi / 1000) + 2.5) * 1024 / 5;
+float ub = (sin(998 * pi / 1000) + 2.5) * 1024 / 5;
+int lb_i = floor(lb);
+int ub_i = floor(ub);
 
 void setup() {
   // initialize serial communications at 9600 bps:
-  Serial.begin(9600);
+  Serial.begin(115200);
 }
 
 void loop() {
   // read the analog in value:
   sensorValue = analogRead(analogInPin);
-  if(ub_i>=sensorValue&&sensorValue>=lb_i){
+  if (ub_i >= sensorValue && sensorValue >= lb_i) {
     // print the results to the serial monitor:
     Serial.print("s=");
     Serial.println(sensorValue);
-    delay(10);
+    delay(5);
   }
   // wait 2 milliseconds before the next loop
   // for the analog-to-digital converter to settle

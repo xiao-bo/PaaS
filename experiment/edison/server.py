@@ -28,7 +28,7 @@ class server:
 		fo=open("data.txt","wb")
 		while True:
 			(data, addr) = TCPSock.recvfrom(buf)
-			ans=data #": mac time "+str(datetime.datetime.now())
+			ans=data+": mac time "+str(datetime.datetime.now())
 			print ans
 			fo.write(ans+'\n')
 		fo.close()
