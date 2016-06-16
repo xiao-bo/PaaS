@@ -19,7 +19,7 @@ byte mac[] = {
 IPAddress ip(10,8,0,37);
 
 // Enter the IP address of the server you're connecting to:
-IPAddress server(10, 8, 0, 35);
+IPAddress server(10, 8, 0, 8);
 EthernetClient client;
 
 void ethernet_connect(){

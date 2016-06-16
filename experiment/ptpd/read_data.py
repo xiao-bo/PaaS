@@ -17,7 +17,7 @@ while True:
 	count=count+1
 	fo.write(str(count)+": "+str(offset)+'\n')
 	print str(count)+": "+str(offset)
-	time.sleep(1)
+	time.sleep(0.5)
 
 #readline=open("data.txt","wb")
 #for line in readline:
