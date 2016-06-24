@@ -1,3 +1,7 @@
+import sys
+sys.path.insert(0,'/Users/xiao/Documents/code/paas/git/PaaS/experiment/ptpd')
+import period
+
 def read_file(filename,index):
 	##read data and append list
 	file_read=open(filename,'r')
@@ -43,20 +47,27 @@ def align(time_list):
 
 	return time_list
 
-
+def time_sync(edison,offset):
+	sync=[]
+	for x,y in zip(edison,offset):
+			sync.append(x-float(y))
+	return sync
 def data_process():
 	###read data and append list
 	timestamp_arduino=read_file("arduino/data.txt",2)
 	timestamp_edison_send=read_file('edison/data.txt',2)
 	timestamp_edison_receive=read_file('edison/data.txt',5)
 	timestamp_serial=read_file("serial/data.txt",2)
-	
+	offset=period.period("ptpd/data.txt")
+	print offset
 	
 	### insert integer 0.0 to recover miss part
 	timestamp_arduino=align(timestamp_arduino)
 	timestamp_edison_send=align(timestamp_edison_send)
 	timestamp_edison_receive=align(timestamp_edison_receive)
 	timestamp_serial=align(timestamp_serial)
+	
+	timestamp_edison_receive=time_sync(timestamp_edison_receive,offset)
 	
 
 	##debug message
