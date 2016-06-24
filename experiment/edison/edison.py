@@ -34,23 +34,10 @@ if __name__=='__main__':
         while True:
             date_time=datetime.datetime.now()
 	    potVal=client.analog_read()
-            if  ub_i>=potVal and potVal >=lb_i: 
+            #if  ub_i>=potVal and potVal >=lb_i: 
+            if potVal>=1022:
                 message=str(potVal)+' '+str(date_time)
                 client.send_message(message)
                 print message
-                time.sleep(0.005)	
+                time.sleep(0.2)	
         TCPSock.close()
-'''
-addr=(host,port)
-TCPSock = socket(AF_INET, SOCK_DGRAM)
-while True:
-    pot=mraa.Aio(0)
-    date_time=str(datetime.datetime.now())
-    potVal=pot.read()
-    if  ub_i>=potVal and potVal >=lb_i:
-        message=str(potVal)+' '+date_time
-        TCPSock.sendto(message,addr)
-        time.sleep(0.005)
-TCPSock.close()
-
-'''
