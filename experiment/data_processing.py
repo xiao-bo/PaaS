@@ -1,7 +1,7 @@
 import sys
-sys.path.insert(0,'/Users/xiao/Documents/code/paas/git/PaaS/experiment/ptpd')
+sys.path.insert(0,'/Users/xiao/Desktop/PaaS/experiment/ptpd')
 import period
-
+import numpy
 def read_file(filename,index):
 	##read data and append list
 	file_read=open(filename,'r')
@@ -52,14 +52,43 @@ def time_sync(edison,offset):
 	for x,y in zip(edison,offset):
 			sync.append(x-float(y))
 	return sync
+
+def compute_statistics(delay_list):
+	##evalute average , standard deviation, mean square error
+	delay_list=numpy.array(delay_list)
+	summary=0.0
+	for x in delay_list:
+		summary = summary+x*x
+	mse=summary/len(delay_list)
+	print mse
+	print numpy.mean(delay_list)
+	print numpy.std(delay_list)
+	return [mse,numpy.mean(delay_list),numpy.std(delay_list)]
+
+
+def data_process_2(list_former,list_backer):
+
+	### insert integer 0.0 to recover miss part 
+	timestamp_former=align(list_former)
+	timestamp_backer=align(list_backer)
+	### compute delay between list
+	delay=compute_delay(timestamp_former,timestamp_backer)
+	#delay=compute_delay(list_former,list_backer)
+	
+	#if delay:## check list is empty
+	#	compute_statistics(delay)
+	
+	return delay
+	
+
 def data_process():
 	###read data and append list
 	timestamp_arduino=read_file("arduino/data.txt",2)
-	timestamp_edison_send=read_file('edison/data.txt',2)
-	timestamp_edison_receive=read_file('edison/data.txt',5)
+	timestamp_edison_send=read_file('edison/data.txt',0)
+	timestamp_edison_receive=read_file('edison/data.txt',3)
 	timestamp_serial=read_file("serial/data.txt",2)
 	offset=period.period("ptpd/data.txt")
-	print offset
+	#print offset
 	
 	### insert integer 0.0 to recover miss part
 	timestamp_arduino=align(timestamp_arduino)
@@ -68,7 +97,7 @@ def data_process():
 	timestamp_serial=align(timestamp_serial)
 	
 	timestamp_edison_receive=time_sync(timestamp_edison_receive,offset)
-	
+	#print timestamp_edison_receive	
 
 	##debug message
 	'''
@@ -89,29 +118,36 @@ def data_process():
 	delay_edison_receive_send=compute_delay(timestamp_edison_receive,
 		timestamp_edison_send)
 	
+	'''
+	print '------------\ndelay_arduino_edison\n------------'
+	print delay_arduino_edison
+	print '------------\ndelay_arduino_serial\n------------'
+	print delay_arduino_serial
+	print '------------\ndelay_edison_serial\n------------'
+	print delay_edison_serial
+	print '------------\ndelay_edison_receive_send\n------------'
+	print delay_edison_receive_send
+	'''
 	
-	##evalute average and summary
-	avg_a_e=sum(delay_arduino_edison)/len(delay_arduino_edison)
-	avg_a_s=sum(delay_arduino_serial)/len(delay_arduino_serial)
-	avg_e_s=sum(delay_edison_serial)/len(delay_edison_serial)
-	avg_e_r_s=sum(delay_edison_receive_send)/len(delay_edison_receive_send)
-	
+	##evalute average , standard deviation, mean square error
+
+	if delay_arduino_edison:## check list is empty
+		compute_statistics(delay_arduino_edison)
+	if delay_arduino_serial:
+		compute_statistics(delay_arduino_serial)
+	if delay_edison_serial:
+		compute_statistics(delay_edison_serial)
+	if delay_edison_receive_send:
+		compute_statistics(delay_edison_receive_send)
 	###debug message
-	'''
-	#print a_e
-	#print a_s
-	#print e_s
-	#print 'avg_a_e:'+str(avg_a_e)+' max:'+str(max(a_e))
-	#print 'avg_a_s:'+str(avg_a_s)+' max:'+str(max(a_s))
-	#print 'avg_a_s:'+str(avg_e_s)+' max:'+str(max(e_s))
-	'''
-	return [[delay_arduino_edison,delay_arduino_serial,delay_edison_serial
-			,delay_edison_receive_send],
-			[max(delay_arduino_edison),max(delay_arduino_serial),
-			max(delay_edison_serial),max(delay_edison_receive_send)],
-			[avg_a_e,avg_a_s,avg_e_s,avg_e_r_s]]
 	
-
-
+	
+	return [delay_arduino_edison,delay_arduino_serial,delay_edison_serial
+			,delay_edison_receive_send,offset]
+	'''
+	#return offset
+	#return [delay_edison_receive_send,max(delay_edison_receive_send)]
+	return delay_edison_receive_send
+	'''
 if __name__=='__main__':
 	data_process()
