@@ -49,8 +49,10 @@ def align(time_list):
 
 def time_sync(edison,offset):
 	sync=[]
+	##offset = slave - master=mac - edison
+	##
 	for x,y in zip(edison,offset):
-			sync.append(x-float(y))
+			sync.append(x+float(y))
 	return sync
 
 def compute_statistics(delay_list):
@@ -60,10 +62,11 @@ def compute_statistics(delay_list):
 	for x in delay_list:
 		summary = summary+x*x
 	mse=summary/len(delay_list)
-	print mse
-	print numpy.mean(delay_list)
-	print numpy.std(delay_list)
-	return [mse,numpy.mean(delay_list),numpy.std(delay_list)]
+	
+	print "mean: "+str(numpy.mean(delay_list))
+	print "standard deviation: "+str(numpy.std(delay_list))
+	print "mse: "+str(mse)
+	return [numpy.mean(delay_list),numpy.std(delay_list),mse]
 
 
 def data_process_2(list_former,list_backer):
@@ -104,12 +107,13 @@ def data_process():
 	print '------------\ntimestamp_arduino\n------------'
 	print timestamp_arduino
 	print '------------\ntimestamp_edison_send\n------------'
-	print timestamp_edison_send
-	print '------------\ntimestamp_edison_receive\n------------'
-	print timestamp_edison_receive
+	print timestamp_edison_send	
 	print '------------\ntimestamp_serial\n------------'
 	print timestamp_serial
 	'''
+	print '------------\ntimestamp_edison_receive\n------------'
+	print timestamp_edison_receive
+	
 	
 	### compute delay between list
 	delay_arduino_edison=compute_delay(timestamp_arduino,timestamp_edison_send)
@@ -117,20 +121,21 @@ def data_process():
 	delay_edison_serial=compute_delay(timestamp_edison_send,timestamp_serial)
 	delay_edison_receive_send=compute_delay(timestamp_edison_receive,
 		timestamp_edison_send)
-	
 	'''
 	print '------------\ndelay_arduino_edison\n------------'
 	print delay_arduino_edison
+	
 	print '------------\ndelay_arduino_serial\n------------'
 	print delay_arduino_serial
 	print '------------\ndelay_edison_serial\n------------'
 	print delay_edison_serial
+	'''
 	print '------------\ndelay_edison_receive_send\n------------'
 	print delay_edison_receive_send
-	'''
+	
 	
 	##evalute average , standard deviation, mean square error
-
+	'''
 	if delay_arduino_edison:## check list is empty
 		compute_statistics(delay_arduino_edison)
 	if delay_arduino_serial:
@@ -139,6 +144,7 @@ def data_process():
 		compute_statistics(delay_edison_serial)
 	if delay_edison_receive_send:
 		compute_statistics(delay_edison_receive_send)
+	'''
 	###debug message
 	
 	

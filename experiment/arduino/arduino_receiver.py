@@ -22,11 +22,9 @@ try:
                 # Receive the data one byte at a time
                 data = connection.recv(4)
                 if data:
-                    # Send back in uppercase
 					ans=data+' '+str(datetime.datetime.now())
 					print ans
 					fo.write(ans+'\n')
-					#connection.sendall(data.upper())
                 else:
                     print('no more data, closing connection.')
                     break

@@ -27,10 +27,11 @@ if __name__=="__main__":
 		timestamp_backer=dp.read_file("serial/data.txt",2)
 		title='IP stack(Edison)-Serial'
 	elif index==3:
-		timestamp_backer=dp.read_file('edison/data.txt',0)##edison sender
 		timestamp_former=dp.read_file('edison/data.txt',3)##edison receiver
+		timestamp_backer=dp.read_file('edison/data.txt',0)##edison sender
+		
 		###if sync ? ie , remove offset??
-		##timestamp_backer=dp.time_sync(timestamp_backer,offset)
+		#timestamp_backer=dp.time_sync(timestamp_backer,offset)
 		title='Network delay (Mac_receiver-Edison_send)'
 	elif index==4:
 		title='ptpd'
@@ -39,9 +40,10 @@ if __name__=="__main__":
 	if index!=4:
 		error_data=dp.data_process_2(timestamp_former,timestamp_backer)
 		if error_data:## check list is empty
-			statistics=dp.compute_statistics(error_data)
+			statistics=[dp.compute_statistics(error_data)]
 
 	elif index==4:
 		error_data=offset
+		statistics=[[0,0,0]]
 	print statistics
 	draw.curve(error_data,title)
