@@ -2,10 +2,13 @@ import socket
 import sys
 import datetime
 import time
+import subprocess 
+
+cmd=["ksh -c 'printf \"%(%s.%N)T\"'"]
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # Bind the socket to the port
-server_address = ('10.8.0.8', 10005)
+server_address = ('10.8.0.31', 10005)
 sock.bind(server_address)
 # Listen for incoming connections
 sock.listen(1)
@@ -22,11 +25,12 @@ try:
                 # Receive the data one byte at a time
                 data = connection.recv(4)
                 if data:
-                    # Send back in uppercase
-					ans=data+' '+str(datetime.datetime.now())
-					print ans
-					fo.write(ans+'\n')
-					#connection.sendall(data.upper())
+                    content=subprocess.check_output(cmd,shell=True)
+                    ans=data+':sss:'+str(content)
+                    #print datetime.datetime.now()
+		    #ans=data+' '+str(datetime.datetime.now())
+		    print ans
+		    fo.write(ans+'\n')
                 else:
                     print('no more data, closing connection.')
                     break

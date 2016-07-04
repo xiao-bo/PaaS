@@ -19,14 +19,14 @@ byte mac[] = {
 IPAddress ip(10,8,0,37);
 
 // Enter the IP address of the server you're connecting to:
-IPAddress server(10, 8, 0, 8);
+IPAddress server(10, 8, 0, 31);
 EthernetClient client;
 
 void ethernet_connect(){
     // start the Ethernet connection:
     Ethernet.begin(mac, ip);
     // Open serial communications and wait for port to open:
-    Serial.begin(9600);
+    Serial.begin(115200);
   
 
     // give the Ethernet shield a second to initialize:
@@ -53,12 +53,14 @@ void loop() {
     sensorValue = analogRead(analogInPin);
     
     if (client.connected()){
-    if(ub_i>=sensorValue&&sensorValue>=lb_i){
-        //Serial.print("sensor value: ");
-        //Serial.println(sensorValue);
+      
+        if (sensorValue>=1022){
+        Serial.print("sensor value: ");
+        Serial.println(sensorValue);
         client.print(sensorValue);  
-        delay(5);
-      }
+        delay(500);
+        }
+      
       //delay(0.1);
     }  
     
