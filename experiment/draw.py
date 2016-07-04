@@ -8,11 +8,9 @@ import matplotlib.gridspec as gridspec
 
 def curve(input_list,title):	
 	output_list=[]
-	for x in input_list:
-		output_list.append(x*1000)
-	x = np.linspace(0, len(output_list),len(output_list))	
+	x = np.linspace(0, len(input_list),len(input_list))	
 	with plt.style.context('fivethirtyeight'):
-	    ax1=plt.plot(x,output_list)
+	    ax1=plt.plot(x,input_list)
 	##curve
 	'''
 	x = np.linspace(0, len(input_list),len(input_list))	
@@ -37,5 +35,5 @@ def curve(input_list,title):
 #def bar(input_list,index,title):
 
 if __name__=="__main__":
-	
+
 	print "draw.py"

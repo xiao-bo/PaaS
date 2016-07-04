@@ -15,8 +15,8 @@ while True:
 	offset=content.split(',')[0]
 	array.append(offset)
 	count=count+1
-	fo.write(str(count)+": "+str(offset)+'\n')
-	print str(count)+": "+str(offset)
+	fo.write(str(count)+":"+str(offset)+'\n')
+	print str(count)+":"+str(offset)
 	time.sleep(1)
 
 #readline=open("data.txt","wb")
