@@ -36,7 +36,7 @@ if __name__=='__main__':
 	    potVal=client.analog_read()
             #if  ub_i>=potVal and potVal >=lb_i: 
             if potVal>=1022:
-                message=str(potVal)+' '+str(date_time)
+                message=str(potVal)+':'+str(date_time)
                 client.send_message(message)
                 print message
                 time.sleep(0.2)	
