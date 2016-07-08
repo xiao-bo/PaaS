@@ -13,39 +13,29 @@ class server:
 	def __init__(self,port,host):
 		self.port=port
 		self.host=host
-	def TCP_receive(self):
-		addr=(self.host,self.port)
-		TCPSock = socket(AF_INET, SOCK_DGRAM)
-		TCPSock.bind(addr)
-		print "Waiting to receive messages..."
-		fo=open("data.txt","wb")
-		while True:
-			content=subprocess.check_output(cmd,shell=True)## get sync offset  
-			content2=subprocess.check_output(cmd2,shell=True)## get sync offset  
-		        (data, addr) = TCPSock.recvfrom(buf)
-                        
-                        ###offset = rece-send
-			content=content.split(':')[1]
-			offset=content.split(',')[0]
-			offset=offset.split("s")[0]
-			send_time=data.split(':')[2]## let send time +offset
-			#send_time=float(send_time)+float(offset)
-                        #ans=str(send_time)+": mac time "+str(datetime.datetime.now())
-                        ans=str(send_time)+": mac time:s:"+str(content2)
+	def receive(self):
+		
+                addr=(host,port)
+                Sock = socket(AF_INET, SOCK_STREAM)
+                Sock.bind(addr)
+                Sock.listen(5)
+                print "Waiting to receive messages..."
+                fo=open("data.txt","wb")
+                while True:
+                    (csock,adr)= Sock.accept()
+                    send_time=csock.recv(10240)
+                    rece_time=subprocess.check_output(cmd2,shell=True) 
+                    #send_time=data.split(':')[2]## let send time +offset
+                    ans=str(send_time)+": mac time:rece_time:"+str(rece_time)
 
-			ti=str(datetime.datetime)
-			#tmp=ti.split(':')[2]
-
-			print "offset"+str(offset)
-			print float(content2)-float(send_time)
-			print ans
-                        print time.time()
-			fo.write(ans+'\n')
+                    print float(rece_time)-float(send_time)
+                    print ans
+                    fo.write(ans+'\n')
+                csock.close()
 		fo.close()
 	
-		
 		
 
 if __name__=="__main__":
 	macbook=server(port,host)
-	macbook.TCP_receive()
+        macbook.receive()

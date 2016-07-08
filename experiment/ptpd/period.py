@@ -9,11 +9,10 @@ def period(filename):
                 tmp=x.replace(" ","")
                 tmp=tmp.split(":")[1]
                 tmp=tmp.split("s")[0]
-		offset.append(float(tmp)*1000)
+		offset.append(float(tmp))
 	return offset
 
 
 if __name__=="__main__":
 	offset=period("data.txt")
 	print offset
-        #draw.curve(offset)
