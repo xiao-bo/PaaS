@@ -1,10 +1,7 @@
 
 import sys
-<<<<<<< HEAD
-=======
 sys.path.insert(0,'/home/newslab/Desktop/PaaS/experiment')
 import draw
->>>>>>> 6bd1f662aa06819929c5e35cb578604aed6429dd
 def period(filename):
 	readline=open(filename,"rb")
 	offset=[]
