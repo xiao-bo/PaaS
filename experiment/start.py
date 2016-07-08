@@ -41,9 +41,11 @@ if __name__=="__main__":
 		error_data=dp.data_process_2(timestamp_former,timestamp_backer)
 		if error_data:## check list is empty
 			statistics=[dp.compute_statistics(error_data)]
-
+	
 	elif index==4:
 		error_data=offset
 		statistics=[[0,0,0]]
-	print statistics
-	draw.curve(error_data,title)
+	#print offset
+	#print error_data
+	#print statistics
+	draw.curve(error_data,title,statistics)
