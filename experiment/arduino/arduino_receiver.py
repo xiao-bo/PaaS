@@ -25,8 +25,8 @@ try:
                 # Receive the data one byte at a time
                 data = connection.recv(4)
                 if data:
-                    content=subprocess.check_output(cmd,shell=True)
-                    ans=data+':sss:'+str(content)
+                    rece_time=subprocess.check_output(cmd,shell=True)
+                    ans=data+':sss:'+str(rece_time)
                     #print datetime.datetime.now()
 		    #ans=data+' '+str(datetime.datetime.now())
 		    print ans
