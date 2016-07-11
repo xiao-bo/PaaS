@@ -6,16 +6,16 @@ import time
 import subprocess
 cmd=["ksh -c 'printf \"%(%s.%N)T\'"]
 ser = serial.Serial(
-    port='/dev/ttyACM0',\
+    port='/dev/tty.usbmodem1411',\
     baudrate=115200,)
 fo=open("old.txt","wb")
 while True:
-	line=ser.readline()
+    line=ser.readline()
     #ans=line+' '+str(datetime.datetime.now())+' '        
-	content=subprocess.check_output(cmd,shell=True)
+    content=subprocess.check_output(cmd,shell=True)
     ans=line+' 2016-07-05 04:@@:'+content
-	print ans
-	fo.write(ans+'\n')
-	#time.sleep(0.05)
+    print ans
+    fo.write(ans+'\n')
+    #time.sleep(0.05)
 fo.close()
 ser.close()

@@ -8,18 +8,25 @@ cmd=["ksh -c 'printf \"%(%s.%N)T\"'"]
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # Bind the socket to the port
-server_address = ('10.8.0.31', 10005)
+server_address = ('10.8.0.8', 10005)
 sock.bind(server_address)
 # Listen for incoming connections
 sock.listen(1)
  
 try: 
     while True:
+        
+        filename=sys.argv[1]+"%.txt"
+        if len(sys.argv[1])==0:
+            print "please input arg for file name \n"
+            break
+        print filename
+
         # Wait for a connection
         print('waiting for a connection...')
         connection, client_address = sock.accept()
-        print('connection from %s:%d' % client_address)
-        fo=open("data.txt","wb")
+        print('connection from %s:%d' % client_address)       
+        fo=open(filename,"wb")
         try:
             while True:
                 # Receive the data one byte at a time
@@ -40,6 +47,9 @@ try:
             fo.close()
 except KeyboardInterrupt:
     print('exiting.')
+'''
 finally:
     sock.shutdown(socket.SHUT_RDWR)
     sock.close()
+
+'''
