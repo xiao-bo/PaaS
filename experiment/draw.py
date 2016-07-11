@@ -29,7 +29,8 @@ def curve(input_list,title,statistics):
 	axTable.axes.get_yaxis().set_visible(False)
 	
 	columns = ('Mean', 'Standard_deviation', 'Mean_square_error')
-	cell_text=statistics
+        cell_text=statistics
+        
 	table_size=axTable.table(cellText=statistics, loc='bottom',
 		colLabels=columns)
 
