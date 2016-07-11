@@ -25,7 +25,7 @@ if __name__=="__main__":
 	elif index==2:
 		timestamp_former=dp.read_file('edison/data.txt',0)
 		timestamp_backer=dp.read_file("serial/data.txt",2)
-		title='IP stack(Edison)-Serial'
+		title='Edison-Serial'
 	elif index==3:
 		timestamp_former=dp.read_file('edison/data.txt',3)##edison receiver
 		timestamp_backer=dp.read_file('edison/data.txt',0)##edison sender
