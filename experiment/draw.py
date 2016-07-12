@@ -39,8 +39,9 @@ def curve(input_list,title,statistics):
 	
 	table_rows=('0Mbit','100Mbit','500Mbit','800Mbit')
 	table_columns = ('Mean', 'Standard_deviation', 'Mean_square_error')
-	#cell_text=statistics[0]
-	#print statistics
+	columns = ('Mean', 'Standard_deviation', 'Mean_square_error')
+        cell_text=statistics
+        
 	table_size=axTable.table(cellText=statistics, loc='bottom',
 		colLabels=table_columns,rowLabels=table_rows)
 
