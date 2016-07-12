@@ -1,14 +1,15 @@
 import sys
-sys.path.insert(0,'/Users/xiao/Desktop/PaaS/experiment/ptpd')
+sys.path.insert(0,'/home/newslab/Desktop/PaaS/experiment/ptpd')
 import period
 import numpy
+import draw
 def read_file(filename,index):
 	##read data and append list
 	file_read=open(filename,'r')
 	timestamp=[]
 	for line in file_read:
-		ans=line.split(":")[index]
-		timestamp.append(float(ans))
+            ans=line.split(":")[index]
+	    timestamp.append(float(ans))
 
 	return timestamp
 
@@ -80,59 +81,64 @@ def data_process_2(list_former,list_backer):
 	
 	#if delay:## check list is empty
 	#	compute_statistics(delay)
-	
 	return delay
 	
 
 def data_process():
 	###read data and append list
-	timestamp_arduino=read_file("arduino/data.txt",2)
-	timestamp_edison_send=read_file('edison/data.txt',0)
-	timestamp_edison_receive=read_file('edison/data.txt',3)
-	timestamp_serial=read_file("serial/data.txt",2)
-	offset=period.period("ptpd/data.txt")
+	timestamp_arduino=read_file("arduino/data.txt",1)
+	timestamp_edison_send=read_file('edison/data.txt',2)
+	#timestamp_edison_receive=read_file('edison/data.txt',3)
+	#timestamp_serial=read_file("serial/data.txt",2)
+	#offset=period.period("ptpd/data.txt")
 	#print offset
 	
 	### insert integer 0.0 to recover miss part
-	timestamp_arduino=align(timestamp_arduino)
-	timestamp_edison_send=align(timestamp_edison_send)
-	timestamp_edison_receive=align(timestamp_edison_receive)
-	timestamp_serial=align(timestamp_serial)
+	#timestamp_arduino=align(timestamp_arduino)
+	#timestamp_edison_send=align(timestamp_edison_send)
+	#timestamp_edison_receive=align(timestamp_edison_receive)
+	#timestamp_serial=align(timestamp_serial)
 	
-	timestamp_edison_receive=time_sync(timestamp_edison_receive,offset)
+	#timestamp_edison_receive=time_sync(timestamp_edison_receive,offset)
 	#print timestamp_edison_receive	
 
 	##debug message
-	'''
 	print '------------\ntimestamp_arduino\n------------'
 	print timestamp_arduino
 	print '------------\ntimestamp_edison_send\n------------'
 	print timestamp_edison_send	
+	'''
 	print '------------\ntimestamp_serial\n------------'
 	print timestamp_serial
-	'''
 	print '------------\ntimestamp_edison_receive\n------------'
 	print timestamp_edison_receive
 	
-	
-	### compute delay between list
-	delay_arduino_edison=compute_delay(timestamp_arduino,timestamp_edison_send)
-	delay_arduino_serial=compute_delay(timestamp_arduino,timestamp_serial)
-	delay_edison_serial=compute_delay(timestamp_edison_send,timestamp_serial)
-	delay_edison_receive_send=compute_delay(timestamp_edison_receive,
-		timestamp_edison_send)
 	'''
+        arduino_tmp=[]
+        edison_tmp=[]
+        for x in timestamp_arduino:
+            arduino_tmp.append(x/1000000000)
+        for y in timestamp_edison_send:
+            edison_tmp.append(x/1000000000)
+	delay_arduino_edison=compute_delay(arduino_tmp,edison_tmp)
+	### compute delay between list
+	#delay_arduino_edison=compute_delay(timestamp_arduino,timestamp_edison_send)
+	#delay_arduino_serial=compute_delay(timestamp_arduino,timestamp_serial)
+	#delay_edison_serial=compute_delay(timestamp_edison_send,timestamp_serial)
+	#delay_edison_receive_send=compute_delay(timestamp_edison_receive,
+	#	timestamp_edison_send)
 	print '------------\ndelay_arduino_edison\n------------'
 	print delay_arduino_edison
 	
+	'''
 	print '------------\ndelay_arduino_serial\n------------'
 	print delay_arduino_serial
 	print '------------\ndelay_edison_serial\n------------'
 	print delay_edison_serial
-	'''
 	print '------------\ndelay_edison_receive_send\n------------'
 	print delay_edison_receive_send
 	
+	'''
 	
 	##evalute average , standard deviation, mean square error
 	'''
@@ -148,12 +154,12 @@ def data_process():
 	###debug message
 	
 	
-	return [delay_arduino_edison,delay_arduino_serial,delay_edison_serial
-			,delay_edison_receive_send,offset]
+	return [delay_arduino_edison]
 	'''
 	#return offset
 	#return [delay_edison_receive_send,max(delay_edison_receive_send)]
 	return delay_edison_receive_send
 	'''
 if __name__=='__main__':
-	data_process()
+        error_data=data_process()
+        draw.curve(error_data,"s")

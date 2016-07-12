@@ -8,7 +8,7 @@ cmd=["ksh -c 'printf \"%(%s.%N)T\"'"]
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # Bind the socket to the port
-server_address = ('10.8.0.8', 10005)
+server_address = ('10.8.0.31', 10005)
 sock.bind(server_address)
 # Listen for incoming connections
 sock.listen(1)
