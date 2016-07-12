@@ -6,7 +6,7 @@ import time
 import subprocess
 cmd=["ksh -c 'printf \"%(%s.%N)T\'"]
 ser = serial.Serial(
-    port='/dev/tty.usbmodem1411',\
+    port='/dev/cu.usbmodem1411',\
     baudrate=115200,)
 fo=open("old.txt","wb")
 while True:
