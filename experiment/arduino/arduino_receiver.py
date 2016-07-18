@@ -31,12 +31,10 @@ try:
         try:
             while True:
                 # Receive the data one byte at a time
-                data = connection.recv(4)
+                data = connection.recv(16)
                 if data:
                     rece_time=subprocess.check_output(cmd,shell=True)
                     ans=data+':sss:'+str(rece_time)
-                    #print datetime.datetime.now()
-		    #ans=data+' '+str(datetime.datetime.now())
 		    print ans
 		    fo.write(ans+'\n')
                 else:
@@ -48,9 +46,3 @@ try:
             fo.close()
 except KeyboardInterrupt:
     print('exiting.')
-'''
-finally:
-    sock.shutdown(socket.SHUT_RDWR)
-    sock.close()
-
-'''
