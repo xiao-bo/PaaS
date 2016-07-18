@@ -7,7 +7,46 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import data_processing as dp
 import matplotlib.patches as mpatches
+
+
+
+
 def curve(input_list,title,statistics):	
+	output_list=[]
+	
+	##set subplot position 
+	rect_curve = [0.1, 0.3, 0.8, 0.6]#left,bottom,width,height
+	rect_table = [0.15, 0.2 ,0.8, 0.8]
+
+	##curve
+	curve = plt.axes(rect_curve)
+	x = np.linspace(0, len(input_list),len(input_list))
+	with plt.style.context('fivethirtyeight'):
+	    line=curve.plot(x,input_list)	
+	    plt.setp(line, linewidth=2)
+	curve.axes.set_xlabel("sampling")
+	curve.axes.set_ylabel("Delay in second")
+	curve.axes.set_title(title)
+	
+	
+	#table
+	axTable = plt.axes(rect_table, frameon =False)
+	axTable.axes.get_xaxis().set_visible(False)
+	axTable.axes.get_yaxis().set_visible(False)
+	
+	table_columns = ('Mean', 'Standard_deviation')
+        cell_text=statistics
+        
+	table_size=axTable.table(cellText=statistics, loc='bottom',
+		colLabels=table_columns)
+
+	## set table size and font
+	table_size.set_fontsize(12)
+	table_size.scale(1,1)
+
+	
+	plt.show()
+def multicurve(input_list,title,statistics):	
 	output_list=[]
 	
 	##set subplot position 
@@ -22,11 +61,6 @@ def curve(input_list,title,statistics):
 		with plt.style.context('fivethirtyeight'):
 	   		line=curve.plot(x,input_list[i])#,label=legeng_label[i])	
 			plt.setp(line, linewidth=2)
-	'''
-	x = np.linspace(0, len(input_list),len(input_list))
-	with plt.style.context('fivethirtyeight'):
-	   	curve.plot(x,input_list)#,label=legeng_label[i])
-	'''
 	curve.axes.set_xlabel("sampling")
 	curve.axes.set_ylabel("Delay in second")
 	curve.axes.set_title(title)
@@ -38,8 +72,7 @@ def curve(input_list,title,statistics):
 	axTable.axes.get_yaxis().set_visible(False)
 	
 	table_rows=('0Mbit','100Mbit','500Mbit','800Mbit')
-	table_columns = ('Mean', 'Standard_deviation', 'Mean_square_error')
-	columns = ('Mean', 'Standard_deviation', 'Mean_square_error')
+	table_columns = ('Mean', 'Standard_deviation')
         cell_text=statistics
         
 	table_size=axTable.table(cellText=statistics, loc='bottom',
@@ -114,4 +147,4 @@ if __name__=="__main__":
 	'''
 
 	
-	curve(error_data,title,statistics)
+	multicurve(error_data,title,statistics)
