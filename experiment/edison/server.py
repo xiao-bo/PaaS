@@ -30,11 +30,10 @@ class server:
             fo=open(filename,"wb")
             while True:
                 (csock,adr)= Sock.accept()
-                send_time=csock.recv(10240)
-                rece_time=subprocess.check_output(cmd2,shell=True) 
-                #send_time=data.split(':')[2]## let send time +offset
-                re_time=datetime.datetime.now()
-                ans=str(send_time)+": mac time:rece_time:"+str(rece_time)
+                send_time=csock.recv(1024)
+                #rece_time=subprocess.check_output(cmd2,shell=True) 
+                rece_time=time.time()
+                ans=str(send_time)+": mac time:rece_time:%.20f"%rece_time
 
                 print float(rece_time)-float(send_time)
                 print ans
