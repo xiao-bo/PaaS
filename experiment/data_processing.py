@@ -59,15 +59,16 @@ def time_sync(edison,offset):
 def compute_statistics(delay_list):
 	##evalute average , standard deviation, mean square error
 	delay_list=numpy.array(delay_list)
+        '''
 	summary=0.0
 	for x in delay_list:
 		summary = summary+x*x
 	mse=summary/len(delay_list)
-	
+	'''
 	print "mean: "+str(numpy.mean(delay_list))
 	print "standard deviation: "+str(numpy.std(delay_list))
-	print "mse: "+str(mse)
-	return [numpy.mean(delay_list),numpy.std(delay_list),mse]
+	#print "mse: "+str(mse)
+	return [numpy.mean(delay_list),numpy.std(delay_list)]
 
 
 def data_process_2(list_former,list_backer):
