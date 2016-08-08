@@ -2,7 +2,7 @@
 #include <Ethernet.h>
 #include <EthernetUdp.h> //Load UDP Library
 #include "floatToString.h"
-const int analogInPin = A0; 
+const int analogInPin = A1; 
 int sensorValue = 0;
 int outputValue = 0;
 String ans;
@@ -26,11 +26,15 @@ unsigned long time_c23;
 // The IP address will be dependent on your local network:
 byte mac[] = {
     0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
+    
 };
-IPAddress ip(192,168,11,10);
 
+
+//IPAddress ip(192,168,11,10);
 // Enter the IP address of the server you're connecting to:
-IPAddress server(192,168,11,3);
+
+IPAddress server(140,112,28,139);
+//IPAddress server(192,168,11,8);
 EthernetClient client;
 
 void ethernet_connect(){
@@ -39,8 +43,8 @@ void ethernet_connect(){
     c23=String(" :counterC23:");
     
     // start the Ethernet connection:
-    Ethernet.begin(mac, ip);
-   
+    Ethernet.begin(mac);
+    Serial.println(Ethernet.localIP());
       
     // give the Ethernet shield a second to initialize:
     initial_R();
@@ -65,7 +69,7 @@ void initial_R(){
     float small;
  
     Serial.println("initial R...");
-    delay(1000);
+    //delay(1000);
     for(;i<sizeof(tmp)/4;i++){
       tmp[i]=micros();
       delay(100);
@@ -77,7 +81,7 @@ void initial_R(){
       small=(tmp[i+1]-tmp[i])/(100000.0);
       //Serial.print(tmp[i+1]-tmp[i]);
       //Serial.println(small,10);
-      delay(100);
+      //delay(100);
       if (small<R){
         R=small;
        }
@@ -123,7 +127,7 @@ void loop() {
         
         if (sensorValue==1023){
             time_c21 = micros();
-          
+           
             if(R!=2.0){
              
               client.print(str_R);
@@ -141,6 +145,8 @@ void loop() {
             ans=c21+time_c21;
             Serial.println(ans);
             client.print(ans);
+            
+            
 			      if (client.available() > 0) {// receive message from server
 				
 				Serial.println("receive message from server");
