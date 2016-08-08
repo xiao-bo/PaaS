@@ -21,15 +21,15 @@ void error(const char *msg)
 
 int main(){
     mraa_aio_context adc_a0;
-    uint16_t adc_value = 0; //assign pin value
+    uint16_t adc_value = 2; //assign pin value
 	struct timeval tv1;// time value
     int sockfd, portno, n;
     struct sockaddr_in serv_addr;
     struct hostent *server;
     char buffer[1024];
 
-    portno = 13000;
-    server = gethostbyname("10.8.0.31");
+    portno = 11000;
+    server = gethostbyname("192.168.11.8");
 	adc_a0 = mraa_aio_init(2);//assign ping value
     
 	// initial socket
@@ -46,25 +46,20 @@ int main(){
 
     char tmp[100];
 	char point[1]=".";
-	int i=0;
-	while(i<30){
+	sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr));
+	while(1){
         adc_value = mraa_aio_read(adc_a0);
-		if (adc_value>1022){
-		sockfd = socket(AF_INET, SOCK_STREAM, 0);
-		connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr));
+		if (adc_value==1023){
 			gettimeofday(&tv1,NULL);
-			fprintf(stdout, "ADC A0 read %X - %d\n", adc_value, adc_value);
-			printf("sec:%d.%d\n",tv1.tv_sec,tv1.tv_usec);
-			sprintf(buffer,"%d",tv1.tv_sec);
-			sprintf(tmp,"%d",tv1.tv_usec);
+			//sprintf(buffer,"%d",tv1.tv_sec);
+			//sprintf(tmp,"%d",tv1.tv_usec);
 
-			strcat(buffer,point);
-			strcat(buffer,tmp);
-			
-			printf("buffer : %s\n",buffer);
-			n=write(sockfd,buffer,strlen(buffer));
-			printf("%d\n",strlen(buffer));
-			usleep(100000);//microsecond
+			//strcat(buffer,point);
+			//strcat(buffer,tmp);
+			//write(sockfd,buffer,strlen(buffer));
+			write(sockfd,point,1);
+			usleep(500000);//microsecond
 		}
 	}
 	mraa_aio_close(adc_a0);
