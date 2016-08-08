@@ -16,7 +16,7 @@ def curve(input_list,title,statistics):
 	
 	##set subplot position 
 	rect_curve = [0.1, 0.3, 0.8, 0.6]#left,bottom,width,height
-	rect_table = [0.15, 0.2 ,0.8, 0.8]
+	rect_table = [0.1, 0.2 ,0.8, 0.8]
 
 	##curve
 	curve = plt.axes(rect_curve)
@@ -88,9 +88,9 @@ def multicurve(input_list,title,statistics):
 	plt.show()
 
 
-#def bar(input_list,index,title):
 
 if __name__=="__main__":
+        ## main code for multicurve
 
 	print "draw.py"
 	
