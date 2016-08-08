@@ -18,20 +18,21 @@ readline=open("data.txt","rb")
 send_time=[]
 receive_time=[]
 for line in readline:
-	send=line.split(":")[2]
-	rece=line.split(":")[5]
+	send=line.split(":")[0]
+	rece=line.split(":")[3]
 	#print 'send:'+str(send)
 	#print 'rece:'+str(rece)
 	send_time.append(send)
 	receive_time.append(rece)
-
+'''
 for x in range(0,len(send_time)-1):
-	print float(send_time[x+1])-float(send_time[x])
+    if float(send_time[x+1])-float(send_time[x]) >1:
+        print float(send_time[x+1])-float(send_time[x]) 
 
 print '========'
 for x in range(0,len(receive_time)-1):
 	print float(receive_time[x+1])-float(receive_time[x])
+'''
 
 print compute_delay(receive_time,send_time)
-
 

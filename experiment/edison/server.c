@@ -14,10 +14,7 @@ int main( int argc, char *argv[] ) {
 	int sockfd, newsockfd, portno, clilen;
 	char buffer[256];
 	struct sockaddr_in serv_addr, cli_addr;
-	int  n;
 	char sec[100],usec[100];
-	char point[1]=".";
-	char conj[4]=":ss:";
 	struct timeval tv1;
 	FILE *wFile;
 	/* First call to socket() function */
