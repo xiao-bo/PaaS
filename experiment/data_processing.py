@@ -20,9 +20,10 @@ def compute_delay(list_1,list_2):
 			continue
 		elif abs(first-second)<50:
 		### minute different will lead value larger 50
-			delay.append(first-second)
+			delay.append(abs(first-second))
 			
 	return delay
+
 
 def align(time_list):
 	## count number of zero because x can't ++ in 
