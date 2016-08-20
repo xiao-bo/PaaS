@@ -39,7 +39,7 @@ if __name__=="__main__":
     while True:
         send_time=connection.recv(60)
         rece_time=time.time()
-        ans=str(send_time)+": mac time:rece_time:%.9f"%rece_time
+        ans=str(send_time)+": rece_time:%.9f"%rece_time
         #print float(rece_time)-float(send_time)
         print ans
         fo.write(ans+'\n')
