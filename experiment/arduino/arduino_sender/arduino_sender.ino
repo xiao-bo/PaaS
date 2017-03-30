@@ -118,36 +118,29 @@ void setup() {
 }
 
 void loop() {
-   
-    
-   sensorValue = analogRead(analogInPin);
-    
-    if (client.connected()){
-    
-        
-        if (sensorValue==1023){
-            time_c21 = micros();
-           
-            if(R!=2.0){
-             
-              client.print(str_R);
-              R=2.0;
-            }
+  sensorValue = analogRead(analogInPin);
+  if (client.connected()){ 
+    if (sensorValue==1023){
+      time_c21 = micros();
+      
+      if(R!=2.0){
+        client.print(str_R);
+        R=2.0;
+      }
+      
+      //debug message
+      Serial.print("sensor value: ");
+      Serial.print(sensorValue);
+      Serial.print(c21);
+      Serial.println(time_c21);
             
-            //debug message
-            Serial.print("sensor value: ");
-            Serial.print(sensorValue);
-            Serial.print(c21);
-            Serial.println(time_c21);
-            
-            
-            ///send message
-            ans=c21+time_c21;
-            Serial.println(ans);
-            client.print(ans);
+      ///send message
+      ans=c21+time_c21;
+      Serial.println(ans);
+      client.print(ans);
             
             
-			      if (client.available() > 0) {// receive message from server
+			if (client.available() > 0) {// receive message from server
 				
 				Serial.println("receive message from server");
         rece=client.read();
@@ -167,24 +160,24 @@ void loop() {
 				
 			}else{
 			  Serial.println("do not receive message");
-       time_c22 = micros();
-       Serial.print("if_c22:");
-       Serial.println(time_c22);
-			  }
-            delay(500);
+        time_c22 = micros();
+        Serial.print("if_c22:");
+        Serial.println(time_c22);
+			}
+      delay(500);
         
-        }
+    }
        
       //delay(1000);
-    }  
+  }  
     
-    // if the server's disconnected, stop the client:
-    if (!client.connected()) {
-        Serial.println("disconnecting. retry after 3s");
-        client.stop();
-        delay(3000);
-        ethernet_connect();
-    }
+  // if the server's disconnected, stop the client:
+  if (!client.connected()) {
+    Serial.println("disconnecting. retry after 3s");
+    client.stop();
+    delay(3000);
+    ethernet_connect();
+  }
    
 }
 
