@@ -181,29 +181,30 @@ void loop() {
    
 }
 
+
+// no used
 void reply(){
+
+  // read the bytes incoming from the client:
+  //char thisChar = client.read();
+  // echo the bytes back to the client:
+  time_c22 = micros();
   
-          // read the bytes incoming from the client:
-          //char thisChar = client.read();
-          // echo the bytes back to the client:
-          
-          time_c22 = micros();
-          
-          time_c23 = micros();
-          client.print("c22: ");
-          ans2=c22+time_c22;
-          client.print(ans2);
-          ans3=c23+time_c23;
-          client.print(ans3);
-          //client.print(" c23: ");
-          //client.print(time_c23);
-          // echo the bytes to the server as well:
-          Serial.print("reply timestamp c22 : ");
-          Serial.print(time_c22);
-          Serial.print("  reply timestamp c22 : ");
-          Serial.println(time_c23);
-          
-        
-  }
+  time_c23 = micros();
+  client.print("c22: ");
+  ans2=c22+time_c22;
+  client.print(ans2);
+  ans3=c23+time_c23;
+  client.print(ans3);
+  //client.print(" c23: ");
+  //client.print(time_c23);
+  // echo the bytes to the server as well:
+  Serial.print("reply timestamp c22 : ");
+  Serial.print(time_c22);
+  Serial.print("  reply timestamp c22 : ");
+  Serial.println(time_c23);
+  
+
+}
 
 
