@@ -1,0 +1,3 @@
+arduino_receiver.py  will receive message from arduino , run on server
+arduino_sender.ino will send message to server , run on arduino
+period.py will compute arduino's period of analog read data

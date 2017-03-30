@@ -1,0 +1,3 @@
+preprocessing.sh  In order to meeting data format, this script make new.txt into data.txt 
+serial_read.py  read serial signal running on macbook
+period.py   compute period of reading data

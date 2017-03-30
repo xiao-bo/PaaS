@@ -1,0 +1,30 @@
+import datetime
+import time
+import sys
+readline=open("edison.txt","rb")
+send_time=[]
+receive_time=[]
+send_period=[]
+receive_period=[]
+for line in readline:
+	send=line.split(":")[0]
+	send_time.append(send)
+	
+        receive=line.split(":")[3]
+	receive_time.append(receive)
+
+for x in range(0,len(send_time)-1):
+	send_period.append(
+                float(send_time[x+1])-float(send_time[x]))
+        print float(send_time[x+1])-float(send_time[x])
+
+'''
+for x in range(0,len(receive_time)-1):
+	receive_period.append(
+                float(receive_time[x+1])-float(receive_time[x]))
+
+
+for x,y in zip(receive_period,send_period):
+    print x-y
+
+'''
