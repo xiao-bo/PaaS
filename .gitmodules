@@ -1,0 +1,3 @@
+[submodule "experiment/canbus/CAN_BUS_Shield"]
+	path = experiment/canbus/CAN_BUS_Shield
+	url = https://github.com/Seeed-Studio/CAN_BUS_Shield
