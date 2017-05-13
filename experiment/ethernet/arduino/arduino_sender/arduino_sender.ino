@@ -8,9 +8,9 @@ int outputValue = 0;
 String clock21;
 String clock22;
 String clock23;
-String counterString21;
-String counterString22;
-String counterString23;
+String clockPrefix21;
+String clockPrefix22;
+String clockPrefix23;
 char str_R[25];
 char rece;
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  //buffer to hold incoming packet,
@@ -38,9 +38,9 @@ IPAddress server(192,168,11,3);
 EthernetClient client;
 
 void ethernet_connect(){
-    counterString21=String(" counterC21:");
-    counterString22=String(" counterC22:");
-    counterString23=String(" :counterC23:");
+    clockPrefix21=String(" counterC21:");
+    clockPrefix22=String(" counterC22:");
+    clockPrefix23=String(" :counterC23:");
     // start the Ethernet connection:
     Ethernet.begin(mac);
     Serial.println(Ethernet.localIP());
@@ -125,7 +125,7 @@ void loop() {
                 R=2.0;
             }          
             ///send message
-            clock21=counterString21+time_c21;
+            clock21=clockPrefix21+time_c21;
             Serial.println(clock21);
             client.print(clock21);
          
@@ -136,8 +136,8 @@ void loop() {
 				        time_c22 = micros();
                 
 				        time_c23 = micros();
-				        clock22=counterString22+time_c22;
-				        clock23=counterString23+time_c23;
+				        clock22=clockPrefix22+time_c22;
+				        clock23=clockPrefix23+time_c23;
 				        client.print(clock22+clock23);
                 
 				        // echo the bytes to the server as well:
