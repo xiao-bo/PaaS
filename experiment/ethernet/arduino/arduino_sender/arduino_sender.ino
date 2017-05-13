@@ -93,13 +93,10 @@ void initial_R(){
     for(i=0;i<sizeof(tmp)-1;i++){
       Serial.println(tmp[i+1]-tmp[i]);
     }
-
     */
-    
     Serial.print("R=========");
     Serial.println(R,10);
     Serial.println("====");
-      
 }
 
 void setup() {
@@ -126,39 +123,26 @@ void loop() {
             if(R!=2.0){
                 client.print(str_R);
                 R=2.0;
-            }
-      
-            //debug message
-            //Serial.print("sensor value:");
-            //Serial.print(sensorValue);
-            //Serial.print(c21);
-            //Serial.println(time_c21);
-            
+            }          
             ///send message
             clock21=counterString21+time_c21;
             Serial.println(clock21);
             client.print(clock21);
-            
-            
-			      if (client.available() > 0) {// receive message from server
-				
-				        Serial.println("receive message from server");
+         
+			      if (client.available() > 0) {// receive message from server				
                 rece=client.read();
-                Serial.print("rece string:");
+                Serial.print("receive message from serverreceive message from server:");
                 Serial.println(rece);
 				        time_c22 = micros();
-                //delay(1);
+                
 				        time_c23 = micros();
 				        clock22=counterString22+time_c22;
 				        clock23=counterString23+time_c23;
 				        client.print(clock22+clock23);
-				        
+                
 				        // echo the bytes to the server as well:
-				        Serial.print("reply timestamp c22 : ");
-				        Serial.print(time_c22);
-				        Serial.print("  reply timestamp c23 : ");
-				        Serial.println(time_c23);
-				
+                Serial.println(clock22);
+                Serial.println(clock23);
 			      }else{
 			          Serial.println("do not receive message");
                 time_c22 = micros();
@@ -166,11 +150,8 @@ void loop() {
                 Serial.println(time_c22);
 			      }
             delay(500);
-        
         }
-       
-      //delay(1000);
-      }     
+    }     
 }
 
 
