@@ -6,9 +6,10 @@ import subprocess
 from decimal import Decimal
 
 # Initial server address and port
-host="140.112.28.139"
-#host="192.168.11.8"
-port=int(sys.argv[2])
+#host="140.112.28.139"
+host="192.168.11.3"
+#port=int(sys.argv[2])
+port=10005
 addr=(host,port)
 
 ## sync flag
@@ -84,41 +85,48 @@ if __name__=="__main__":
         print "conntection\n"
         while True:
             ## Receive the data one byte at a time
-            data = connection.recv(60)
-            
+            data = connection.recv(1800)
+            print data
             ## receive R at beginning of protocol
-            if flag==0:
+            if len(data)==0:
+                print "disconnect"
+
+                connection.close()
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                connection, client_address = sock.accept()
+            elif len(data)>0 and len(data)<20 :
                  R=data
-                 flag=1
-            else:
+            elif len(data)>=20 and len(data)<40:
                 ## receive c21
-                if len(data)>=5 and len(data)<40:
-                    T1=time.time() 
-                    T2=reply()
-                    c21=data.split(":")[1]
-                    """ debug message
-                    #print "C21:"+str(c21)
-                    #print "T1: %.9f"%T1
-                    """
+            
+                T1=time.time() 
+                T2=reply()
+                clock=data.split(":")[0]
+                c21=data.split(":")[2]
+                """ debug message
+                #print "C21:"+str(c21)
+                #print "T1: %.9f"%T1
+                """
                 ## receive c22,c23
-                elif len(data)>=40:
-                    T3=time.time()
-                    """ debug message
-                    print "split[1]: "+str(data.split(":")[1])
-                    print "split[3]: "+str(data.split(":")[3])
-                    """
+            elif len(data)>=40:
+                T3=time.time()
+                """ debug message
+                print "split[1]: "+str(data.split(":")[2])
+                print "split[3]: "+str(data.split(":")[4])
+                """
 
-                    ##process receive message
-                    c22=data.split(":")[1]
-                    c23=data.split(":")[3]
-                    actual_T1=sync(T2,T3,c21,c22,c23,R)
+                ##process receive message
+                c22=data.split(":")[2]
+                c23=data.split(":")[4]
+                actual_T1=sync(T2,T3,c21,c22,c23,R)
 
-                    print str(actual_T1)+":rece_T1:%.9f"%T1
-                    delay=Decimal(T1)-actual_T1
-                    #print delay
-                    fo.write(str(actual_T1)+":rece_T1:"+str(Decimal(T1))+'\n')
-                else:
-                    print('no more data, closing connection.')
+                #print "clock:"+str(clock)+" T1:"+str(actual_T1)+":rece_T1:%.9f"%T1
+                delay=Decimal(T1)-actual_T1
+                #print delay
+                fo.write(str(actual_T1)+":rece_T1:"+str(Decimal(T1))+'\n')
+            else:
+                connection.close()
+                print('no more data, closing connection.')
     finally:
         # Clean up the connection
         connection.close()
