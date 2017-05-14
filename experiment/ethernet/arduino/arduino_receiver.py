@@ -7,7 +7,8 @@ from decimal import Decimal
 
 # Initial server address and port
 #host="140.112.28.139"
-host="192.168.11.3"
+#host="192.168.11.3"
+host="192.168.0.101"
 #port=int(sys.argv[2])
 port=10005
 addr=(host,port)
@@ -87,6 +88,7 @@ if __name__=="__main__":
             ## Receive the data one byte at a time
             data = connection.recv(1800)
             print data
+            sock.settimeout(10)
             ## receive R at beginning of protocol
             if len(data)==0:
                 print "disconnect"
@@ -123,7 +125,7 @@ if __name__=="__main__":
                 #print "clock:"+str(clock)+" T1:"+str(actual_T1)+":rece_T1:%.9f"%T1
                 delay=Decimal(T1)-actual_T1
                 #print delay
-                fo.write(str(actual_T1)+":rece_T1:"+str(Decimal(T1))+'\n')
+                fo.write("value:"+str(clock)+":"+str(actual_T1)+":rece_T1:"+str(Decimal(T1))+'\n')
             else:
                 connection.close()
                 print('no more data, closing connection.')
