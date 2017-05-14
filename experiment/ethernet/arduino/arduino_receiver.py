@@ -6,8 +6,8 @@ import subprocess
 from decimal import Decimal
 
 # Initial server address and port
-#host="140.112.28.139"
-host="192.168.11.3"
+host="140.112.28.139"
+#host="192.168.11.3"
 #port=int(sys.argv[2])
 port=10005
 addr=(host,port)
