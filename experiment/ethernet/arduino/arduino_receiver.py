@@ -8,7 +8,7 @@ from decimal import Decimal
 # Initial server address and port
 #host="140.112.28.139"
 #host="192.168.11.3"
-host="192.168.0.101"
+host="192.168.0.103"
 #port=int(sys.argv[2])
 port=10005
 addr=(host,port)
@@ -56,7 +56,8 @@ if __name__=="__main__":
     
     ## Inital socket property
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
+    ## AF_INET can send data to public IP
+    ## sock_stream as TCP
     ## reuse socket immediately
     sock.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
 
@@ -88,14 +89,14 @@ if __name__=="__main__":
             ## Receive the data one byte at a time
             data = connection.recv(1800)
             print data
-            sock.settimeout(10)
             ## receive R at beginning of protocol
             if len(data)==0:
                 print "disconnect"
-
+                '''
                 connection.close()
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 connection, client_address = sock.accept()
+                '''
             elif len(data)>0 and len(data)<20 :
                  R=data
             elif len(data)>=20 and len(data)<40:
