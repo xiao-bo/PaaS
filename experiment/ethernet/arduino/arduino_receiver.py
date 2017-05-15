@@ -1,10 +1,10 @@
 import socket
 import sys
-import datetime
 import time
 import subprocess 
 from decimal import Decimal
-
+from influxdb import InfluxDBClient
+from datatime import datatime
 # Initial server address and port
 host="140.112.28.139"
 #host="192.168.11.3"
@@ -17,9 +17,6 @@ flag=0
 def reply():
     connection.sendto("counter:xxxxxxx",client_address)#request
     T2=time.time()
-    #T2=str(datetime.datetime.now())
-    #T2=T2.split(":")[2]
-    #print "T2: "+T2
     return T2
 
 def sync(T2,T3,C21,C22,C23,R):
@@ -50,6 +47,7 @@ def sync(T2,T3,C21,C22,C23,R):
     """
 
     return T1
+def insertDataIntoDB():
 
 if __name__=="__main__":
     
@@ -85,48 +83,55 @@ if __name__=="__main__":
         print "conntection\n"
         while True:
             ## Receive the data one byte at a time
-            data = connection.recv(1800)
-            print data
-            ## receive R at beginning of protocol
-            if len(data)==0:
-                print "disconnect"
+            connection.settimeout(5.0)
+            try:
+                data = connection.recv(1800)
+                print data
+                ## receive R at beginning of protocol
+                if len(data)==0:
+                    print "disconnect"
+                elif len(data)>0 and len(data)<20 :
+                     R=data
+                elif len(data)>=20 and len(data)<40:
+                    ## receive c21
+                
+                    T1=time.time() 
+                    T2=reply()
+                    clock=data.split(":")[0]
+                    c21=data.split(":")[2]
+                    """ debug message
+                    #print "C21:"+str(c21)
+                    #print "T1: %.9f"%T1
+                    """
+                    ## receive c22,c23
+                elif len(data)>=40:
+                    T3=time.time()
+                    """ debug message
+                    print "split[1]: "+str(data.split(":")[2])
+                    print "split[3]: "+str(data.split(":")[4])
+                    """
 
+                    ##process receive message
+                    c22=data.split(":")[2]
+                    c23=data.split(":")[4]
+                    actual_T1=sync(T2,T3,c21,c22,c23,R)
+
+                    print "clock:"+str(clock)+" T1:"+str(actual_T1)+":rece_T1:%.9f"%T1
+                    delay=Decimal(T1)-actual_T1
+                    #print delay
+                    fo.write("value:"+str(clock)+":"+str(actual_T1)+":rece_T1:"+str(Decimal(T1))+'\n')
+                else:
+                    connection.close()
+                    print('no more data, closing connection.')
+            except socket.timeout:
                 connection.close()
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                print "no more data, timeout"
+                print "waiting for a connection..."
+                
+                ## build socket connection
                 connection, client_address = sock.accept()
-            elif len(data)>0 and len(data)<20 :
-                 R=data
-            elif len(data)>=20 and len(data)<40:
-                ## receive c21
-            
-                T1=time.time() 
-                T2=reply()
-                clock=data.split(":")[0]
-                c21=data.split(":")[2]
-                """ debug message
-                #print "C21:"+str(c21)
-                #print "T1: %.9f"%T1
-                """
-                ## receive c22,c23
-            elif len(data)>=40:
-                T3=time.time()
-                """ debug message
-                print "split[1]: "+str(data.split(":")[2])
-                print "split[3]: "+str(data.split(":")[4])
-                """
-
-                ##process receive message
-                c22=data.split(":")[2]
-                c23=data.split(":")[4]
-                actual_T1=sync(T2,T3,c21,c22,c23,R)
-
-                #print "clock:"+str(clock)+" T1:"+str(actual_T1)+":rece_T1:%.9f"%T1
-                delay=Decimal(T1)-actual_T1
-                #print delay
-                fo.write(str(actual_T1)+":rece_T1:"+str(Decimal(T1))+'\n')
-            else:
-                connection.close()
-                print('no more data, closing connection.')
+                print('connection from %s:%d' % client_address)       
+                continue
     finally:
         # Clean up the connection
         connection.close()
