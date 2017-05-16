@@ -15,7 +15,8 @@ char str_R[25];
 char rece;
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  //buffer to hold incoming packet,
 char  ReplyBuffer[] = "acknowledged";       // a string to send back
-float R=2.0;
+float R=1.0;
+int flag=1;
 unsigned long tmp[40];
 // An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
@@ -30,24 +31,24 @@ byte mac[] = {
 };
 
 
-//IPAddress ip(192,168,11,10);
+
 // Enter the IP address of the server you're connecting to:
 
 IPAddress server(192,168,11,3);
-//IPAddress server(192,168,11,8);
+//IPAddress server(192,168,0,103);
+//IPAddress server(140,112,28,139);
 EthernetClient client;
 
 void ethernet_connect(){
-    clockPrefix21=String(" counterC21:");
-    clockPrefix22=String(" counterC22:");
-    clockPrefix23=String(" :counterC23:");
+    clockPrefix21=String(":counterC21:");
+    clockPrefix22=String(":counterC22:");
+    clockPrefix23=String(":counterC23:");
     // start the Ethernet connection:
     Ethernet.begin(mac);
     Serial.println(Ethernet.localIP());
       
     // give the Ethernet shield a second to initialize:
-    initial_R();
-    delay(2000);
+    //delay(2000);
     Serial.println("connecting...");
     //Udp.begin(10005);
     // if you get a connection, report back via serial:
@@ -103,56 +104,72 @@ void setup() {
    
      // Open serial communications and wait for port to open:
     Serial.begin(9600);
-    
+    initial_R();
     ethernet_connect();
     
 }
 
 void loop() {
     sensorValue = analogRead(analogInPin);
+    //Serial.println(sensorValue);
+    //delay(10);
+    
     // if the server's disconnected, stop the client:
     if(!client.connected()) {
         Serial.println("disconnecting. retry after 3s");
+        R=1.0;
         client.stop();
-        delay(3000);
+        if(sensorValue >0){
+            time_c21 = micros();
+            clock21=sensorValue+clockPrefix21+time_c21;
+                  
+            delay(500);
+        }
         ethernet_connect();
     }  
     else if(client.connected()){ 
-        if (sensorValue==1023){
-            time_c21 = micros();
-            if(R!=2.0){
-                client.print(str_R);
-                R=2.0;
-            }          
-            ///send message
-            clock21=clockPrefix21+time_c21;
-            Serial.println(clock21);
-            client.print(clock21);
-         
-			      if (client.available() > 0) {// receive message from server				
-                rece=client.read();
-                Serial.print("receive message from serverreceive message from server:");
-                Serial.println(rece);
-				        time_c22 = micros();
-                
-				        time_c23 = micros();
-				        clock22=clockPrefix22+time_c22;
-				        clock23=clockPrefix23+time_c23;
-				        client.print(clock22+clock23);
-                
-				        // echo the bytes to the server as well:
-                Serial.println(clock22);
-                Serial.println(clock23);
-			      }else{
-			          Serial.println("do not receive message");
-                time_c22 = micros();
-                Serial.print("if_c22:");
-                Serial.println(time_c22);
-			      }
+        if(R!=2.0){
+            client.print(str_R);
+            R=2.0;
+            //client.print(memory);
+            //clear (memory)
+        }
+        if (sensorValue>0){
+            senseData();
             delay(500);
         }
-    }     
+    }
+         
 }
-
-
+void senseData(){
+    time_c21 = micros();
+                      
+    ///send message
+    clock21=sensorValue+clockPrefix21+time_c21;
+    //Serial.print(sensorValue);
+    //Serial.println(clock21);
+    client.print(clock21);
+ 
+    if (client.available() > 0) {// receive message from server       
+        rece=client.read();
+        Serial.print("receive message from serverreceive message from server:");
+        Serial.println(rece);
+        time_c22 = micros();
+        
+        time_c23 = micros();
+        clock22=clockPrefix22+time_c22;//conta
+        clock23=clockPrefix23+time_c23;
+        client.print(clock22+clock23);
+        
+        // echo the bytes to the server as well:
+        Serial.println(clock22);
+        Serial.println(clock23);
+    }else{
+        Serial.println("do not receive message");
+        time_c22 = micros();
+        Serial.print("if_c22:");
+        Serial.println(time_c22);
+    }
+             
+}
 
