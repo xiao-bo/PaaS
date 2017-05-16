@@ -7,9 +7,10 @@ import subprocess
 import sys
 
 ## Initial server ip address and port
-host = "192.168.11.8"
+host = "192.168.11.3"
 #host="140.112.28.139"
-port = int(sys.argv[2])
+#port = int(sys.argv[2])
+port = 11000
 addr=(host,port)
 
 ## name of file
