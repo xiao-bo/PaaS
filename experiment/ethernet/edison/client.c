@@ -42,14 +42,13 @@ int main(){
 	FILE *wFile;
 	// assign server ip address and port
     portno = 11000;
-    server = gethostbyname("192.168.11.8");
+    server = gethostbyname("192.168.11.3");
 	
 	//assign ping value
 	adc_a0 = mraa_aio_init(2);
 	if (adc_a0 == NULL) {
         return 1;
     }
-    /*
 	// initial property of socket 
     bzero((char *) &serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
@@ -61,7 +60,6 @@ int main(){
 	// build socket connection
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr));
-	*/
 	//write file
 	wFile=fopen("edison.txt","w");
 
@@ -70,8 +68,8 @@ int main(){
 	while(!stop){
 		// read analog value
         adc_value = mraa_aio_read(adc_a0);
-
-		if (adc_value==1023){
+		//printf("adc_value%d\n",adc_value);
+		if (adc_value>0){
 			// get current time 
 			clock_gettime(CLOCK_REALTIME, &tv1);
 			ms=tv1.tv_nsec/1.0e2;
@@ -85,11 +83,11 @@ int main(){
 			strcat(message,tmp);
 			
 			// send message by socket
-			//write(sockfd,message,strlen(message));
+			write(sockfd,message,strlen(message));
 			fprintf(wFile,"%s\n",message);
-			//printf("%s\n",message);
+			printf("%s\n",message);
 			
-			usleep(10000);//microsecond  500000=0.5s for 1hz
+			usleep(500000);//microsecond  500000=0.5s for 1hz
 		}
 	}
 	mraa_aio_close(adc_a0);
