@@ -5,20 +5,23 @@ import subprocess
 from decimal import Decimal
 from influxdb import InfluxDBClient
 from datetime import datetime
+import random
 # Initial server address and port
 #host="140.112.28.139"
-host="192.168.11.3"
-#host="192.168.0.103"
+#host="192.168.11.3"
+host="192.168.0.103"
 #port=int(sys.argv[2])
 port=10005
 addr=(host,port)
-
 json_body=[]
-
+bufferT1=[]
+baseLine=[2.0,1.0]
+flag2=[0]
+a=0
 ## sync flag
 flag=0
 def reply():
-    connection.sendto("counter:xxxxxxx",client_address)#request
+    connection.sendto("c",client_address)#request
     T2=time.time()
     return T2
 
@@ -51,25 +54,64 @@ def sync(T2,T3,C21,C22,C23,R):
 
     return T1
 def insertDataIntoDB(value,epochTime):
-
-    #value=line.split(":")[0] ## get value
-    #epochTime=float(line.split(":")[1])  ## get epochTime
     timestamp = datetime.fromtimestamp(epochTime) 
     ## transform epochTime into 
     ## Year-Month-Day Hour-minute-second-millisceond
     print str(value)+"  "+str(timestamp)
-    
+    client = InfluxDBClient('localhost', 8086, 'root', 'root', 'example3')
+    error=computeError(epochTime)
     tmp_json={
-    "measurement":"Arduino",
-    
+    "measurement":"cos",
+    "tags":{
+        "host":"arduino"
+    },
+    "time":str(timestamp),
+
     "fields":{
-        "value":int(value)
+        "value":int(value),
+        "error":error
         }
     }
     json_body.append(tmp_json)
+    client.write_points(json_body)
+
+def computeError(T1):
+    
+    
+    if flag2[0]==0:
+        a=float(T1)-float(baseLine[0])
+        baseLine[0]=T1
+        flag2[0]=1
+    else:
+        a=float(T1)-float(baseLine[1])
+        baseLine[1]=T1
+        flag2[0]=0
+    
+    a = str(a-int(a))[1:]
+    a='0'+a
+    error=float(a)
+    if error>0.4 and error <0.6:
+        error=error-0.5
+    elif error>0.9:
+        error=1-error
+    error=error*1000
+
+    #print "a:"+str(a)+" error:"+str(error)
+    return abs(error)
+def handleBigData(data,T3,delay):
 
     
-    client.write_points(json_body)
+    a=data.split(",")
+    
+    for x in a:
+        print x
+    print T3-delay
+    for x in range(0,len(a)):
+        bufferT1.insert(0,T3-delay-x)
+        insertDataIntoDB(1023,T3-delay-x)
+        
+    print bufferT1
+    
 
 if __name__=="__main__":
     
@@ -88,66 +130,103 @@ if __name__=="__main__":
     
     ##name of file
     filename=sys.argv[1]+".txt"
-    '''
+    
+    
     if len(sys.argv[1])==0:
         print "please input arg for file name \n"
-    print filename
-    '''
-
+    #print filename
+    
+    
     # Wait for a connection
     print('waiting for a connection...')
     
     ## build socket connection
     connection, client_address = sock.accept()
     print('connection from %s:%d' % client_address)       
-    counter=1
+    
     client = InfluxDBClient('localhost', 8086, 'root', 'root', 'example3')
     fo=open(filename,"wb")
     try:
         print "conntection\n"
         while True:
-            counter=counter%1023
+            
             ## Receive the data one byte at a time
-            connection.settimeout(5.0)
+            connection.settimeout(1.0)
             try:
-                data = connection.recv(1800)
-                #print data
+                data = connection.recv(18000)
+                ## data format
+                ## head:C21:xxxx:value:xxxx,
+                ## C22:xxxx:C23:xxxx
+                ## long data: head:C21:xxxx:value:xxxx,C21:xxxx,value:xxxx
+
+
+                #fo.write("received:"+data+" len"+str(len(data)))
+                print "received data:"+data+" len"+str(len(data))
                 ## receive R at beginning of protocol
+                whatCounter=data.split(":")[1]
+                head=data.split(":")[0]
+                print whatCounter
+                if ',' in data: ##long data 
+                    print "long data"
+                else: ## 2th or 3th packet    
+                    if whatCounter == 'C21' :
+                        T1=time.time() 
+                        T2=reply()
+                        value=data.split(":")[4]
+                        c21=data.split(":")[2]
+                    elif whatCounter == 'C22':
+                        T3=time.time()
+                        R=1.0
+                        c22=data.split(":")[2]
+                        c23=data.split(":")[4]
+                        actual_T1=sync(T2,T3,c21,c22,c23,R)
+                        print "clock:"+str(value)+" T1:"+str(actual_T1)
+                    
+                '''
                 if len(data)==0:
                     print "disconnect"
-                elif len(data)>0 and len(data)<20 :
-                     R=data
-                elif len(data)>=20 and len(data)<40:
+                elif len(data)>0 and len(data)<10 :
+                    R=data
+                elif len(data)>=20 and len(data)<38:
                     ## receive c21
-                
+
                     T1=time.time() 
                     T2=reply()
-                    clock=data.split(":")[0]
+                    value=data.split(":")[0]
                     c21=data.split(":")[2]
                     """ debug message
                     #print "C21:"+str(c21)
                     #print "T1: %.9f"%T1
                     """
                     ## receive c22,c23
-                elif len(data)>=40:
+                elif len(data)>=38 and len(data)<100:
                     T3=time.time()
                     """ debug message
                     print "split[1]: "+str(data.split(":")[2])
                     print "split[3]: "+str(data.split(":")[4])
                     """
-
+                    R=1.0
                     ##process receive message
                     c22=data.split(":")[2]
                     c23=data.split(":")[4]
                     actual_T1=sync(T2,T3,c21,c22,c23,R)
-                    #print "clock:"+str(clock)+" T1:"+str(actual_T1)+":rece_T1:%.9f"%T1
+                    
+                    #print "clock:"+str(value)+" T1:"+str(actual_T1)+":rece_T1:%.9f"%T1
                     delay=Decimal(T1)-actual_T1
                     #print delay
-                    insertDataIntoDB(clock,actual_T1)
-                    fo.write("value:"+str(clock)+":"+str(actual_T1)+":rece_T1:"+str(Decimal(T1))+'\n')
+
+                    insertDataIntoDB(value,actual_T1)
+                    fo.write(str(actual_T1)+":rece_T1:"+str(Decimal(T1))+'\n')
+                elif len(data)>=100:
+                    T3=time.time()
+                    delay=0.0005229114837646484375
+                    handleBigData(data,T3,delay)
+                    print "len of data >120 "+str(T3)
+
                 else:
                     connection.close()
                     print('no more data, closing connection.')
+                '''
             except socket.timeout:
                 connection.close()
                 print "no more data, timeout"
@@ -161,5 +240,4 @@ if __name__=="__main__":
         # Clean up the connection
         connection.close()
         fo.close()
-
 

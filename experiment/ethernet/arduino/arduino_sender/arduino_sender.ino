@@ -4,22 +4,19 @@
 #include "floatToString.h"
 const int analogInPin = A1; 
 int sensorValue = 0;
-int outputValue = 0;
 String clock21;
 String clock22;
 String clock23;
 String clockPrefix21;
 String clockPrefix22;
 String clockPrefix23;
+String sensorValuePrefix;
+String head;
 char str_R[25];
 char rece;
-char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  //buffer to hold incoming packet,
-char  ReplyBuffer[] = "acknowledged";       // a string to send back
 float R=1.0;
-int flag=1;
+String disconnectBuffer;
 unsigned long tmp[40];
-// An EthernetUDP instance to let us send and receive packets over UDP
-EthernetUDP Udp;
 unsigned long time_c21;
 unsigned long time_c22;
 unsigned long time_c23;
@@ -29,26 +26,19 @@ byte mac[] = {
     0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
     
 };
-
-
-
 // Enter the IP address of the server you're connecting to:
-
-IPAddress server(192,168,11,3);
-//IPAddress server(192,168,0,103);
-//IPAddress server(140,112,28,139);
+IPAddress server(192,168,0,103);
+//IPAddress server(192,168,11,3);
 EthernetClient client;
 
 void ethernet_connect(){
-    clockPrefix21=String(":counterC21:");
-    clockPrefix22=String(":counterC22:");
-    clockPrefix23=String(":counterC23:");
+    
     // start the Ethernet connection:
     Ethernet.begin(mac);
     Serial.println(Ethernet.localIP());
       
     // give the Ethernet shield a second to initialize:
-    //delay(2000);
+    
     Serial.println("connecting...");
     //Udp.begin(10005);
     // if you get a connection, report back via serial:
@@ -104,42 +94,107 @@ void setup() {
    
      // Open serial communications and wait for port to open:
     Serial.begin(9600);
-    initial_R();
+    // initial global variable
+    clockPrefix21=String("C21:");
+    clockPrefix22=String("C22:");
+    clockPrefix23=String("C23:");
+    head=String("head:");
+    sensorValuePrefix=String("Value:");
+    Ethernet.begin(mac);
+    Serial.println(Ethernet.localIP());
+    //initial_R();
     ethernet_connect();
-    
+    //disconnectBuffer=String("sensorValue");
 }
 
 void loop() {
     sensorValue = analogRead(analogInPin);
-    //Serial.println(sensorValue);
-    //delay(10);
+    Serial.println(sensorValue);
     
+    //delay(100);
+    
+    if(sensorValue>1012){
+        time_c21 = micros();
+        clock21+=head+clockPrefix21+time_c21+":"+sensorValuePrefix+sensorValue;
+        Serial.println(clock21);
+        if(client.connected()){
+            client.print(clock21);
+            Serial.println("send message");
+            // initial head and clear memory
+            head=String("head:");
+            clock21=String("");
+            if(client.available()>0){// receive message from master
+                rece=client.read();
+                Serial.print("rece string:");
+                Serial.println(rece);
+                time_c22 = micros();
+                time_c23 = micros();
+                clock22=head+clockPrefix22+time_c22+":";//conta
+                clock23=clockPrefix23+time_c23;
+                client.print(clock22+clock23);
+            }
+        }else{
+            clock21=clock21+",";
+            Serial.println("connected fail, reconnect");
+            client.stop();
+            ethernet_connect();
+            // because disconnect, so head is remove from data
+            head=String("");
+            
+        }
+        delay(500);
+    }
+
+    /*
+            if (client.available() > 0) {// receive message from server       
+                rece=client.read();
+                Serial.print("receive message from server:");
+                Serial.println(rece);
+                clock21=String("");
+                time_c22 = micros();
+                
+                time_c23 = micros();
+                clock22=clockPrefix22+time_c22;//conta
+                clock23=clockPrefix23+time_c23;
+                client.print(clock22+clock23);
+                
+                // echo the bytes to the server as well:
+                Serial.println(clock22);
+                Serial.println(clock23);
+            }
+            */
+            
+    /*
     // if the server's disconnected, stop the client:
     if(!client.connected()) {
         Serial.println("disconnecting. retry after 3s");
         R=1.0;
         client.stop();
-        if(sensorValue >0){
+        
+        if(sensorValue >1022){
             time_c21 = micros();
-            clock21=sensorValue+clockPrefix21+time_c21;
-                  
+            clock21=sensorValue+clockPrefix21+time_c21+",";
+            disconnectBuffer+=clock21;
+            Serial.println(disconnectBuffer);
             delay(500);
         }
         ethernet_connect();
-    }  
+    }
     else if(client.connected()){ 
         if(R!=2.0){
             client.print(str_R);
             R=2.0;
-            //client.print(memory);
+            client.print(disconnectBuffer);
+            disconnectBuffer=String("");
             //clear (memory)
         }
-        if (sensorValue>0){
+        
+        if (sensorValue>1022 ){//or sensorValue<10){
             senseData();
             delay(500);
         }
     }
-         
+    */
 }
 void senseData(){
     time_c21 = micros();
@@ -152,7 +207,7 @@ void senseData(){
  
     if (client.available() > 0) {// receive message from server       
         rece=client.read();
-        Serial.print("receive message from serverreceive message from server:");
+        Serial.print("receive message from server:");
         Serial.println(rece);
         time_c22 = micros();
         
@@ -170,6 +225,6 @@ void senseData(){
         Serial.print("if_c22:");
         Serial.println(time_c22);
     }
-             
+    
 }
 
