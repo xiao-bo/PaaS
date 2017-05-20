@@ -117,20 +117,20 @@ void setup() {
 void loop() {
     sensorValue = analogRead(analogInPin);
     //Serial.println(sensorValue);
-    //delay(100);
+    //delay(5);
     
-    if(sensorValue>1022){
+    if(sensorValue>1010 or sensorValue<30){
         time_c21 = micros();
         clock21+=head+"C21:"+time_c21+":V:"+sensorValue;
-        //Serial.println(clock21);
+        //Serial.print(clock21);
         if(client.connected()){
             client.print(clock21);
-            Serial.println("send message");
-            
+            Serial.print("send message ");
+            Serial.println(clock21);
             // initial head and clear memory
             head = String("head:");
             clock21 = String("");
-            
+            delay(10); // it not fast to receive message from master
             if(client.available()>0){// receive message from master
                 rece = client.read();
                 Serial.print("rece string:");
@@ -151,6 +151,7 @@ void loop() {
             head=String("");
             
         }
-        delay(500);
+        delay(100);
     } 
+    
 }

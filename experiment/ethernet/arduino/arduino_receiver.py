@@ -8,7 +8,7 @@ from datetime import datetime
 
 def reply():
     if alignRestart == 0:
-        connection.sendto("c",client_address)#request
+        connection.sendto(str(counter),client_address)#request
     T2 = time.time()
     return T2
 
@@ -40,13 +40,12 @@ def sync(T2,T3,C21,C22,C23,R):
     """
 
     return T1
-def insertDataIntoDB(value,epochTime):
+def insertDataIntoDB(value,epochTime,error):
     timestamp = datetime.fromtimestamp(epochTime) 
     ## transform epochTime into 
     ## Year-Month-Day Hour-minute-second-millisceond
     print str(value)+"  "+str(timestamp)
     client = InfluxDBClient('localhost', 8086, 'root', 'root', 'example3')
-    error = computeError(epochTime)
     jsonBody =[
         {
             "measurement":"cos",
@@ -64,44 +63,56 @@ def insertDataIntoDB(value,epochTime):
     #print jsonBody
     client.write_points(jsonBody)
 
-def computeError(T1):
+def computeError(T1,odd,baseLine):
     
-    #print "0:"+str(baseLine[0])+":1:"+str(baseLine[1])
-    if flag[0] == 0:
+    print "0:"+str(baseLine[0])+":1:"+str(baseLine[1])+":T1:"+str(T1)+"  odd:"+str(odd)
+
+
+    if odd %2 == 0:
         tmp = float(T1) - float(baseLine[0])
-        baseLine[0] = T1
-        flag[0] = 1
     else:
         tmp = float(T1) - float(baseLine[1])
-        baseLine[1] = T1
-        flag[0] = 0
+        
     
     tmp = str(tmp - int(tmp))[1:]
     tmp = '0' + tmp
     error = float(tmp)
-   
+    
     
     error = error * 1000
-
-    #print "a:"+str(a)+" error:"+str(error)
+    #if abs(error) > 300:
+    #    error = 0.0
+    print " error:"+str(error)
     return abs(error)
 def handleBigData(data,currentc21,currentT1):
     
     a = []
-    print "handle big data"
+    print "handle big data\n\n"
     if "head" in data:
         dataRemovehead = data[5:]
         a = dataRemovehead.split(",")
     else:
         a = data.split(",")
-    
+    odd = 0
+    counter = 2
+    baseLine = [1.0,2.0]
+    print baseLine
     for line in a:
         #print line
         oldc21 = line.split(":")[1]
         value = line.split(":")[3]
         T1 = calculateBeforeTime(oldc21,currentc21,currentT1)
-        insertDataIntoDB(value,T1)
-    
+        
+        error = computeError(T1,odd,baseLine)
+        insertDataIntoDB(value,T1,error)
+        if odd %2 == 0:
+            baseLine[odd%2] = T1
+            odd = 1
+        elif odd %2 == 1:
+            baseLine[odd%2] = T1
+            odd = 2
+
+    print "bigdata finish \n\n"
 def calculateBeforeTime(oldc21,currentc21,currentT1):
     currentc21 = Decimal(currentc21)
     oldc21 = Decimal(oldc21)
@@ -131,7 +142,6 @@ if __name__ == "__main__":
     ## record variable
     longdata = "" ## for long data
     baseLine = [2.0,1.0]
-    flag = [0] ##error
     odd = 0 ## error
 
     actualT1 = 0  ## record old T1 for calculate after time
@@ -141,6 +151,9 @@ if __name__ == "__main__":
     alignRestart = 0 ## receive c22 once
     waitBigData = 10 ## receive long long data and wait current C1 and currentT1
     BigDataCounter = 0 ## control waitBigData
+
+    # test lost data
+    counter=0
 
     ## Inital socket property
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -189,7 +202,9 @@ if __name__ == "__main__":
                 whatCounter = data.split(":")[1]
                 head = data.split(":")[0]
                 if waitBigData == 0:## wait actualT1 data
+                   
                     handleBigData(longdata,oldc21,actualT1)
+                    
 
                 if ',' in data: ##long data
                     BigDataCounter = 1
@@ -205,14 +220,17 @@ if __name__ == "__main__":
                         
                         if alignRestart == 1:
                             T1 = calculateAfterTime(oldc21,c21,actualT1)
-                            insertDataIntoDB(value,T1)
-                            if odd == 0:
-                                baseLine[0] = T1
+                            error = computeError(T1,odd,baseLine)
+                            insertDataIntoDB(value,T1,error)
+                            if odd %2 == 0:
+                                baseLine[odd%2] = T1
                                 odd = 1
-                            elif odd == 1:
-                                baseLine[1] = T1
-                            else:
+                            elif odd %2 == 1:
+                                baseLine[odd%2] = T1
                                 odd = 2
+
+                            
+                        
                     elif whatCounter == 'C22' and alignRestart == 0:
                         T3 = time.time()
                         R = 1.0
@@ -222,9 +240,12 @@ if __name__ == "__main__":
                         actualT1 = sync(T2,T3,c21,c22,c23,R)
                         oldc21 = c21
                         print "clock:"+str(value)+" T1:"+str(actualT1)
-                        insertDataIntoDB(value,actualT1)
+                        print "align"+str(alignRestart)
+
+                        insertDataIntoDB(value,actualT1,0.0)
                         alignRestart = 1
-                
+                    
+                    
             except socket.timeout:
                 connection.close()
                 print "no more data, timeout"
