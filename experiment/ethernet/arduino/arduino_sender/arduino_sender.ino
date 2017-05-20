@@ -128,8 +128,8 @@ void loop() {
             Serial.println("send message");
             
             // initial head and clear memory
-            head=String("head:");
-            clock21=String("");
+            head = String("head:");
+            clock21 = String("");
             
             if(client.available()>0){// receive message from master
                 rece = client.read();
@@ -137,7 +137,7 @@ void loop() {
                 Serial.println(rece);
                 time_c22 = micros();
                 time_c23 = micros();
-                clock2223=head+"C22:"+time_c22+":C23:"+time_c23;//message
+                clock2223 = head+"C22:"+time_c22+":C23:"+time_c23;//message
                 
                 client.print(clock2223);
             }
