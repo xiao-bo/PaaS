@@ -27,16 +27,14 @@ byte mac[] = {
     
 };
 // Enter the IP address of the server you're connecting to:
-IPAddress server(192,168,0,103);
-//IPAddress server(192,168,11,3);
+//IPAddress server(192,168,0,103);
+IPAddress server(192,168,11,3);
 EthernetClient client;
 
 void ethernet_connect(){
     
     // start the Ethernet connection:
-    Ethernet.begin(mac);
-    Serial.println(Ethernet.localIP());
-      
+    
     // give the Ethernet shield a second to initialize:
     
     Serial.println("connecting...");
@@ -94,6 +92,8 @@ void setup() {
    
      // Open serial communications and wait for port to open:
     Serial.begin(9600);
+    Ethernet.begin(mac);
+    Serial.println(Ethernet.localIP());
     // initial global variable
     clockPrefix21=String("C21:");
     clockPrefix22=String("C22:");
@@ -109,17 +109,18 @@ void setup() {
 
 void loop() {
     sensorValue = analogRead(analogInPin);
-    Serial.println(sensorValue);
+    //Serial.println(sensorValue);
     
     //delay(100);
     
-    if(sensorValue>1012){
+    if(sensorValue>1022){
         time_c21 = micros();
-        clock21+=head+clockPrefix21+time_c21+":"+sensorValuePrefix+sensorValue;
-        Serial.println(clock21);
+        clock21+=head+"C21:"+time_c21+":V:"+sensorValue;
+        //Serial.println(clock21);
         if(client.connected()){
+            
             client.print(clock21);
-            Serial.println("send message");
+            //Serial.println("send message");
             // initial head and clear memory
             head=String("head:");
             clock21=String("");
@@ -143,88 +144,6 @@ void loop() {
             
         }
         delay(500);
-    }
-
-    /*
-            if (client.available() > 0) {// receive message from server       
-                rece=client.read();
-                Serial.print("receive message from server:");
-                Serial.println(rece);
-                clock21=String("");
-                time_c22 = micros();
-                
-                time_c23 = micros();
-                clock22=clockPrefix22+time_c22;//conta
-                clock23=clockPrefix23+time_c23;
-                client.print(clock22+clock23);
-                
-                // echo the bytes to the server as well:
-                Serial.println(clock22);
-                Serial.println(clock23);
-            }
-            */
-            
-    /*
-    // if the server's disconnected, stop the client:
-    if(!client.connected()) {
-        Serial.println("disconnecting. retry after 3s");
-        R=1.0;
-        client.stop();
         
-        if(sensorValue >1022){
-            time_c21 = micros();
-            clock21=sensorValue+clockPrefix21+time_c21+",";
-            disconnectBuffer+=clock21;
-            Serial.println(disconnectBuffer);
-            delay(500);
-        }
-        ethernet_connect();
-    }
-    else if(client.connected()){ 
-        if(R!=2.0){
-            client.print(str_R);
-            R=2.0;
-            client.print(disconnectBuffer);
-            disconnectBuffer=String("");
-            //clear (memory)
-        }
-        
-        if (sensorValue>1022 ){//or sensorValue<10){
-            senseData();
-            delay(500);
-        }
-    }
-    */
+    } 
 }
-void senseData(){
-    time_c21 = micros();
-                      
-    ///send message
-    clock21=sensorValue+clockPrefix21+time_c21;
-    //Serial.print(sensorValue);
-    //Serial.println(clock21);
-    client.print(clock21);
- 
-    if (client.available() > 0) {// receive message from server       
-        rece=client.read();
-        Serial.print("receive message from server:");
-        Serial.println(rece);
-        time_c22 = micros();
-        
-        time_c23 = micros();
-        clock22=clockPrefix22+time_c22;//conta
-        clock23=clockPrefix23+time_c23;
-        client.print(clock22+clock23);
-        
-        // echo the bytes to the server as well:
-        Serial.println(clock22);
-        Serial.println(clock23);
-    }else{
-        Serial.println("do not receive message");
-        time_c22 = micros();
-        Serial.print("if_c22:");
-        Serial.println(time_c22);
-    }
-    
-}
-

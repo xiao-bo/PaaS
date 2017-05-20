@@ -8,20 +8,27 @@ from datetime import datetime
 import random
 # Initial server address and port
 #host="140.112.28.139"
-#host="192.168.11.3"
-host="192.168.0.103"
+host="192.168.11.3"
+#host="192.168.0.103"
 #port=int(sys.argv[2])
 port=10005
 addr=(host,port)
 json_body=[]
-bufferT1=[]
+longdata=""
 baseLine=[2.0,1.0]
-flag2=[0]
-a=0
+previos=0
+flag=[0]
+a=[]
+actualT1=0
+oldc21=0
+odd=0
 ## sync flag
-flag=0
+alignRestart=0 ## receive c22 once
+waitBigData=10 ## receive long long data and wait current C1 and currentT1
+BigDataCounter=0 ## control waitBigData
 def reply():
-    connection.sendto("c",client_address)#request
+    if alignRestart==0:
+        connection.sendto("c",client_address)#request
     T2=time.time()
     return T2
 
@@ -77,44 +84,57 @@ def insertDataIntoDB(value,epochTime):
 
 def computeError(T1):
     
-    
-    if flag2[0]==0:
+    #print "0:"+str(baseLine[0])+":1:"+str(baseLine[1])
+    if flag[0]==0:
         a=float(T1)-float(baseLine[0])
         baseLine[0]=T1
-        flag2[0]=1
+        flag[0]=1
     else:
         a=float(T1)-float(baseLine[1])
         baseLine[1]=T1
-        flag2[0]=0
+        flag[0]=0
     
     a = str(a-int(a))[1:]
     a='0'+a
     error=float(a)
-    if error>0.4 and error <0.6:
-        error=error-0.5
-    elif error>0.9:
-        error=1-error
+   
+    
     error=error*1000
 
     #print "a:"+str(a)+" error:"+str(error)
     return abs(error)
-def handleBigData(data,T3,delay):
+def handleBigData(data,currentc21,currentT1):
 
+    print "handle big data"
+    if "head" in data:
+        dataRemovehead=data[5:]
+        a=dataRemovehead.split(",")
+    else:
+        a=data.split(",")
     
-    a=data.split(",")
+    for line in a:
+        print line
+        c21=line.split(":")[1]
+        value=line.split(":")[3]
+        T1=calculateBeforeTime(c21,currentc21,currentT1)
+        insertDataIntoDB(value,T1)
     
-    for x in a:
-        print x
-    print T3-delay
-    for x in range(0,len(a)):
-        bufferT1.insert(0,T3-delay-x)
-        insertDataIntoDB(1023,T3-delay-x)
-        
-    print bufferT1
+def calculateBeforeTime(oldc21,currentc21,currentT1):
     
+    oldT1=currentT1-(Decimal(currentc21)-Decimal(oldc21))/1000000
+    print "calculateBeforeTime currentc21:"+str(currentc21)+" oldc21 "+str(oldc21)+" currentT1:"+str(currentT1)+"old:"+str(oldT1)
+    return oldT1
+
+def calculateAfterTime(oldc21,currentc21,oldT1):
+    
+    currentT1=oldT1+(Decimal(currentc21)-Decimal(oldc21))/1000000
+    #print "calculateAfterTime oldc21:"+str(oldc21)+" current21 "+str(c21)+" oldT1:"+str(oldT1)+"new:"+str(currentT1)
+    return currentT1
 
 if __name__=="__main__":
     
+
+
     ## Inital socket property
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     ## AF_INET can send data to public IP
@@ -149,90 +169,66 @@ if __name__=="__main__":
     try:
         print "conntection\n"
         while True:
-            
+            waitBigData=waitBigData-BigDataCounter
             ## Receive the data one byte at a time
-            connection.settimeout(1.0)
+            #connection.settimeout(2.0)
             try:
                 data = connection.recv(18000)
                 ## data format
-                ## head:C21:xxxx:value:xxxx,
-                ## C22:xxxx:C23:xxxx
+                ## head:C21:xxxx:v:xxxx,
+                ## head:C22:xxxx:C23:xxxx
                 ## long data: head:C21:xxxx:value:xxxx,C21:xxxx,value:xxxx
 
 
-                #fo.write("received:"+data+" len"+str(len(data)))
+                fo.write("\nreceived:"+data+" len"+str(len(data)))
                 print "received data:"+data+" len"+str(len(data))
                 ## receive R at beginning of protocol
                 whatCounter=data.split(":")[1]
                 head=data.split(":")[0]
-                print whatCounter
-                if ',' in data: ##long data 
+                if waitBigData==0:## wait actualT1 data
+                    handleBigData(longdata,oldc21,actualT1)
+
+                if ',' in data: ##long data
+                    BigDataCounter=1
+                    longdata+=data 
+                    #print "received data:"+longdata+" len"+str(len(longdata))
                     print "long data"
-                else: ## 2th or 3th packet    
+                else: 
                     if whatCounter == 'C21' :
                         T1=time.time() 
                         T2=reply()
                         value=data.split(":")[4]
                         c21=data.split(":")[2]
-                    elif whatCounter == 'C22':
+                        
+                        if alignRestart==1:
+                            T1=calculateAfterTime(oldc21,c21,actualT1)
+                            insertDataIntoDB(value,T1)
+                            if odd==0:
+                                baseLine[0]=T1
+                                odd=1
+                            elif odd==1:
+                                baseLine[1]=T1
+                            else:
+                                odd=2
+                    elif whatCounter == 'C22' and alignRestart==0:
                         T3=time.time()
                         R=1.0
                         c22=data.split(":")[2]
                         c23=data.split(":")[4]
-                        actual_T1=sync(T2,T3,c21,c22,c23,R)
-                        print "clock:"+str(value)+" T1:"+str(actual_T1)
-                    
-                '''
-                if len(data)==0:
-                    print "disconnect"
-                elif len(data)>0 and len(data)<10 :
-                    R=data
-                elif len(data)>=20 and len(data)<38:
-                    ## receive c21
-
-                    T1=time.time() 
-                    T2=reply()
-                    value=data.split(":")[0]
-                    c21=data.split(":")[2]
-                    """ debug message
-                    #print "C21:"+str(c21)
-                    #print "T1: %.9f"%T1
-                    """
-                    ## receive c22,c23
-                elif len(data)>=38 and len(data)<100:
-                    T3=time.time()
-                    """ debug message
-                    print "split[1]: "+str(data.split(":")[2])
-                    print "split[3]: "+str(data.split(":")[4])
-                    """
-                    R=1.0
-                    ##process receive message
-                    c22=data.split(":")[2]
-                    c23=data.split(":")[4]
-                    actual_T1=sync(T2,T3,c21,c22,c23,R)
-                    
-                    #print "clock:"+str(value)+" T1:"+str(actual_T1)+":rece_T1:%.9f"%T1
-                    delay=Decimal(T1)-actual_T1
-                    #print delay
-
-                    insertDataIntoDB(value,actual_T1)
-                    fo.write(str(actual_T1)+":rece_T1:"+str(Decimal(T1))+'\n')
-                elif len(data)>=100:
-                    T3=time.time()
-                    delay=0.0005229114837646484375
-                    handleBigData(data,T3,delay)
-                    print "len of data >120 "+str(T3)
-
-                else:
-                    connection.close()
-                    print('no more data, closing connection.')
-                '''
+                        
+                        actualT1=sync(T2,T3,c21,c22,c23,R)
+                        oldc21=c21
+                        print "clock:"+str(value)+" T1:"+str(actualT1)
+                        insertDataIntoDB(value,actualT1)
+                        alignRestart=1
+                
             except socket.timeout:
                 connection.close()
                 print "no more data, timeout"
                 print "waiting for a connection..."
-                
+                alignRestart=0
                 ## build socket connection
+                odd=0
                 connection, client_address = sock.accept()
                 print('connection from %s:%d' % client_address)       
                 continue
