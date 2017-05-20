@@ -10,7 +10,6 @@ String clock23;
 String clockPrefix21;
 String clockPrefix22;
 String clockPrefix23;
-String sensorValuePrefix;
 String head;
 char str_R[25];
 char rece;
@@ -35,7 +34,6 @@ void ethernet_connect(){
     
     // start the Ethernet connection:
     
-    // give the Ethernet shield a second to initialize:
     
     Serial.println("connecting...");
     //Udp.begin(10005);
@@ -50,6 +48,8 @@ void ethernet_connect(){
     }
     
 } 
+// not used R
+/*
 void initial_R(){
     //initially find to R
     int i=0;
@@ -82,29 +82,32 @@ void initial_R(){
     for(i=0;i<sizeof(tmp)-1;i++){
       Serial.println(tmp[i+1]-tmp[i]);
     }
-    */
+    
     Serial.print("R=========");
     Serial.println(R,10);
     Serial.println("====");
 }
-
+*/
 void setup() {
    
-     // Open serial communications and wait for port to open:
+    // Open serial communications and wait for port to open:
     Serial.begin(9600);
+    
+    // give the Ethernet shield a second to initialize:
     Ethernet.begin(mac);
     Serial.println(Ethernet.localIP());
+    
     // initial global variable
     clockPrefix21=String("C21:");
     clockPrefix22=String("C22:");
     clockPrefix23=String("C23:");
     head=String("head:");
-    sensorValuePrefix=String("Value:");
     Ethernet.begin(mac);
     Serial.println(Ethernet.localIP());
     //initial_R();
+    
     ethernet_connect();
-    //disconnectBuffer=String("sensorValue");
+    
 }
 
 void loop() {
@@ -144,6 +147,5 @@ void loop() {
             
         }
         delay(500);
-        
     } 
 }
