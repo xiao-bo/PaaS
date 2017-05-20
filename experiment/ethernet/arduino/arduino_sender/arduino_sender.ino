@@ -1,24 +1,32 @@
 #include <SPI.h>
 #include <Ethernet.h>
-#include <EthernetUdp.h> //Load UDP Library
-#include "floatToString.h"
+
+//#include <EthernetUdp.h> //Load UDP Library
+//#include "floatToString.h" //for R
+
+//pin 
 const int analogInPin = A1; 
 int sensorValue = 0;
+
 String clock21;
-String clock22;
-String clock23;
-String clockPrefix21;
-String clockPrefix22;
-String clockPrefix23;
+String clock2223;
 String head;
-char str_R[25];
-char rece;
+
+// for initial R
+/*
 float R=1.0;
-String disconnectBuffer;
+char str_R[25];
 unsigned long tmp[40];
+*/
+
+// receive variable
+char rece;
+
+// counter
 unsigned long time_c21;
 unsigned long time_c22;
 unsigned long time_c23;
+
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
 byte mac[] = {
@@ -98,14 +106,10 @@ void setup() {
     Serial.println(Ethernet.localIP());
     
     // initial global variable
-    clockPrefix21=String("C21:");
-    clockPrefix22=String("C22:");
-    clockPrefix23=String("C23:");
     head=String("head:");
     Ethernet.begin(mac);
     Serial.println(Ethernet.localIP());
     //initial_R();
-    
     ethernet_connect();
     
 }
@@ -113,7 +117,6 @@ void setup() {
 void loop() {
     sensorValue = analogRead(analogInPin);
     //Serial.println(sensorValue);
-    
     //delay(100);
     
     if(sensorValue>1022){
@@ -121,27 +124,29 @@ void loop() {
         clock21+=head+"C21:"+time_c21+":V:"+sensorValue;
         //Serial.println(clock21);
         if(client.connected()){
-            
             client.print(clock21);
-            //Serial.println("send message");
+            Serial.println("send message");
+            
             // initial head and clear memory
             head=String("head:");
             clock21=String("");
+            
             if(client.available()>0){// receive message from master
-                rece=client.read();
+                rece = client.read();
                 Serial.print("rece string:");
                 Serial.println(rece);
                 time_c22 = micros();
                 time_c23 = micros();
-                clock22=head+clockPrefix22+time_c22+":";//conta
-                clock23=clockPrefix23+time_c23;
-                client.print(clock22+clock23);
+                clock2223=head+"C22:"+time_c22+":C23:"+time_c23;//message
+                
+                client.print(clock2223);
             }
         }else{
             clock21=clock21+",";
             Serial.println("connected fail, reconnect");
             client.stop();
             ethernet_connect();
+            
             // because disconnect, so head is remove from data
             head=String("");
             

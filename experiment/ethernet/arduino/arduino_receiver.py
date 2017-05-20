@@ -184,7 +184,7 @@ if __name__ == "__main__":
 
 
                 fo.write("\nreceived:"+data+" len"+str(len(data)))
-                #print "received data:"+data+" len"+str(len(data))
+                print "received data:"+data+" len"+str(len(data))
                 ## receive R at beginning of protocol
                 whatCounter = data.split(":")[1]
                 head = data.split(":")[0]
