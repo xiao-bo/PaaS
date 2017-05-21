@@ -67,12 +67,14 @@ def computeError(T1,odd,baseLine):
     
     print "0:"+str(baseLine[0])+":1:"+str(baseLine[1])+":T1:"+str(T1)+"  odd:"+str(odd)
 
-
+    
     if odd %2 == 0:
         tmp = float(T1) - float(baseLine[0])
     else:
         tmp = float(T1) - float(baseLine[1])
-        
+    
+    if tmp > 0.9: ## avoid T1=445.256, base=444.259 -> error = 0.97
+        tmp = 1.0 - tmp
     
     tmp = str(tmp - int(tmp))[1:]
     tmp = '0' + tmp
@@ -96,7 +98,7 @@ def handleBigData(data,currentc21,currentT1):
     odd = 0
     counter = 2
     baseLine = [1.0,2.0]
-    print baseLine
+    #print baseLine
     for line in a:
         #print line
         oldc21 = line.split(":")[1]
@@ -197,7 +199,7 @@ if __name__ == "__main__":
 
 
                 fo.write("\nreceived:"+data+" len"+str(len(data)))
-                print "received data:"+data+" len"+str(len(data))
+                #print "received data:"+data+" len"+str(len(data))
                 ## receive R at beginning of protocol
                 whatCounter = data.split(":")[1]
                 head = data.split(":")[0]
@@ -209,7 +211,7 @@ if __name__ == "__main__":
                 if ',' in data: ##long data
                     BigDataCounter = 1
                     longdata += data 
-                    #print "received data:"+longdata+" len"+str(len(longdata))
+                    print "received data:"+longdata+" len"+str(len(longdata))
                     print "long data"
                 else: 
                     if whatCounter == 'C21' :
@@ -218,8 +220,11 @@ if __name__ == "__main__":
                         value = data.split(":")[4]
                         c21 = data.split(":")[2]
                         
+                        c21 = int(c21) - 200 * counter
+                        
                         if alignRestart == 1:
                             T1 = calculateAfterTime(oldc21,c21,actualT1)
+                            print "clock:"+str(value)+" T1:"+str(T1)
                             error = computeError(T1,odd,baseLine)
                             insertDataIntoDB(value,T1,error)
                             if odd %2 == 0:
@@ -244,7 +249,9 @@ if __name__ == "__main__":
 
                         insertDataIntoDB(value,actualT1,0.0)
                         alignRestart = 1
-                    
+
+                    counter+=1
+                    print "\n"
                     
             except socket.timeout:
                 connection.close()

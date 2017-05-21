@@ -5,7 +5,7 @@
 //#include "floatToString.h" //for R
 
 //pin 
-const int analogInPin = A1; 
+const int analogInPin = A2; 
 int sensorValue = 0;
 
 String clock21;
@@ -121,8 +121,10 @@ void loop() {
     
     if(sensorValue>1010 or sensorValue<30){
         time_c21 = micros();
-        clock21+=head+"C21:"+time_c21+":V:"+sensorValue;
-        //Serial.print(clock21);
+        //clock21+=head+"C21:"+time_c21+":V:"+sensorValue;
+        clock21=head+"C21:"+time_c21+":V:"+sensorValue;
+        Serial.println(clock21);
+        
         if(client.connected()){
             client.print(clock21);
             Serial.print("send message ");
