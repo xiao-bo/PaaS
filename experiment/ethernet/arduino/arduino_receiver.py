@@ -48,7 +48,7 @@ def insertDataIntoDB(value,epochTime,error):
     client = InfluxDBClient('localhost', 8086, 'root', 'root', 'example3')
     jsonBody =[
         {
-            "measurement":"cos",
+            "measurement":"arduino",
             "tags":{
                 "host":"arduino"
             },
@@ -82,8 +82,8 @@ def computeError(T1,odd,baseLine):
     
     
     error = error * 1000
-    #if abs(error) > 300:
-    #    error = 0.0
+    if abs(error) > 300:
+        error = 0.0
     print " error:"+str(error)
     return abs(error)
 def handleBigData(data,currentc21,currentT1):
@@ -96,12 +96,14 @@ def handleBigData(data,currentc21,currentT1):
     else:
         a = data.split(",")
     odd = 0
-    counter = 2
+    counter = 0
     baseLine = [1.0,2.0]
     #print baseLine
     for line in a:
         #print line
+
         oldc21 = line.split(":")[1]
+        oldc21 = int(oldc21) - 200 * counter
         value = line.split(":")[3]
         T1 = calculateBeforeTime(oldc21,currentc21,currentT1)
         
@@ -113,7 +115,7 @@ def handleBigData(data,currentc21,currentT1):
         elif odd %2 == 1:
             baseLine[odd%2] = T1
             odd = 2
-
+        counter = counter +1
     print "bigdata finish \n\n"
 def calculateBeforeTime(oldc21,currentc21,currentT1):
     currentc21 = Decimal(currentc21)
