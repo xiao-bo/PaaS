@@ -34,14 +34,13 @@ byte mac[] = {
     
 };
 // Enter the IP address of the server you're connecting to:
-//IPAddress server(192,168,0,103);
+//IPAddress server(192,168,0,102);
 IPAddress server(192,168,11,3);
 EthernetClient client;
 
 void ethernet_connect(){
     
     // start the Ethernet connection:
-    
     
     Serial.println("connecting...");
     //Udp.begin(10005);
@@ -102,17 +101,46 @@ void setup() {
     Serial.begin(9600);
     
     // give the Ethernet shield a second to initialize:
+    //Serial.println("????");
     Ethernet.begin(mac);
     Serial.println(Ethernet.localIP());
-    
     // initial global variable
     head=String("head:");
-    Ethernet.begin(mac);
-    Serial.println(Ethernet.localIP());
     //initial_R();
     ethernet_connect();
     
 }
+/*
+void loop() {
+    sensorValue = analogRead(analogInPin);
+    Serial.println(sensorValue);
+    //delay(5);
+    
+    if(sensorValue>0 ){
+        time_c21 = micros();
+        //clock21+=head+"C21:"+time_c21+":V:"+sensorValue;
+        clock21=head+"C21:"+time_c21+":V:"+sensorValue;
+        Serial.println(clock21);
+        
+        if(client.connected()){
+            delay(10);
+            if(client.available()>0){
+                client.print(clock21);
+                Serial.println("send success???");
+            }else{
+                Serial.println("no ack , connection fail");
+            }
+        }else{
+            Serial.println("no connection");  
+            ethernet_connect();
+
+        }
+            
+        delay(400);     
+    } 
+    
+}
+*/
 
 void loop() {
     sensorValue = analogRead(analogInPin);
@@ -120,15 +148,15 @@ void loop() {
     //delay(5);
     
     if(sensorValue>1010 or sensorValue<30){
+        Serial.println(sensorValue);
         time_c21 = micros();
-        //clock21+=head+"C21:"+time_c21+":V:"+sensorValue;
-        clock21=head+"C21:"+time_c21+":V:"+sensorValue;
-        Serial.println(clock21);
+        clock21+=head+"C21:"+time_c21+":V:"+sensorValue;
+        //Serial.println(clock21);
         
         if(client.connected()){
             client.print(clock21);
             Serial.print("send message ");
-            Serial.println(clock21);
+            //Serial.println(clock21);
             // initial head and clear memory
             head = String("head:");
             clock21 = String("");
@@ -157,3 +185,5 @@ void loop() {
     } 
     
 }
+/*
+*/

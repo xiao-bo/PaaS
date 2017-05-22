@@ -199,7 +199,7 @@ if __name__ == "__main__":
 
 
                 fo.write("\nreceived:"+data+" len"+str(len(data)))
-                #print "received data:"+data+" len"+str(len(data))
+                print "received data:"+data+" len"+str(len(data))
                 ## receive R at beginning of protocol
                 whatCounter = data.split(":")[1]
                 head = data.split(":")[0]
@@ -251,7 +251,7 @@ if __name__ == "__main__":
                         alignRestart = 1
 
                     counter+=1
-                    print "\n"
+                    
                     
             except socket.timeout:
                 connection.close()
