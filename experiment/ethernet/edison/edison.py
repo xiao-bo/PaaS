@@ -8,40 +8,26 @@ import threading
 from socket import *
 from math import *
 import subprocess
-host = "10.8.0.31" # set to IP address of target computer
-port = 13000
-lb=(sin(1010*pi/1000)+2.5)*1024/5
-ub=(sin(990*pi/1000)+2.5)*1024/5
-lb_i=floor(lb)
-ub_i=floor(ub)
-cmd=["ksh -c 'printf \"%(%s.%N)T'"]
-class Edison:
-	def __init__(self,host,port):
-		self.host=host
-		self.port=port
-	def send_message(self,message):
-		addr=(self.host,self.port)
-		TCPSock = socket(AF_INET, SOCK_DGRAM)
-		TCPSock.sendto(str(message),addr)
-		#TCPSock.close()
-	
-	def analog_read(self):
-		
-		pot=mraa.Aio(2)
-		potVal=float(pot.read())
-		return potVal
+host = "192.168.11.3" # set to IP address of target computer
+port = 12000
+#cmd=["ksh -c 'printf \"%(%s.%N)T'"]
 if __name__=='__main__':
-	client=Edison(host,port)
+	addr=(host,port)
+	TCPSock = socket(AF_INET, SOCK_STREAM)
+        TCPSock.connect(addr)
         while True:
 	    #potVal=client.analog_read()
-            content=subprocess.check_output(cmd,shell=True)
-	    pot=mraa.Aio(2)
-	    potVal=float(pot.read())
-            if potVal>=1020:
-                message=str(potVal)+':ss:'+str(content)
+            #content=subprocess.check_output(cmd,shell=True)
+	    pot=mraa.Aio(1)
+	    potVal=int(pot.read())
+            #print potVal;
+            if potVal>=1010 or potVal<30:
+                #message=str(potVal)+':ss:'+str(content)
+                timestamp = time.time()
+                message = str(potVal)+":"+str(timestamp)
                 #date_time=datetime.datetime.now()
                 #message=str(potVal)+' '+str(date_time)
-                client.send_message(message)
+	        TCPSock.send(message)
                 print message
                 time.sleep(0.2)	
         TCPSock.close()
