@@ -40,7 +40,7 @@ def sync(T2,T3,C21,C22,C23,R):
     """
 
     return T1
-def insertDataIntoDB(value,epochTime,error):
+def insertDataIntoDB(value,epochTime,samplingPeriod):
     timestamp = datetime.fromtimestamp(epochTime) 
     ## transform epochTime into 
     ## Year-Month-Day Hour-minute-second-millisceond
@@ -56,14 +56,14 @@ def insertDataIntoDB(value,epochTime,error):
 
             "fields":{
                 "value":int(value),
-                "error":error
+                "samplingPeriod":samplingPeriod
             }
         }
     ]
     #print jsonBody
     client.write_points(jsonBody)
 
-def computeError(T1,odd,baseLine):
+def computeSamplingPeriod(T1,odd,baseLine):
     
     print "0:"+str(baseLine[0])+":1:"+str(baseLine[1])+":T1:"+str(T1)+"  odd:"+str(odd)
 
@@ -73,19 +73,20 @@ def computeError(T1,odd,baseLine):
     else:
         tmp = float(T1) - float(baseLine[1])
     
-    if tmp > 0.9: ## avoid T1=445.256, base=444.259 -> error = 0.97
-        tmp = 1.0 - tmp
+    #if tmp > 0.9: ## avoid T1=445.256, base=444.259 -> error = 0.97
+    #    tmp = 1.0 - tmp
     
-    tmp = str(tmp - int(tmp))[1:]
-    tmp = '0' + tmp
-    error = float(tmp)
+    #tmp = str(tmp - int(tmp))[1:]
+    #tmp = '0' + tmp
+    #print tmp
+    samplingPeriod = float(tmp)
     
     
-    error = error * 1000
-    if abs(error) > 300:
-        error = 0.0
-    print " error:"+str(error)
-    return abs(error)
+    #error = error * 1000
+    #if abs(error) > 300:
+    #    error = 0.0
+    print " sampling period"+str(samplingPeriod)
+    return abs(samplingPeriod)
 def handleBigData(data,currentc21,currentT1):
     
     a = []
@@ -107,8 +108,8 @@ def handleBigData(data,currentc21,currentT1):
         value = line.split(":")[3]
         T1 = calculateBeforeTime(oldc21,currentc21,currentT1)
         
-        error = computeError(T1,odd,baseLine)
-        insertDataIntoDB(value,T1,error)
+        samplingPeriod = computeSamplingPeriod(T1,odd,baseLine)
+        insertDataIntoDB(value,T1,samplingPeriod)
         if odd %2 == 0:
             baseLine[odd%2] = T1
             odd = 1
@@ -146,14 +147,14 @@ if __name__ == "__main__":
     ## record variable
     longdata = "" ## for long data
     baseLine = [2.0,1.0]
-    odd = 0 ## error
+    odd = 0 ## for sampling period
 
     actualT1 = 0  ## record old T1 for calculate after time
     oldc21 = 0 ## record old c21 for calculate after time
    
     ## protocol control variable
     alignRestart = 0 ## receive c22 once
-    waitBigData = 10 ## receive long long data and wait current C1 and currentT1
+    waitBigData = 5 ## receive long long data and wait current C1 and currentT1
     BigDataCounter = 0 ## control waitBigData
 
     # test lost data
@@ -227,8 +228,8 @@ if __name__ == "__main__":
                         if alignRestart == 1:
                             T1 = calculateAfterTime(oldc21,c21,actualT1)
                             print "clock:"+str(value)+" T1:"+str(T1)
-                            error = computeError(T1,odd,baseLine)
-                            insertDataIntoDB(value,T1,error)
+                            samplingPeriod = computeSamplingPeriod(T1,odd,baseLine)
+                            insertDataIntoDB(value,T1,samplingPeriod)
                             if odd %2 == 0:
                                 baseLine[odd%2] = T1
                                 odd = 1
