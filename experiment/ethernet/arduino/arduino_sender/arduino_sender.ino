@@ -147,7 +147,7 @@ void loop() {
     //Serial.println(sensorValue);
     //delay(5);
     
-    if(sensorValue>1010 or sensorValue<30){
+    if(sensorValue>1020 or sensorValue<10){
         Serial.println(sensorValue);
         time_c21 = micros();
         clock21+=head+"C21:"+time_c21+":V:"+sensorValue;
@@ -181,7 +181,7 @@ void loop() {
             head=String("");
             
         }
-        delay(100);
+        delay(480);
     } 
     
 }
