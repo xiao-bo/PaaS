@@ -2,7 +2,7 @@
 #include <Ethernet.h>
 
 //#include <EthernetUdp.h> //Load UDP Library
-//#include "floatToString.h" //for R
+#include "floatToString.h" //for R
 
 //pin 
 const int analogInPin = A2; 
@@ -12,7 +12,9 @@ String clock21;
 String clock2223;
 String head;
 
+int change=1023;
 // for initial R
+
 /*
 float R=1.0;
 char str_R[25];
@@ -43,7 +45,7 @@ void ethernet_connect(){
     // start the Ethernet connection:
     
     Serial.println("connecting...");
-    //Udp.begin(10005);
+    
     // if you get a connection, report back via serial:
     
     if (client.connect(server, 10005)) {
@@ -110,38 +112,54 @@ void setup() {
     ethernet_connect();
     
 }
-/*
+
 void loop() {
     sensorValue = analogRead(analogInPin);
-    Serial.println(sensorValue);
+    //Serial.println(sensorValue);
     //delay(5);
     
-    if(sensorValue>0 ){
+    if(sensorValue != change and (sensorValue == 0 or sensorValue ==1023) ){
+        //Serial.println(sensorValue);
         time_c21 = micros();
-        //clock21+=head+"C21:"+time_c21+":V:"+sensorValue;
-        clock21=head+"C21:"+time_c21+":V:"+sensorValue;
-        Serial.println(clock21);
-        
+        clock21 += head+"C21:"+time_c21+":V:"+sensorValue;
+        //Serial.println(clock21);
+        change = sensorValue;
         if(client.connected()){
-            delay(10);
-            if(client.available()>0){
-                client.print(clock21);
-                Serial.println("send success???");
-            }else{
-                Serial.println("no ack , connection fail");
-            }
-        }else{
-            Serial.println("no connection");  
-            ethernet_connect();
-
-        }
+            client.print(clock21);
+            //Serial.print("send message ");
+            //Serial.println(clock21);
+            // initial head and clear memory
+            head = String("head:");
+            clock21 = String("");
+            delay(10); // it not fast to receive message from master
             
-        delay(400);     
+            if(client.available()>0){// receive message from master
+                rece = client.read();
+                Serial.print("rece string:");
+                Serial.println(rece);
+                time_c22 = micros();
+                time_c23 = micros();
+                clock2223 = head+"C22:"+time_c22+":C23:"+time_c23;//message
+                
+                client.print(clock2223);
+            }
+            
+        }else{
+            clock21=clock21+",";
+            Serial.println("connected fail, reconnect");
+            client.stop();
+            ethernet_connect();
+            
+            // because disconnect, so head is remove from data
+            head=String("");
+            
+        }
+        //delay(10);
     } 
     
 }
-*/
 
+/*
 void loop() {
     sensorValue = analogRead(analogInPin);
     //Serial.println(sensorValue);
@@ -185,5 +203,5 @@ void loop() {
     } 
     
 }
-/*
+
 */

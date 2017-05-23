@@ -20,6 +20,7 @@ def sync(T2,T3,C21,C22,C23,R):
     C23 = Decimal(C23)
 
     R = Decimal(R) * Decimal(0.000001)
+
     if C23 - C22 == 0:
         C23 = C23 + 4
     delay = ((T3 - T2) - (C23 - C22) * R) / 2
@@ -65,7 +66,7 @@ def insertDataIntoDB(value,epochTime,samplingPeriod):
 
 def computeSamplingPeriod(T1,odd,baseLine):
     
-    print "0:"+str(baseLine[0])+":1:"+str(baseLine[1])+":T1:"+str(T1)+"  odd:"+str(odd)
+    #print "0:"+str(baseLine[0])+":1:"+str(baseLine[1])+":T1:"+str(T1)+"  odd:"+str(odd)
 
     
     if odd %2 == 0:
@@ -85,9 +86,9 @@ def computeSamplingPeriod(T1,odd,baseLine):
     #error = error * 1000
     #if abs(error) > 300:
     #    error = 0.0
-    print " sampling period"+str(samplingPeriod)
+    #print " sampling period"+str(samplingPeriod)
     return abs(samplingPeriod)
-def handleBigData(data,currentc21,currentT1):
+def handleBigData(data,currentc21,currentT1,R):
     
     a = []
     print "handle big data\n\n"
@@ -99,14 +100,15 @@ def handleBigData(data,currentc21,currentT1):
     odd = 0
     counter = 0
     baseLine = [1.0,2.0]
+    
     #print baseLine
     for line in a:
         #print line
 
         oldc21 = line.split(":")[1]
-        oldc21 = int(oldc21) - 200 * counter
+        #oldc21 = int(oldc21) - 200 * counter
         value = line.split(":")[3]
-        T1 = calculateBeforeTime(oldc21,currentc21,currentT1)
+        T1 = calculateBeforeTime(oldc21,currentc21,currentT1,R)
         
         samplingPeriod = computeSamplingPeriod(T1,odd,baseLine)
         insertDataIntoDB(value,T1,samplingPeriod)
@@ -118,19 +120,21 @@ def handleBigData(data,currentc21,currentT1):
             odd = 2
         counter = counter +1
     print "bigdata finish \n\n"
-def calculateBeforeTime(oldc21,currentc21,currentT1):
+def calculateBeforeTime(oldc21,currentc21,currentT1,R):
     currentc21 = Decimal(currentc21)
     oldc21 = Decimal(oldc21)
+    R = Decimal(R) * Decimal(0.000001)
 
-    oldT1 = currentT1 - (currentc21 - oldc21) / 1000000
+    oldT1 = currentT1 - (currentc21 - oldc21) * R 
     #print "calculateBeforeTime currentc21:"+str(currentc21)+" oldc21 "+str(oldc21)+" currentT1:"+str(currentT1)+"old:"+str(oldT1)
     return oldT1
 
-def calculateAfterTime(oldc21,currentc21,oldT1):
+def calculateAfterTime(oldc21,currentc21,oldT1,R):
     currentc21 = Decimal(currentc21)
     oldc21 = Decimal(oldc21)
+    R = Decimal(R) * Decimal(0.000001)
 
-    currentT1 = oldT1 + (currentc21 - oldc21) / 1000000
+    currentT1 = oldT1 + (currentc21 - oldc21) * R 
     #print "calculateAfterTime oldc21:"+str(oldc21)+" current21 "+str(c21)+" oldT1:"+str(oldT1)+"new:"+str(currentT1)
     return currentT1
 
@@ -157,8 +161,11 @@ if __name__ == "__main__":
     waitBigData = 5 ## receive long long data and wait current C1 and currentT1
     BigDataCounter = 0 ## control waitBigData
 
-    # test lost data
-    counter=0
+    # for shift clock data
+    counter = 0
+    
+    #R
+    R = 0.9995322189215448
 
     ## Inital socket property
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -208,7 +215,7 @@ if __name__ == "__main__":
                 head = data.split(":")[0]
                 if waitBigData == 0:## wait actualT1 data
                    
-                    handleBigData(longdata,oldc21,actualT1)
+                    handleBigData(longdata,oldc21,actualT1,R)
                     
 
                 if ',' in data: ##long data
@@ -223,10 +230,11 @@ if __name__ == "__main__":
                         value = data.split(":")[4]
                         c21 = data.split(":")[2]
                         
-                        c21 = int(c21) - 200 * counter
+                        #c21 = int(c21) - 232 * counter## adjsut counter shfit
                         
                         if alignRestart == 1:
-                            T1 = calculateAfterTime(oldc21,c21,actualT1)
+                            
+                            T1 = calculateAfterTime(oldc21,c21,actualT1,R)
                             print "clock:"+str(value)+" T1:"+str(T1)
                             samplingPeriod = computeSamplingPeriod(T1,odd,baseLine)
                             insertDataIntoDB(value,T1,samplingPeriod)
@@ -241,7 +249,7 @@ if __name__ == "__main__":
                         
                     elif whatCounter == 'C22' and alignRestart == 0:
                         T3 = time.time()
-                        R = 1.0
+                        
                         c22 = data.split(":")[2]
                         c23 = data.split(":")[4]
                         
