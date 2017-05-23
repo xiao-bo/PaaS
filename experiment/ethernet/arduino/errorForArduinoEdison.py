@@ -42,7 +42,7 @@ if __name__ == "__main__":
     #result = client.query('select * from cos where time > now() + 7h + 59m' and time )
     counter = 1
     while counter>0:
-        counter +=1
+        counter += 1
         result = client.query('SELECT * FROM "arduino" WHERE time > now() - 1m  and time < now();')
         result2 = client.query('SELECT * FROM "edison" WHERE time > now() - 1m  and time < now();')
         arduino = list(result.get_points())
@@ -51,29 +51,29 @@ if __name__ == "__main__":
         #data=list(result.get_points(measurement='arduino'))
 
         #print data[0]['host']
-        arduinoDate=[]
-        arduinoEpoch=[]
-        edisonDate=[]
-        edisonEpoch=[]
-        for x in range(0,120):
-            arduinoDate.append(0)
-            edisonDate.append(0)
-            arduinoEpoch.append(0)
-            edisonEpoch.append(0)
-	    
+        ## declare width = 2, height = 60
+        arduinoEpoch = [[0 for x in range(2)] for y in range(60)]
+
+        edisonEpoch = [[0 for x in range(2)] for y in range(60)]
+        arduinoDate = [[0 for x in range(2)] for y in range(60)]
+        
+        
         for x in arduino:
+            #print x
             secMillisecond = x['time'].split(":")[2]  ## select sec+millisecond
             sec = int(secMillisecond.split(".")[0])
             secMillisecond = float(secMillisecond[:len(secMillisecond)-1])
             clock = x['time'].split("T")[1]
             if int(x['value']) > 1000:  ## value is large than 1000, time is inserted 1th location. It is can asure data of arduino and edison same.
-                arduinoDate[2*sec] = x['time']
-                arduinoEpoch[2*sec] = clock
-
+                arduinoEpoch[sec][0] = clock
+                arduinoDate[sec][0] = x['time']
+                print "arduino[0]:"+str(arduinoEpoch[sec][1])
             elif int(x['value']) < 100:  ## value is large than 1000, time is inserted 2th location 
-                 arduinoDate[2*sec+1] = x['time']
-                 arduinoEpoch[2*sec+1] = clock
+                arduinoEpoch[sec][1] = clock
+                arduinoDate[sec][1] = x['time']
+                print "arduino[1]:"+str(arduinoEpoch[sec][1])
             #print "arduino sec"+str(sec) + ":value:"+str(x['value'])+" time:"+str(clock)
+        
         for x in edison:           
             secMillisecond = x['time'].split(":")[2]  ## select sec+millisecond
             sec = int(secMillisecond.split(".")[0])
@@ -81,28 +81,42 @@ if __name__ == "__main__":
             clock = x['time'].split("T")[1]
 
             if int(x['value']) > 1000:  ## value is large than 1000, time is inserted 1th location. It is can asure data of arduino and edison same.
-                edisonDate[2*sec] = x['time']
-                edisonEpoch[2*sec] = clock
+                
+                edisonEpoch[sec][0] = clock
+                print "edison[0]:"+str(edisonEpoch[sec][0])
             elif int(x['value']) < 100:  ## value is large than 1000, time is inserted 2th location 
-                edisonDate[2*sec+1] = x['time']
-                edisonEpoch[2*sec+1] = clock
+                
+                edisonEpoch[sec][1] = clock
+                print "edison[1]:"+str(edisonEpoch[sec][1])
             #print "edison sec"+str(sec) + ":value:"+str(x['value'])+" time:"+str(clock)
             #print x
-            
-        
-        for x in range(0,120):
-            #print "arduinoDate:"+str(arduinoDate[x])
-            #print "edisonDate:"+str(edisonDate[x])
-            if edisonDate[x] != 0 and arduinoDate[x] != 0:
-                Atime = toMillisecond(arduinoEpoch[x])
-                Etime = toMillisecond(edisonEpoch[x])
-                error = abs(Atime - Etime)
-                insertDataIntoDB(arduinoDate[x],error)
-            else:
-                error = 0.0
-        #print "\n\n\n\n\n\n\n\n\n\n\n\n"
-        # insert DB with timestamp (Date) error value    
-        time.sleep(1)
 
+        
+        
+        for x in range(60):
+            for y in range(2):
+                #print " arduino epoch:"+str(arduinoEpoch[x][y])
+                #print " edison  epoch:"+str(edisonEpoch[x][y])
+                ## edison must be have value
+                if edisonEpoch[x][y] != 0 and arduinoEpoch[x][y] != 0: 
+                    Atime = toMillisecond(arduinoEpoch[x][y])
+                    Etime = toMillisecond(edisonEpoch[x][y])
+                    
+                    #error = min(abs(Atime - Etime),abs(Atime - Etime2))
+
+                    #print 'arduino:'+str(Atime)+' edison:'+str(Etime)
+                    #print 'arduino:'+str(arduinoEpoch[x])+' edison:'+str(edisonEpoch[x])
+                    error = abs(Atime - Etime)
+                    
+                    #print error
+                    insertDataIntoDB(arduinoDate[x][y],error)
+                else:
+                    print "xxxx"+str(x)
+                    error = 0.0
+        #print "\n\n\n\n\n\n\n\n\n\n\n\n"
+        # insert DB with timestamp (Date) error value  
+        
+        time.sleep(4)
+        
 
 	    
