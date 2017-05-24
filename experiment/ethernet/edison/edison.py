@@ -12,22 +12,21 @@ host = "192.168.11.3" # set to IP address of target computer
 port = 12000
 #cmd=["ksh -c 'printf \"%(%s.%N)T'"]
 if __name__=='__main__':
-	addr=(host,port)
+        change = 0 
+	addr = (host,port)
 	TCPSock = socket(AF_INET, SOCK_STREAM)
         TCPSock.connect(addr)
         while True:
 	    #potVal=client.analog_read()
             #content=subprocess.check_output(cmd,shell=True)
-	    pot=mraa.Aio(1)
-	    potVal=int(pot.read())
-            #print potVal;
-            if potVal>=1010 or potVal<30:
-                #message=str(potVal)+':ss:'+str(content)
+	    pot=mraa.Aio(3)
+	    potVal=pot.read()
+            #print potVal
+            if potVal != change :
                 timestamp = time.time()
                 message = str(potVal)+":"+str(timestamp)
-                #date_time=datetime.datetime.now()
-                #message=str(potVal)+' '+str(date_time)
 	        TCPSock.send(message)
-                print message
-                time.sleep(0.2)	
+                #print message
+                change=potVal
+                #time.sleep(0.4)	
         TCPSock.close()
