@@ -1,24 +1,12 @@
 # Message Receiver
 import os
-from socket import *
+import socket 
 import time
-import subprocess
 import sys
 from influxdb import InfluxDBClient
 from datetime import datetime
-## Initial server ip address and port
-host = "192.168.11.3"
-#host="140.112.28.139"
-#port = int(sys.argv[2])
-port = 12000
-addr=(host,port)
-
-## name of file
-filename=sys.argv[1]+".txt"
-
-json_body=[]
 def insertDataIntoDB(value,epochTime):
-    timestamp = datetime.fromtimestamp(float(epochTime)) 
+    timestamp = datetime.fromtimestamp(float(epochTime)-28800.0) 
     ## transform epochTime into 
     ## Year-Month-Day Hour-minute-second-millisceond
     print str(value)+"  "+str(timestamp)
@@ -38,31 +26,40 @@ def insertDataIntoDB(value,epochTime):
 
 if __name__=="__main__":
     
+    ## Initial server ip address and port
+    host = "192.168.11.4"
+    port = 12000
+    addr=(host,port)
+
+    ## name of file
+    filename=sys.argv[1]+".txt"
+    json_body=[]
+    
     ## initial socket property
-    Sock = socket(AF_INET, SOCK_STREAM)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     ## reuse socket immediately 
-    Sock.setsockopt(SOL_SOCKET,SO_REUSEADDR,1)
+    sock.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
 
     ## bind the socket to the port and ip address
-    Sock.bind(addr)
+    sock.bind(addr)
 
     ## listen for incoming connections
-    Sock.listen(5)
+    sock.listen(5)
     print "Waiting to receive messages..."
 
     fo=open(filename,"wb")
 
     ##  build socket connection 
-    connection,client_address= Sock.accept()
+    connection,client_address= sock.accept()
     
     client = InfluxDBClient('localhost', 8086, 'root', 'root', 'example3')
     while True:
-        receiveData=connection.recv(200)
+        receiveData = connection.recv(200)
         print "\n"+str(receiveData)
         ## below for python client
-        sendTime=receiveData.split(":")[1]
-        value=receiveData.split(":")[0]
+        sendTime = receiveData.split(":")[1]
+        value = receiveData.split(":")[0]
         insertDataIntoDB(value,sendTime)
         
         ## below for c client
@@ -77,5 +74,5 @@ if __name__=="__main__":
         #print ans
         #fo.write(ans+'\n')
     
-    csock.close()
+    connection.close()
     fo.close()

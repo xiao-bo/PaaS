@@ -13,8 +13,6 @@ def toMillisecond(time):
 
 def insertDataIntoDB(timestamp,error):
     
-    ## transform epochTime into 
-    ## Year-Month-Day Hour-minute-second-millisceond
     #print str(error)+"  "+str(timestamp)
     client = InfluxDBClient('localhost', 8086, 'root', 'root', 'example3')
     jsonBody =[
@@ -33,71 +31,112 @@ def insertDataIntoDB(timestamp,error):
     #print jsonBody
     client.write_points(jsonBody)
 
+def insertPeriodIntoDB(timestamp,samplingPeriod):
+    ## insert Arduino period into DB
+    
+    client = InfluxDBClient('localhost', 8086, 'root', 'root', 'example3')
+    jsonBody =[
+        {
+            "measurement":"period",
+            "tags":{
+                "host":"period"
+            },
+            "time":str(timestamp),
+
+            "fields":{
+                "samplingPeriod":samplingPeriod
+            }
+        }
+    ]
+    #print jsonBody
+    client.write_points(jsonBody)
 
 
 if __name__ == "__main__":
     
     client = InfluxDBClient('localhost', 8086, 'root', 'root', 'example3')
-    #client.create_database('example3')
-    #result = client.query('select * from cos where time > now() + 7h + 59m' and time )
+    
     counter = 1
     while counter>0:
         counter += 1
-        result = client.query('SELECT * FROM "arduino" WHERE time > now() - 1m  and time < now();')
-        result2 = client.query('SELECT * FROM "edison" WHERE time > now() - 1m  and time < now();')
+        result = client.query('SELECT * FROM "arduino" WHERE time > now() - 1m  and time < now() ;')
+        result2 = client.query('SELECT * FROM "edison" WHERE time > now() - 1m  and time < now() ;')
         arduino = list(result.get_points())
         edison = list(result2.get_points())
         #print("Result: {0}".format(result))
         #data=list(result.get_points(measurement='arduino'))
 
-        #print data[0]['host']
         ## declare width = 2, height = 60
         arduinoEpoch = [[0 for x in range(2)] for y in range(60)]
-
         edisonEpoch = [[0 for x in range(2)] for y in range(60)]
         arduinoDate = [[0 for x in range(2)] for y in range(60)]
-        
-        
+        arduinoPeriod = []
+        arduinoPeriodDate = []
+
         for x in arduino:
-            #print x
+            ## insert data into edisonEpoch list by 
+            ## [sec]=sec.
+            
+            ## data processing to get sec and clock
             secMillisecond = x['time'].split(":")[2]  ## select sec+millisecond
-            sec = int(secMillisecond.split(".")[0])
+            sec = secMillisecond.split(".")[0]
+            if 'Z' in sec:
+                sec = sec[len(sec)-1]
+            sec = int(sec)
             secMillisecond = float(secMillisecond[:len(secMillisecond)-1])
-            clock = x['time'].split("T")[1]
+            timestamp = x['time'].split("T")[1]
+
+            ## 
             if int(x['value']) > 1000:  ## value is large than 1000, time is inserted 1th location. It is can asure data of arduino and edison same.
-                arduinoEpoch[sec][0] = clock
+                arduinoEpoch[sec][0] = timestamp
                 arduinoDate[sec][0] = x['time']
-                print "arduino[0]:"+str(arduinoEpoch[sec][1])
+                #print "arduino[0]:"+str(arduinoEpoch[sec][1])
             elif int(x['value']) < 100:  ## value is large than 1000, time is inserted 2th location 
-                arduinoEpoch[sec][1] = clock
+                arduinoEpoch[sec][1] = timestamp
                 arduinoDate[sec][1] = x['time']
-                print "arduino[1]:"+str(arduinoEpoch[sec][1])
-            #print "arduino sec"+str(sec) + ":value:"+str(x['value'])+" time:"+str(clock)
-        
-        for x in edison:           
+                #print "arduino[1]:"+str(arduinoEpoch[sec][1])
+            #print "arduino sec"+str(sec) + ":value:"+str(x['value'])+" time:"+str(timestamp)
+
+            ## for arduino period 
+            arduinoPeriod.append(timestamp)
+            arduinoPeriodDate.append(x['time'])
+
+
+        for x in edison:  
+            ## insert data into edisonEpoch list by 
+            ## [sec]=sec.
+            #print x         
             secMillisecond = x['time'].split(":")[2]  ## select sec+millisecond
-            sec = int(secMillisecond.split(".")[0])
+            sec = secMillisecond.split(".")[0]
+            if 'Z' in sec:
+                sec = sec[:len(sec)-1]
+            sec = int(sec)
             secMillisecond = float(secMillisecond[:len(secMillisecond)-1])
-            clock = x['time'].split("T")[1]
+            timestamp = x['time'].split("T")[1]
 
             if int(x['value']) > 1000:  ## value is large than 1000, time is inserted 1th location. It is can asure data of arduino and edison same.
                 
-                edisonEpoch[sec][0] = clock
-                print "edison[0]:"+str(edisonEpoch[sec][0])
+                edisonEpoch[sec][0] = timestamp
+                #print "edison[0]:"+str(edisonEpoch[sec][0])
             elif int(x['value']) < 100:  ## value is large than 1000, time is inserted 2th location 
                 
-                edisonEpoch[sec][1] = clock
-                print "edison[1]:"+str(edisonEpoch[sec][1])
-            #print "edison sec"+str(sec) + ":value:"+str(x['value'])+" time:"+str(clock)
-            #print x
-
+                edisonEpoch[sec][1] = timestamp
+                #print "edison[1]:"+str(edisonEpoch[sec][1])
+            #print "edison sec"+str(sec) + ":value:"+str(x['value'])+" time:"+str(timestamp)
+       
         
+        for x in range(0,len(arduinoPeriod)-1):
+            period = toMillisecond(str(arduinoPeriod[x+1])) - toMillisecond(str(arduinoPeriod[x]))
+            period = period *2 / 1000
+            insertPeriodIntoDB(arduinoPeriodDate[x],period)
+
         
         for x in range(60):
             for y in range(2):
                 #print " arduino epoch:"+str(arduinoEpoch[x][y])
                 #print " edison  epoch:"+str(edisonEpoch[x][y])
-                ## edison must be have value
+                
+                # edison and arduino must be have value
                 if edisonEpoch[x][y] != 0 and arduinoEpoch[x][y] != 0: 
                     Atime = toMillisecond(arduinoEpoch[x][y])
                     Etime = toMillisecond(edisonEpoch[x][y])
@@ -107,14 +146,11 @@ if __name__ == "__main__":
                     #print 'arduino:'+str(Atime)+' edison:'+str(Etime)
                     #print 'arduino:'+str(arduinoEpoch[x])+' edison:'+str(edisonEpoch[x])
                     error = abs(Atime - Etime)
-                    
-                    #print error
+                    print error
                     insertDataIntoDB(arduinoDate[x][y],error)
-                else:
+                else:  ## insert 0.0
                     print "xxxx"+str(x)
-                    error = 0.0
-        #print "\n\n\n\n\n\n\n\n\n\n\n\n"
-        # insert DB with timestamp (Date) error value  
+                    error = 0.0                
         
         time.sleep(4)
         

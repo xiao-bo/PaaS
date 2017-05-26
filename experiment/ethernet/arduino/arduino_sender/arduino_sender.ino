@@ -37,7 +37,8 @@ byte mac[] = {
 };
 // Enter the IP address of the server you're connecting to:
 //IPAddress server(192,168,0,102);
-IPAddress server(192,168,11,3);
+IPAddress server(192,168,11,4);
+
 EthernetClient client;
 
 void ethernet_connect(){
@@ -103,7 +104,6 @@ void setup() {
     Serial.begin(9600);
     
     // give the Ethernet shield a second to initialize:
-    //Serial.println("????");
     Ethernet.begin(mac);
     Serial.println(Ethernet.localIP());
     // initial global variable
@@ -128,6 +128,7 @@ void loop() {
             client.print(clock21);
             //Serial.print("send message ");
             //Serial.println(clock21);
+            
             // initial head and clear memory
             head = String("head:");
             clock21 = String("");
@@ -140,10 +141,8 @@ void loop() {
                 time_c22 = micros();
                 time_c23 = micros();
                 clock2223 = head+"C22:"+time_c22+":C23:"+time_c23;//message
-                
                 client.print(clock2223);
-            }
-            
+            }  
         }else{
             clock21=clock21+",";
             Serial.println("connected fail, reconnect");
@@ -152,56 +151,7 @@ void loop() {
             
             // because disconnect, so head is remove from data
             head=String("");
-            
         }
-        //delay(10);
     } 
-    
 }
 
-/*
-void loop() {
-    sensorValue = analogRead(analogInPin);
-    //Serial.println(sensorValue);
-    //delay(5);
-    
-    if(sensorValue>1020 or sensorValue<10){
-        Serial.println(sensorValue);
-        time_c21 = micros();
-        clock21+=head+"C21:"+time_c21+":V:"+sensorValue;
-        //Serial.println(clock21);
-        
-        if(client.connected()){
-            client.print(clock21);
-            Serial.print("send message ");
-            //Serial.println(clock21);
-            // initial head and clear memory
-            head = String("head:");
-            clock21 = String("");
-            delay(10); // it not fast to receive message from master
-            if(client.available()>0){// receive message from master
-                rece = client.read();
-                Serial.print("rece string:");
-                Serial.println(rece);
-                time_c22 = micros();
-                time_c23 = micros();
-                clock2223 = head+"C22:"+time_c22+":C23:"+time_c23;//message
-                
-                client.print(clock2223);
-            }
-        }else{
-            clock21=clock21+",";
-            Serial.println("connected fail, reconnect");
-            client.stop();
-            ethernet_connect();
-            
-            // because disconnect, so head is remove from data
-            head=String("");
-            
-        }
-        delay(480);
-    } 
-    
-}
-
-*/
