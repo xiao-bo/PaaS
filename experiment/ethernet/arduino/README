@@ -1,3 +1,19 @@
-arduino_receiver.py  will receive message from arduino , run on server
-arduino_sender.ino will send message to server , run on arduino
+arduino_receiver.py  will receive message from arduino , run on server.
+in demoFor5/25, it receives message, computes timestamp and insert influxDB.
+It can receive arduino long data and recovery timestamp for long data.
+It can receive frequency of 1Hz, 500mHz, 250mHZ, 200mHz and 100mHz data.
+
+
+arduino_sender.ino will send message to server and run on arduino.
+In demoFor5/25, if socket between arduino and server is closed, arduino will
+save sense data into memory. Arduino sends long data until socket reopen.
+It sense data which change in square wave. 
+
 period.py will compute arduino's period of analog read data
+
+errorForArduinoEdison.py will query to influxDB for 60s data to compute error
+on sampling period between arduino and edison and compute sampling period on
+arduino . Finially it inserts error and sampling period into influxdb.
+
+computeR.py will compute arduino clock ratio. But it need counter to compute
+R.
