@@ -11,10 +11,10 @@ def toMillisecond(time):
 	#print epoch
 	return epoch
 
-def insertDataIntoDB(timestamp,error,ip):
+def insertDataIntoDB(timestamp,error):
     
     #print str(error)+"  "+str(timestamp)
-    client = InfluxDBClient(ip, 8086, 'root', 'root', 'example3')
+    client = InfluxDBClient('localhost', 8086, 'root', 'root', 'example3')
     jsonBody =[
         {
             "measurement":"errorForArduinoPi",
@@ -31,10 +31,10 @@ def insertDataIntoDB(timestamp,error,ip):
     #print jsonBody
     client.write_points(jsonBody)
 
-def insertPeriodIntoDB(timestamp,samplingPeriod,ip):
+def insertPeriodIntoDB(timestamp,samplingPeriod):
     ## insert Arduino period into DB
     
-    client = InfluxDBClient(ip, 8086, 'root', 'root', 'example3')
+    client = InfluxDBClient('192.168.11.4', 8086, 'root', 'root', 'example3')
     jsonBody =[
         {
             "measurement":"period",
@@ -54,9 +54,7 @@ def insertPeriodIntoDB(timestamp,samplingPeriod,ip):
 
 if __name__ == "__main__":
     
-    ip='192.168.11.4'
-
-    client = InfluxDBClient(ip, 8086, 'root', 'root', 'example3')
+    client = InfluxDBClient('192.168.11.4', 8086, 'root', 'root', 'example3')
     
     counter = 1
     while counter>0:
@@ -127,12 +125,12 @@ if __name__ == "__main__":
                 #print "pi[1]:"+str(piEpoch[sec][1])
             #print "pi sec"+str(sec) + ":value:"+str(x['value'])+" time:"+str(timestamp)
        
-        ''' 
+        
         for x in range(0,len(arduinoPeriod)-1):
             period = toMillisecond(str(arduinoPeriod[x+1])) - toMillisecond(str(arduinoPeriod[x]))
             period = period *2 / 1000
-            insertPeriodIntoDB(arduinoPeriodDate[x],period,ip)
-        '''
+            insertPeriodIntoDB(arduinoPeriodDate[x],period)
+
         
         for x in range(60):
             for y in range(2):
@@ -150,7 +148,7 @@ if __name__ == "__main__":
                     #print 'arduino:'+str(arduinoEpoch[x])+' pi:'+str(piEpoch[x])
                     error = abs(Atime - Ptime)
                     print error
-                    insertDataIntoDB(arduinoDate[x][y],error,ip)
+                    insertDataIntoDB(arduinoDate[x][y],error)
                 else:  ## insert 0.0
                     print "xxxx"+str(x)
                     error = 0.0                

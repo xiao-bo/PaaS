@@ -2,6 +2,9 @@
 import time
 import can
 from decimal import Decimal
+from datetime import datetime
+from influxdb import InfluxDBClient
+import sys
 def reply(msg,bus,alignRestart):
     T2 =0
     if alignRestart == 0:
@@ -71,8 +74,33 @@ def getPayloadFromPacket(receiveList):
     payload=''.join(payload)
     ## remove prefix (0) of elements
     payload = payload[1::2]
-    print(payload)
-    return payload,target
+    #print(payload)
+    return payload,target,value
+
+def insertDataIntoDB(value,epochTime):
+    timestamp = datetime.fromtimestamp(epochTime) 
+    ## transform epochTime into 
+    ## Year-Month-Day Hour-minute-second-millisceond
+    #print str(value)+"  "+str(timestamp)
+
+    client = InfluxDBClient('192.168.11.4', 8086, 'root', 'root', 'example3')
+    jsonBody =[
+        {
+            "measurement":"arduino",
+            "tags":{
+                "host":"arduino"
+            },
+            "time":str(timestamp),
+
+            "fields":{
+                "value":int(value),
+                
+            }
+        }
+    ]
+    #print("insert db") 
+    client.write_points(jsonBody)
+
 
 
 if __name__ == "__main__":
@@ -86,7 +114,9 @@ if __name__ == "__main__":
     receivePart1 = '0'
     ## initial packet 
     msg = can.Message(arbitration_id=0x01,data=[0, 25, 0, 1, 3, 1, 4, 1])
-    R = 1.0
+    #R = 0.999250219685
+    #R=0.99719508032
+    R=1.0
     T3 = ""
     T2 = ""
     ## protocol control variable
@@ -94,8 +124,15 @@ if __name__ == "__main__":
 
     actualT1 = 0 ## record old T1 for calculate after time
     oldc21 = 0 ## record old c21 for calculate after time
-
     
+    ##name of file
+    filename = sys.argv[1] + ".txt"
+    if len(sys.argv[1]) == 0:
+        print("please input arg for file name")
+    
+    
+    fo = open(filename,"w")
+     
     while True:
         ## receiver data format is 
         ## 1504018295.064378        0001    000    8    0d 00 01 06 04 00 00 02
@@ -103,8 +140,8 @@ if __name__ == "__main__":
         ## split data = 
         ##['1504018295.064378', '0001', '000', '8', '0d', '00', '01', '06', '04', '00', '00', '02']
         receiveList = receiveData.split()
-        print(receiveData) 
-        payload,target = getPayloadFromPacket(receiveList)
+        #print(receiveData) 
+        payload,target,value = getPayloadFromPacket(receiveList)
         
         ## skip short message , for example , d003434d
         if payload[0]==payload[7] and payload[0] ==target:
@@ -142,20 +179,25 @@ if __name__ == "__main__":
         if receivePart2 != "":
             if target !='e':
                 c21 = receivePart2+receivePart1
-                print("c21:{}".format(c21))
+                #print("c21:{}".format(c21))
                 T2 = reply(msg,bus,alignRestart) 
-                print("T2:{}".format(T2))
+                #print("T2:{}".format(T2))
                 if alignRestart ==1:
                     T1 = calculateAfterTime(oldc21,c21,actualT1,R)
-                    print("T1:{}".format(T1))
+                    print("c21:{}:value:{}:T1:{}".format(c21,value,T1))
+                    #print("value:{}:T1:{}".format(value,T1))
+                    fo.write("c21:"+str(c21)+":value:"+str(value)+":time:"+str(T1)+"\n")
+                    insertDataIntoDB(value,T1)
             elif target =='e':
                 ## receive reply message
                 c22 = receivePart2+receivePart1
-                print("c22:{}".format(c22))
+                #print("c22:{}".format(c22))
                 actualT1 = sync(T2,T3,c21,c22,c22,R)
                 oldc21 = c21
-                print ("actualT1:{}".format(actualT1))
-        print("align:{}".format(alignRestart))
+                print ("c21:{} value:{} actualT1:{}".format(c21,value,actualT1))
+                fo.write("c21:"+str(c21)+":value:"+str(value)+":time:"+str(actualT1)+"\n")
+                insertDataIntoDB(value,actualT1)
+        #print("align:{}".format(alignRestart))
 
 '''
 #bus.send(msg)   ## send data
