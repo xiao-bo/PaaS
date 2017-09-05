@@ -11,15 +11,15 @@ def toMillisecond(time):
 	#print epoch
 	return epoch
 
-def insertDataIntoDB(timestamp,error):
+def insertDataIntoDB(timestamp,error,ip):
     
     #print str(error)+"  "+str(timestamp)
-    client = InfluxDBClient('localhost', 8086, 'root', 'root', 'example3')
+    client = InfluxDBClient(ip, 8086, 'root', 'root', 'example4')
     jsonBody =[
         {
-            "measurement":"errorForArduinoPi",
+            "measurement":"errorForArduinoEdison",
             "tags":{
-                "host":"errorForArduinoPi"
+                "host":"errorForArduinoEdison"
             },
             "time":str(timestamp),
 
@@ -31,36 +31,17 @@ def insertDataIntoDB(timestamp,error):
     #print jsonBody
     client.write_points(jsonBody)
 
-def insertPeriodIntoDB(timestamp,samplingPeriod):
-    ## insert Arduino period into DB
-    
-    client = InfluxDBClient('192.168.11.4', 8086, 'root', 'root', 'example3')
-    jsonBody =[
-        {
-            "measurement":"period",
-            "tags":{
-                "host":"period"
-            },
-            "time":str(timestamp),
-
-            "fields":{
-                "samplingPeriod":samplingPeriod
-            }
-        }
-    ]
-    #print jsonBody
-    client.write_points(jsonBody)
 
 
 if __name__ == "__main__":
-    
-    client = InfluxDBClient('192.168.11.4', 8086, 'root', 'root', 'example3')
+    ip = "192.168.11.4"    
+    client = InfluxDBClient(ip, 8086, 'root', 'root', 'example4')
     
     counter = 1
     while counter>0:
         counter += 1
         result = client.query('SELECT * FROM "arduino" WHERE time > now() - 1m  and time < now() ;')
-        result2 = client.query('SELECT * FROM "pi" WHERE time > now() - 1m  and time < now() ;')
+        result2 = client.query('SELECT * FROM "edison" WHERE time > now() - 1m  and time < now() ;')
         arduino = list(result.get_points())
         pi = list(result2.get_points())
         #print("Result: {0}".format(result))
@@ -126,10 +107,6 @@ if __name__ == "__main__":
             #print "pi sec"+str(sec) + ":value:"+str(x['value'])+" time:"+str(timestamp)
        
         
-        for x in range(0,len(arduinoPeriod)-1):
-            period = toMillisecond(str(arduinoPeriod[x+1])) - toMillisecond(str(arduinoPeriod[x]))
-            period = period *2 / 1000
-            insertPeriodIntoDB(arduinoPeriodDate[x],period)
 
         
         for x in range(60):
@@ -147,10 +124,10 @@ if __name__ == "__main__":
                     #print 'arduino:'+str(Atime)+' pi:'+str(Ptime)
                     #print 'arduino:'+str(arduinoEpoch[x])+' pi:'+str(piEpoch[x])
                     error = abs(Atime - Ptime)
-                    print error
-                    insertDataIntoDB(arduinoDate[x][y],error)
+                    print str(x)+":"+str(error)
+                    insertDataIntoDB(arduinoDate[x][y],error,ip)
                 else:  ## insert 0.0
-                    print "xxxx"+str(x)
+                    #print "xxxx"+str(x)
                     error = 0.0                
         time.sleep(4)
         
