@@ -83,7 +83,7 @@ def insertDataIntoDB(value,epochTime):
     ## Year-Month-Day Hour-minute-second-millisceond
     #print str(value)+"  "+str(timestamp)
 
-    client = InfluxDBClient('192.168.11.4', 8086, 'root', 'root', 'example3')
+    client = InfluxDBClient('192.168.11.4', 8086, 'root', 'root', 'example4')
     jsonBody =[
         {
             "measurement":"arduino",
@@ -98,7 +98,7 @@ def insertDataIntoDB(value,epochTime):
             }
         }
     ]
-    #print("insert db") 
+    #print(timestamp) 
     client.write_points(jsonBody)
 
 
@@ -113,10 +113,11 @@ if __name__ == "__main__":
     part = 1
     receivePart1 = '0'
     ## initial packet 
-    msg = can.Message(arbitration_id=0x01,data=[0, 25, 0, 1, 3, 1, 4, 1])
+    msg = can.Message(arbitration_id=0x03,data=[0, 25, 0, 1, 3, 1, 4, 1])
     #R = 0.999250219685
-    #R=0.99719508032
-    R=1.0
+    #R=0.99919508032
+    R=1.00011719556
+    #R=1.0
     T3 = ""
     T2 = ""
     ## protocol control variable
@@ -140,7 +141,10 @@ if __name__ == "__main__":
         ## split data = 
         ##['1504018295.064378', '0001', '000', '8', '0d', '00', '01', '06', '04', '00', '00', '02']
         receiveList = receiveData.split()
-        #print(receiveData) 
+        #print(receiveData)
+        if receiveList[1] != "0001" and receiveList[1] != "0002":
+            print("filter")
+            continue
         payload,target,value = getPayloadFromPacket(receiveList)
         
         ## skip short message , for example , d003434d
@@ -197,8 +201,3 @@ if __name__ == "__main__":
                 print ("c21:{} value:{} actualT1:{}".format(c21,value,actualT1))
                 fo.write("c21:"+str(c21)+":value:"+str(value)+":time:"+str(actualT1)+"\n")
                 insertDataIntoDB(value,actualT1)
-        #print("align:{}".format(alignRestart))
-
-'''
-#bus.send(msg)   ## send data
-'''
