@@ -28,7 +28,7 @@ def getHyperperiod(sensorGroup):
     print "hyperperiod = {}".format(hyperperiod)
     return hyperperiod
 
-def isSchedule(sensorGroup):
+def isSchedule(sensorGroup,target):
     length = len(sensorGroup)
     '''
     utilijation = 0.0
@@ -41,7 +41,7 @@ def isSchedule(sensorGroup):
         return False
     '''
 
-    target = 2
+    print "target = {}".format(target)
     responseTime = getResponseTime(sensorGroup,target)
     if responseTime <= sensorGroup[target].deadLine+sensorGroup[target].arrivalTime:
         return True
@@ -58,18 +58,18 @@ def isSchedule(sensorGroup):
             return False
     return True
     '''
-def getWaitingTime(waitingTime,blockingTime,highPriority,transmissionTime,q):
+def getWaitingTime(waitingTime,blockingTime,higherPriority,transmissionTime,q):
     index = 1
 
     while True:
         tmp = waitingTime
-        highTime = 0 
-        for x in range(0,len(highPriority)):
-            highTime = highTime + math.ceil(\
-                (waitingTime + highPriority[x].arrivalTime+0.01)/highPriority[x].deadLine)\
-                *highPriority[x].transmissionTime
-        highTime = highTime + q * transmissionTime
-        waitingTime = blockingTime + highTime
+        higherTime = 0 
+        for x in range(0,len(higherPriority)):
+            higherTime = higherTime + math.ceil(\
+                (waitingTime + higherPriority[x].arrivalTime+0.01)/higherPriority[x].deadLine)\
+                *higherPriority[x].transmissionTime
+        higherTime = higherTime + q * transmissionTime
+        waitingTime = blockingTime + higherTime
         
         print "wait^{} ({}) = {}".format(index,q,waitingTime)
         if waitingTime == tmp:
@@ -83,17 +83,20 @@ def getQm():
     #gettm(tm,blockingTime)
     return Qm
 
-def gettm(tm,blockingTime,highPriority):
+def gettm(tm,blockingTime,higherPriority,target):
     index = 1
-    tm = 0
+    #tm = 0
     while True:
         tmp = tm
-        highTime = 0 
-        for x in range(0,len(highPriority)):
-            highTime = highTime + math.ceil(\
-                (tm + highPriority[x].arrivalTime+0.01)/highPriority[x].deadLine)\
-                *highPriority[x].transmissionTime
-        tm = blockingTime + highTime
+        higherTime = 0 
+        for x in range(0,len(higherPriority)):
+            higherTime = higherTime + math.ceil(\
+                (tm + higherPriority[x].arrivalTime)/higherPriority[x].deadLine)\
+                *higherPriority[x].transmissionTime
+        higherTime = higherTime + math.ceil(\
+                (tm + target.arrivalTime)/target.deadLine)*target.transmissionTime
+                
+        tm = blockingTime + higherTime
         
         print "tm^{} = {}".format(index,tm)
         if tm == tmp:
@@ -105,7 +108,7 @@ def getResponseTime(sensorGroup,index):
     
     length = len(sensorGroup)
     lowerPriority = []
-    highPriority = []
+    higherPriority = []
     maxlp = 0  
     blockingTime = 0
     waitingTime = []
@@ -117,7 +120,7 @@ def getResponseTime(sensorGroup,index):
         if sensorGroup[x].priority > sensorGroup[index].priority:
             lowerPriority.append(sensorGroup[x].priority)
         elif sensorGroup[x].priority < sensorGroup[index].priority:
-            highPriority.append(sensorGroup[x])
+            higherPriority.append(sensorGroup[x])
     
     
     ## lowerPrioirty is not empty. in other word, 
@@ -133,17 +136,17 @@ def getResponseTime(sensorGroup,index):
 
     
     print "blockingTime = {}".format(blockingTime)
-    q = 0
     hyperperiod = getHyperperiod(sensorGroup) 
     #Qm = hyperperiod / sensorGroup[index].deadLine  ## get target multiple instance
     tm = sensorGroup[index].transmissionTime
-    tm = gettm(tm,blockingTime,highPriority)
+    tm = gettm(tm,blockingTime,higherPriority,sensorGroup[index])
     Qm = math.ceil((tm+sensorGroup[index].arrivalTime)/sensorGroup[x].deadLine)
     print "Qm={}".format(Qm)
     print "tm={}".format(tm)
     #Qm = 2
 
     
+    q = 0
     while q< Qm:
         if q == 0:
             waitingTime.append(blockingTime)
@@ -152,7 +155,7 @@ def getResponseTime(sensorGroup,index):
         elif q > 0:
             waitingTime.append(waitingTime[q-1] + sensorGroup[index].transmissionTime)
             print "waitingTime({}) = {}".format(q,waitingTime)
-        waitingTime[q] = getWaitingTime(waitingTime[q],blockingTime,highPriority,\
+        waitingTime[q] = getWaitingTime(waitingTime[q],blockingTime,higherPriority,\
                                         sensorGroup[index].transmissionTime,q)
         
         responseTime.append(sensorGroup[index].arrivalTime + \
@@ -169,17 +172,18 @@ def getResponseTime(sensorGroup,index):
 
 def main():
     ### arrival time, transmission time, deadLine, weight, priority
-    #a = Sensor(0.0,1.0,3.0,4,1)
-    #b = Sensor(0.0,2.0,4.0,7,2)
-    #c = Sensor(0.0,1.0,10.0,5,3)
-    a = Sensor(0.0,1.0,2.5,4,1)
-    b = Sensor(0.0,1.0,3.5,7,2)
-    c = Sensor(0.0,1.0,3.5,5,3)
+    a = Sensor(0.0,1.0,3.0,4,1)
+    b = Sensor(0.0,2.0,4.0,7,2)
+    c = Sensor(0.0,1.0,10.0,5,3)
+    #a = Sensor(0.0,1.0,2.5,4,1)
+    #b = Sensor(0.0,1.0,3.5,7,2)
+    #c = Sensor(0.0,1.0,3.5,5,3)
     print "main"
     
     sensorGroup = [a,b,c]
     
-    ans = isSchedule(sensorGroup)
+    target = 0
+    ans = isSchedule(sensorGroup,target)
     print "schedule result = {}".format(ans)
     
 
