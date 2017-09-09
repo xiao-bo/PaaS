@@ -70,7 +70,7 @@ void putClockIntoPacket(int sensorValue,long timeC,int id){
         pIndex++; 
         // because payload is too long, so send packet first and reassign digital to packet
         if (pIndex >7){ 
-            CAN.sendMsgBuf(0x02,0,8,packet);
+            CAN.sendMsgBuf(0x03,0,8,packet);
             Serial.print("one packet: ");
             for(i=0;i<8;i++){
                 Serial.print(packet[i]);
@@ -148,7 +148,7 @@ void loop(){
         timeC1 = micros();  
         Serial.print("timeC1: ");
         Serial.println(timeC1);
-        putClockIntoPacket(sensorValue,timeC1,0x02);
+        putClockIntoPacket(sensorValue,timeC1,0x03);
         
         //timeC1=1046100012; //maximum length of long vaiable is 10 digital
         
@@ -159,14 +159,14 @@ void loop(){
             CAN.readMsgBuf(&reclen, buf);    // read data,  len: data length, buf: data buf
 
             unsigned int canId = CAN.getCanId();
-            if (canId == 3){
+            if (canId == 0){
                 //Serial.println("gooooooood");
             
             
                 timeC2 = micros();
           
                 packet[0]=14;
-                putClockIntoPacket(-1,timeC2,0x01);
+                putClockIntoPacket(-1,timeC2,0x04);
                 Serial.print("timeC2: ");
                 Serial.println(timeC2);
                 Serial.println("receive str from master");

@@ -34,7 +34,7 @@ def insertDataIntoDB(timestamp,error,ip):
 
 
 if __name__ == "__main__":
-    ip = "192.168.11.4"    
+    ip = "169.254.47.39"    
     client = InfluxDBClient(ip, 8086, 'root', 'root', 'example4')
     
     counter = 1
@@ -46,11 +46,12 @@ if __name__ == "__main__":
         pi = list(result2.get_points())
         #print("Result: {0}".format(result))
         #data=list(result.get_points(measurement='arduino'))
-
+        
+        height = 120
         ## declare width = 2, height = 60
-        arduinoEpoch = [[0 for x in range(2)] for y in range(60)]
-        piEpoch = [[0 for x in range(2)] for y in range(60)]
-        arduinoDate = [[0 for x in range(2)] for y in range(60)]
+        arduinoEpoch = [[0 for x in range(2)] for y in range(height)]
+        piEpoch = [[0 for x in range(2)] for y in range(height)]
+        arduinoDate = [[0 for x in range(2)] for y in range(height)]
         arduinoPeriod = []
         arduinoPeriodDate = []
 
@@ -109,7 +110,7 @@ if __name__ == "__main__":
         
 
         
-        for x in range(60):
+        for x in range(height):
             for y in range(2):
                 #print " arduino epoch:"+str(arduinoEpoch[x][y])
                 #print " pi  epoch:"+str(piEpoch[x][y])

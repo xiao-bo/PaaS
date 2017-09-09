@@ -10,6 +10,7 @@ def reply(msg,bus,alignRestart):
     if alignRestart == 0:
         bus.send(msg)   ## send data
         T2 = time.time()
+        print("reply")
     return T2
 
 def sync(T2,T3,C21,C22,C23,R):
@@ -113,11 +114,12 @@ if __name__ == "__main__":
     part = 1
     receivePart1 = '0'
     ## initial packet 
-    msg = can.Message(arbitration_id=0x03,data=[0, 25, 0, 1, 3, 1, 4, 1])
+    msg = can.Message(arbitration_id=0x00,data=[0, 25, 0, 1, 3, 1, 4, 1])
     #R = 0.999250219685
-    #R=0.99919508032
-    R=1.00011719556
+    #R=0.99991508032
+    R=1.00013019556 ## too high
     #R=1.0
+    receiveT1 = ""
     T3 = ""
     T2 = ""
     ## protocol control variable
@@ -142,8 +144,10 @@ if __name__ == "__main__":
         ##['1504018295.064378', '0001', '000', '8', '0d', '00', '01', '06', '04', '00', '00', '02']
         receiveList = receiveData.split()
         #print(receiveData)
-        if receiveList[1] != "0001" and receiveList[1] != "0002":
-            print("filter")
+
+        ## filter ID
+        if receiveList[1] != "0003" and receiveList[1] != "0004":
+            #print("filter")
             continue
         payload,target,value = getPayloadFromPacket(receiveList)
         
@@ -160,7 +164,7 @@ if __name__ == "__main__":
             ## for example , 1234567c, just move 1234567 into part1
             receivePart1 = payload[:7:1]
             receivePart2 = ""
-            T1 = receiveList[0]
+            receiveT1 = receiveList[0]
 
         elif target == 'e' and alignRestart ==0 : 
             ## receive c22
@@ -188,9 +192,9 @@ if __name__ == "__main__":
                 #print("T2:{}".format(T2))
                 if alignRestart ==1:
                     T1 = calculateAfterTime(oldc21,c21,actualT1,R)
-                    print("c21:{}:value:{}:T1:{}".format(c21,value,T1))
+                    print("c21:{}:value:{}:T1:{}:receiveT1:{}".format(c21,value,T1,receiveT1))
                     #print("value:{}:T1:{}".format(value,T1))
-                    fo.write("c21:"+str(c21)+":value:"+str(value)+":time:"+str(T1)+"\n")
+                    fo.write("c21:"+str(c21)+":value:"+str(value)+":time:"+str(T1)+":receiveT1:"+str(receiveT1)+"\n")
                     insertDataIntoDB(value,T1)
             elif target =='e':
                 ## receive reply message
@@ -198,6 +202,11 @@ if __name__ == "__main__":
                 #print("c22:{}".format(c22))
                 actualT1 = sync(T2,T3,c21,c22,c22,R)
                 oldc21 = c21
-                print ("c21:{} value:{} actualT1:{}".format(c21,value,actualT1))
-                fo.write("c21:"+str(c21)+":value:"+str(value)+":time:"+str(actualT1)+"\n")
+                print ("c21:{} value:{} actualT1:{}:receiveT1:{}".format(c21,value,actualT1,receiveT1))
+                fo.write("c21:"+str(c21)+":value:"+str(value)+":time:"+str(actualT1)+":receiveT1:"+str(receiveT1)+"\n")
                 insertDataIntoDB(value,actualT1)
+        #print("align:{}".format(alignRestart))
+
+'''
+#bus.send(msg)   ## send data
+'''
