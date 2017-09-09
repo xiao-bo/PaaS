@@ -36,16 +36,18 @@ if __name__=='__main__':
 
         filename = sys.argv[1]+"edison.txt"
         fo = open(filename,'w')
-        
         while True:
 	    pot = mraa.Aio(pinNumber)
 	    potVal = pot.read()
             if potVal != change and (potVal==0 or potVal==1023):
                 timestamp = time.time()
                 message = str(potVal)+":"+str(timestamp)
+                #print message
+	        #TCPSock.send(message)
                 print message
                 fo.write(message+"\n")
                 insertDataIntoDB(potVal,timestamp)
                 change = potVal
-        
+                #time.sleep(100)
+            
         fo.close()
