@@ -83,8 +83,8 @@ def insertDataIntoDB(value,epochTime):
     ## transform epochTime into 
     ## Year-Month-Day Hour-minute-second-millisceond
     #print str(value)+"  "+str(timestamp)
-
-    client = InfluxDBClient('192.168.11.4', 8086, 'root', 'root', 'example4')
+    #print("insert")
+    client = InfluxDBClient('169.254.47.39', 8086, 'root', 'root', 'example4')
     jsonBody =[
         {
             "measurement":"arduino",
@@ -100,7 +100,8 @@ def insertDataIntoDB(value,epochTime):
         }
     ]
     #print(timestamp) 
-    client.write_points(jsonBody)
+    i=client.write_points(jsonBody)
+    print (i)
 
 
 
@@ -117,7 +118,7 @@ if __name__ == "__main__":
     msg = can.Message(arbitration_id=0x00,data=[0, 25, 0, 1, 3, 1, 4, 1])
     #R = 0.999250219685
     #R=0.99991508032
-    R=1.00013019556 ## too high
+    R=1.00016319556 ## too high
     #R=1.0
     receiveT1 = ""
     T3 = ""
@@ -143,7 +144,7 @@ if __name__ == "__main__":
         ## split data = 
         ##['1504018295.064378', '0001', '000', '8', '0d', '00', '01', '06', '04', '00', '00', '02']
         receiveList = receiveData.split()
-        #print(receiveData)
+        print(receiveData)
 
         ## filter ID
         if receiveList[1] != "0003" and receiveList[1] != "0004":
