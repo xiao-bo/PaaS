@@ -70,7 +70,7 @@ void putClockIntoPacket(int sensorValue,long timeC,int id){
         pIndex++; 
         // because payload is too long, so send packet first and reassign digital to packet
         if (pIndex >7){ 
-            CAN.sendMsgBuf(0x03,0,8,packet);
+            CAN.sendMsgBuf(id,0,8,packet);
             Serial.print("one packet: ");
             for(i=0;i<8;i++){
                 Serial.print(packet[i]);
@@ -88,7 +88,7 @@ void putClockIntoPacket(int sensorValue,long timeC,int id){
         packet[pIndex]=14;      
     }
     
-    Serial.print("\n analog value ");
+    Serial.print(" analog value ");
     Serial.println(sensorValue);
     Serial.print("second packet: ");
     for(i=0;i<8;i++){
@@ -100,7 +100,7 @@ void putClockIntoPacket(int sensorValue,long timeC,int id){
    
     // send data:  id = 0x00, standrad frame, data len = 8, stmp: data buf
     CAN.sendMsgBuf(id, 0, 8, packet);
-    delay(10);// send data per 100ms
+    //delay(10);// send data per 100ms
   
 }
 
@@ -119,7 +119,7 @@ void setup()
 
 
 void loop(){
-    
+    int masterId = 0;
     int len = sizeof(digital);
     unsigned char reclen = 0;
     unsigned char buf[8];
@@ -153,32 +153,37 @@ void loop(){
         //timeC1=1046100012; //maximum length of long vaiable is 10 digital
         
         change = sensorValue;
+    }   
+      // receive data from master
+    if(CAN_MSGAVAIL == CAN.checkReceive()){
         
-        // receive data from master
-        if(CAN_MSGAVAIL == CAN.checkReceive()){
-            CAN.readMsgBuf(&reclen, buf);    // read data,  len: data length, buf: data buf
+        timeC2 = micros();
+        Serial.print("before read data : ");
+        Serial.println(timeC2);
+        CAN.readMsgBuf(&reclen, buf);    // read data,  len: data length, buf: data buf
+        timeC2 = micros();
+        Serial.print("after reading data : ");
+        Serial.println(timeC2);
+        //Serial.println("get message");
+        unsigned int canId = CAN.getCanId();
+        if (canId == masterId){
 
-            unsigned int canId = CAN.getCanId();
-            if (canId == 0){
-                //Serial.println("gooooooood");
-            
-            
-                timeC2 = micros();
-          
-                packet[0]=14;
-                putClockIntoPacket(-1,timeC2,0x04);
-                Serial.print("timeC2: ");
-                Serial.println(timeC2);
-                Serial.println("receive str from master");
-                unsigned char len = 0;
-                unsigned char buf[8];
-                CAN.readMsgBuf(&len, buf);  
-                for(int i = 0; i<len; i++){    // print the data
-                    Serial.print(buf[i]);
-                    Serial.print("\t");
-                }    
-            }
+            timeC2 = micros();
+            Serial.println("master id is gooooooood");
+            packet[0]=14;
+            putClockIntoPacket(-1,timeC2,0x04);
+            Serial.print("timeC2: ");
+            Serial.println(timeC2);
+            Serial.println("receive str from master");
+            unsigned char len = 0;
+            unsigned char buf[8];
+            CAN.readMsgBuf(&len, buf);  
+            for(int i = 0; i<len; i++){    // print the data
+                Serial.print(buf[i]);
+                Serial.print("\t");
+            }    
         }
+      
     }
 }
 
