@@ -15,7 +15,7 @@ def reply(msg,bus,alignRestart):
 
 def sync(T2,T3,C21,C22,C23,R):
     T2 = Decimal(T2)
-    T3 = Decimal(T2)
+    T3 = Decimal(T3)
     C21 = Decimal(C21)
     C22 = Decimal(C22)
     C23 = Decimal(C23)
@@ -24,7 +24,7 @@ def sync(T2,T3,C21,C22,C23,R):
     if C23-C22 ==0:
         C23 = C22+4
     delay = ((T3 - T2) - (C23 - C22) * R) / 2
-    
+    delay = Decimal(0.0004)
     T1 = T3 - delay - (C23 - C21) * R
     
     print ("C21:"+str(C21))
@@ -83,8 +83,8 @@ def insertDataIntoDB(value,epochTime):
     ## transform epochTime into 
     ## Year-Month-Day Hour-minute-second-millisceond
     #print str(value)+"  "+str(timestamp)
-
-    client = InfluxDBClient('192.168.11.4', 8086, 'root', 'root', 'example4')
+    #print("insert")
+    client = InfluxDBClient('10.88.10.91', 8086, 'root', 'root', 'example4')
     jsonBody =[
         {
             "measurement":"arduino",
@@ -100,7 +100,7 @@ def insertDataIntoDB(value,epochTime):
         }
     ]
     #print(timestamp) 
-    client.write_points(jsonBody)
+    i=client.write_points(jsonBody)
 
 
 
@@ -117,7 +117,7 @@ if __name__ == "__main__":
     msg = can.Message(arbitration_id=0x00,data=[0, 25, 0, 1, 3, 1, 4, 1])
     #R = 0.999250219685
     #R=0.99991508032
-    R=1.00013019556 ## too high
+    R=1.00016319556 ## too high
     #R=1.0
     receiveT1 = ""
     T3 = ""
@@ -143,11 +143,9 @@ if __name__ == "__main__":
         ## split data = 
         ##['1504018295.064378', '0001', '000', '8', '0d', '00', '01', '06', '04', '00', '00', '02']
         receiveList = receiveData.split()
-        #print(receiveData)
-
         ## filter ID
         if receiveList[1] != "0003" and receiveList[1] != "0004":
-            #print("filter")
+            print("filter")
             continue
         payload,target,value = getPayloadFromPacket(receiveList)
         
@@ -165,7 +163,7 @@ if __name__ == "__main__":
             receivePart1 = payload[:7:1]
             receivePart2 = ""
             receiveT1 = receiveList[0]
-
+            #print("receiveT1:{}".format(receiveT1))
         elif target == 'e' and alignRestart ==0 : 
             ## receive c22
             receivePart1 = payload[:7:1]
@@ -201,6 +199,7 @@ if __name__ == "__main__":
                 c22 = receivePart2+receivePart1
                 #print("c22:{}".format(c22))
                 actualT1 = sync(T2,T3,c21,c22,c22,R)
+                #actualT1 = Decimal(receiveT1) - Decimal(0.0004) # 400 us 
                 oldc21 = c21
                 print ("c21:{} value:{} actualT1:{}:receiveT1:{}".format(c21,value,actualT1,receiveT1))
                 fo.write("c21:"+str(c21)+":value:"+str(value)+":time:"+str(actualT1)+":receiveT1:"+str(receiveT1)+"\n")
