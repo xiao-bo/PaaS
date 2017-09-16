@@ -34,7 +34,7 @@ def insertDataIntoDB(timestamp,error,ip):
 
 
 if __name__ == "__main__":
-    ip = "192.168.11.4"    
+    ip = "10.88.3.131"    
     client = InfluxDBClient(ip, 8086, 'root', 'root', 'example4')
     
     counter = 1
@@ -123,7 +123,7 @@ if __name__ == "__main__":
 
                     #print 'arduino:'+str(Atime)+' pi:'+str(Ptime)
                     #print 'arduino:'+str(arduinoEpoch[x])+' pi:'+str(piEpoch[x])
-                    error = abs(Atime - Ptime)
+                    error = Atime - Ptime
                     print str(x)+":"+str(error)
                     insertDataIntoDB(arduinoDate[x][y],error,ip)
                 else:  ## insert 0.0

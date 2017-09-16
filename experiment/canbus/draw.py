@@ -25,11 +25,12 @@ def curve(input_list,title,statistics):
 	    line=curve.plot(x,input_list)	
 	    plt.setp(line, linewidth=2)
 	curve.axes.set_xlabel("sampling")
-	curve.axes.set_ylabel("Delay in second")
+	curve.axes.set_ylabel("Delay in Millisecond")
 	curve.axes.set_title(title)
+        plt.ylim([5,40])
         font = {'family' : 'normal',
                 'weight' : 'bold',
-                'size'   : 30}
+                'size'   : 28}
         plt.rc('font',**font)
 	
 	#table
@@ -65,7 +66,7 @@ def multicurve(input_list,title,statistics):
 	   		line=curve.plot(x,input_list[i])#,label=legeng_label[i])	
 			plt.setp(line, linewidth=2)
 	curve.axes.set_xlabel("sampling")
-	curve.axes.set_ylabel("Delay in second")
+	curve.axes.set_ylabel("Delay in milliSecond")
 	curve.axes.set_title(title)
 	
 	
@@ -96,67 +97,19 @@ if __name__=="__main__":
         ## main code for multicurve
 
 	print "draw.py"
-        '''	
-	timestamp_former=dp.read_file('edison/data/0%.txt',3)##edison receiver
-	timestamp_backer=dp.read_file('edison/data/0%.txt',0)##edison sender
-	zero_data=dp.data_process_2(timestamp_former,timestamp_backer)
-
-	timestamp_former=dp.read_file('edison/data/20%.txt',3)##edison receiver
-	timestamp_backer=dp.read_file('edison/data/20%.txt',0)##edison sender
-	ten_data=dp.data_process_2(timestamp_former,timestamp_backer)
-
-	timestamp_former=dp.read_file('edison/data/50%.txt',3)##edison receiver
-	timestamp_backer=dp.read_file('edison/data/50%.txt',0)##edison sender
-	five_data=dp.data_process_2(timestamp_former,timestamp_backer)
-
-	timestamp_former=dp.read_file('edison/data/90%.txt',3)##edison receiver
-	timestamp_backer=dp.read_file('edison/data/90%.txt',0)##edison sender
-	nine_data=dp.data_process_2(timestamp_former,timestamp_backer)
-
-	zero_statistics=dp.compute_statistics(zero_data)
-	ten_statistics=dp.compute_statistics(ten_data)
-	five_statistics=dp.compute_statistics(five_data)
-	nine_statistics=dp.compute_statistics(nine_data)
-	statistics=[zero_statistics,ten_statistics,five_statistics,
-				nine_statistics]
-	error_data=[zero_data,ten_data,five_data,nine_data]
-	title='Network delay (Mac_receiver-Edison_send)'
 	
-	'''
-	'''
-	timestamp_former=dp.read_file('arduino/data/0%.txt',2)##edison receiver
-	timestamp_backer=dp.read_file('edison/data/0%.txt',0)##edison sender
-	zero_data=dp.data_process_2(timestamp_former,timestamp_backer)
-
-	timestamp_former=dp.read_file('arduino/data/20%.txt',2)##edison receiver
-	timestamp_backer=dp.read_file('edison/data/20%.txt',0)##edison sender
-	ten_data=dp.data_process_2(timestamp_former,timestamp_backer)
-
-	timestamp_former=dp.read_file('arduino/data/50%.txt',2)##edison receiver
-	timestamp_backer=dp.read_file('edison/data/50%.txt',0)##edison sender
-	five_data=dp.data_process_2(timestamp_former,timestamp_backer)
-
-	timestamp_former=dp.read_file('arduino/data/90%.txt',2)##edison receiver
-	timestamp_backer=dp.read_file('edison/data/90%.txt',0)##edison sender
-	nine_data=dp.data_process_2(timestamp_former,timestamp_backer)
-
-	zero_statistics=dp.compute_statistics(zero_data)
-	ten_statistics=dp.compute_statistics(ten_data)
-	five_statistics=dp.compute_statistics(five_data)
-	nine_statistics=dp.compute_statistics(nine_data)
-	statistics=[zero_statistics,ten_statistics,five_statistics,
-				nine_statistics]
-	error_data=[zero_data,ten_data,five_data,nine_data]
-	title='IP stack(arduino)-edison'
-	multicurve(error_data,title,statistics)
-	'''
-
+        timestamp_former=dp.read_file('/home/newslab/Desktop/PaaS/experiment/canbus/data/dataRate500kbits/Wave500mHz/twoNodeNetwork/otherNodeAt500mHz/SyncWithHighestPriority/Edison.txt',1)##edison sender
+	timestamp_backer=dp.read_file('/home/newslab/Desktop/PaaS/experiment/canbus/data/dataRate500kbits/Wave500mHz/twoNodeNetwork/otherNodeAt500mHz/SyncWithHighestPriority/Arduino.txt',5)##arduino sender
 	
-	timestamp_former=dp.read_file('data/twoNodeNetwork/OnEdisonWithHighestPriorityAt500mHz.txt',1)##edison sender
-
-	timestamp_backer=dp.read_file('data/twoNodeNetwork/OnArduinoWithHighestPriorityAt500mHz.txt',5)##arduino sender
-	zero_data=dp.data_process_2(timestamp_former,timestamp_backer)
-        print zero_data
+        #timestamp_former=dp.read_file('/home/newslab/Desktop/PaaS/experiment/canbus/data/dataRate500kbits/Wave500mHz/oneNodeNetwork/edison.txt',1)##edison sender
+	#timestamp_backer=dp.read_file('/home/newslab/Desktop/PaaS/experiment/canbus/data/dataRate500kbits/Wave500mHz/oneNodeNetwork/arduino.txt',5)##arduino sender
+	
+        zero_data=dp.data_process_2(timestamp_former,timestamp_backer)
+        
+        #title = '1NodeNetworkSamplingErrorBetweenArduinoAndEdisonAt500mHz'
+        title = ''
+        #title = '2NodeNetworkSamplingErrorBetweenArduinoAndEdisonWithHighestPriorityAt500mHz,other500mHz'
+        
 	zero_statistics=dp.compute_statistics(zero_data)
-        title = '2NodeNetworkSamplingErrorBetweenArduinoAndEdisonWithHighestPriorityAt500mHz'
+        
         curve(zero_data,title,[zero_statistics])
