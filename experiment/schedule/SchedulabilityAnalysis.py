@@ -25,7 +25,7 @@ def getHyperperiod(sensorGroup):
     for x in range(2,length):
         hyperperiod = lcm(hyperperiod,sensorGroup[x].deadLine)
 
-    print "hyperperiod = {}".format(hyperperiod)
+    #print "hyperperiod = {}".format(hyperperiod)
     return hyperperiod
 
 def isSchedule(sensorGroup,target):
@@ -41,7 +41,7 @@ def isSchedule(sensorGroup,target):
         return False
     
 
-    print "target = {}".format(target)
+    #print "target = {}".format(target)
     responseTime = getResponseTime(sensorGroup,target)
     if responseTime <= sensorGroup[target].deadLine+sensorGroup[target].arrivalTime:
         return True
@@ -62,7 +62,7 @@ def getWaitingTime(waitingTime,blockingTime,higherPriority,transmissionTime,q):
         higherTime = higherTime + q * transmissionTime
         waitingTime = blockingTime + higherTime
         
-        print "wait^{} ({}) = {}".format(waitIndex,q,waitingTime)
+        #print "wait^{} ({}) = {}".format(waitIndex,q,waitingTime)
         if waitingTime == tmp:
             break
         waitIndex = waitIndex +1 
@@ -81,10 +81,11 @@ def gettm(tm,blockingTime,higherPriority,target):
                 *higherPriority[x].transmissionTime
         higherTime = higherTime + math.ceil(\
                 (tm + target.arrivalTime)/target.deadLine)*target.transmissionTime
-        print "higherTime = {}".format(higherTime)
+        #print "higherTime = {}".format(higherTime)
         tm = blockingTime + higherTime
         
-        print "tm^{} = {}".format(tmIndex,tm)
+        #print "tm^{} = {}".format(tmIndex,tm)
+        
         if tm == tmp:
             break
         tmIndex = tmIndex +1
@@ -122,8 +123,9 @@ def getResponseTime(sensorGroup,targetIndex):
                 break
 
     
-    print "blockingTime = {}".format(blockingTime)
-    hyperperiod = getHyperperiod(sensorGroup) 
+    #print "blockingTime = {}".format(blockingTime)
+    
+   
     ## initial tm^0
     tm = sensorGroup[targetIndex].transmissionTime
 
@@ -131,8 +133,9 @@ def getResponseTime(sensorGroup,targetIndex):
     tm = gettm(tm,blockingTime,higherPriority,sensorGroup[targetIndex])
     ## get Qm
     Qm = math.ceil((tm+sensorGroup[targetIndex].arrivalTime)/sensorGroup[targetIndex].deadLine)
-    print "Qm={}".format(Qm)
-    print "tm={}".format(tm)
+    
+    #print "Qm={}".format(Qm)
+    #print "tm={}".format(tm)
     
 
     
@@ -143,12 +146,12 @@ def getResponseTime(sensorGroup,targetIndex):
         ## get blockTime
         if q == 0:
             waitingTime.append(blockingTime)
-            print "blockingTime = {}".format(blockingTime)
+            #print "blockingTime = {}".format(blockingTime)
         
 
         elif q > 0:
             waitingTime.append(waitingTime[q-1] + sensorGroup[targetIndex].transmissionTime)
-            print "waitingTime({}) = {}".format(q,waitingTime)
+            #print "waitingTime({}) = {}".format(q,waitingTime)
 
         ## get Waiting time
         waitingTime[q] = getWaitingTime(waitingTime[q],blockingTime,higherPriority,\
@@ -158,7 +161,7 @@ def getResponseTime(sensorGroup,targetIndex):
         responseTime.append(sensorGroup[targetIndex].arrivalTime + \
                 waitingTime[q] - q * sensorGroup[targetIndex].deadLine + \
                           sensorGroup[targetIndex].transmissionTime)
-        print "responseTime({}) = {}".format(q,responseTime)
+        #print "responseTime({}) = {}".format(q,responseTime)
         
         q = q+1
     
@@ -168,17 +171,17 @@ def getResponseTime(sensorGroup,targetIndex):
 
 def main():
     ### arrival time, transmission time, deadLine, weight, priority
-    a = Sensor(0.0,1.0,4.0,4,1)
-    b = Sensor(0.0,3.0,6.0,7,2)
-    c = Sensor(0.0,1.0,4.0,5,3)
-    #a = Sensor(0.0,1.0,2.5,4,0)
-    #b = Sensor(0.0,1.0,3.5,7,1)
-    #c = Sensor(0.0,1.0,3.5,5,2)
+    #a = Sensor(0.0,1.0,4.0,4,1)
+    #b = Sensor(0.0,3.0,6.0,7,2)
+    #c = Sensor(0.0,1.0,4.0,5,3)
+    a = Sensor(0.0,3.0,20.0,4,0)
+    b = Sensor(0.0,2.0,5.0,7,1)
+    c = Sensor(0.0,2.0,9.0,5,2)
     print "main"
     
     sensorGroup = [a,b,c]
     
-    target = 2
+    target = 1
     ans = isSchedule(sensorGroup,target)
     print "schedule result = {}".format(ans)
     
