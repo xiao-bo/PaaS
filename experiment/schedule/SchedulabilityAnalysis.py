@@ -37,7 +37,7 @@ def isSchedule(sensorGroup,target):
             /sensorGroup[x].deadLine
 
     if utilijation > 1:
-        print "no schedule"
+        print "utilijation >1, no schedule"
         return False
     
 
@@ -177,13 +177,29 @@ def main():
     a = Sensor(0.0,3.0,20.0,4,0)
     b = Sensor(0.0,2.0,5.0,7,1)
     c = Sensor(0.0,2.0,9.0,5,2)
+
+    a = Sensor(0.0,2.0,6.0,4,2)
+    b = Sensor(0.0,2.0,6.0,7,1)
+    c = Sensor(0.0,3.0,10.0,5,3)
+
+    a = Sensor(0.0,1.0,3.0,0,4)
+    b = Sensor(0.0,2.0,5.0,1,3)
+    c = Sensor(0.0,1.0,4.0,2,2)
+
+    a = Sensor(0.0,1.0,5.0,0,1)
+    b = Sensor(0.0,2.0,6.0,1,0)
+    c = Sensor(0.0,1.0,50.0,2,2)
+    d = Sensor(0.0,1.0,100.0,3,5)
+    e = Sensor(0.0,1.0,100.0,4,3)
     print "main"
     
-    sensorGroup = [a,b,c]
-    
-    target = 1
-    ans = isSchedule(sensorGroup,target)
-    print "schedule result = {}".format(ans)
+    sensorGroup = [a,b,c,d,e]
+    for x in range(0,len(sensorGroup)):
+        ans = isSchedule(sensorGroup,x)
+        print ans    
+    #target = 2
+    #ans = isSchedule(sensorGroup,target)
+    #print "schedule result = {}".format(ans)
     
 
 if __name__ == '__main__':
