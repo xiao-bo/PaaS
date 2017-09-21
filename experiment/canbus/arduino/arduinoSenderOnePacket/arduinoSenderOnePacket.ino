@@ -26,7 +26,7 @@ unsigned long timeC2;
 unsigned long timeC3;
 
 //packet
-unsigned char packet[8] = {14, 58, 2, 3, 4, 5, 6,9};
+unsigned char packet[8] = {};
 int pIndex;
 
 //for loop variable
@@ -66,22 +66,29 @@ void putClockIntoPacket(int sensorValue,long timeC,int id){
         dIndex++; 
          
     }
-    CAN.sendMsgBuf(id,0,8,packet);
+    
+    
+    /*
     for(i=0;i<8;i++){
        Serial.print(packet[i]);
        Serial.print(" ");
     }
     Serial.println("");
-    
-    if (sensorValue>=1000){
-        packet[0]=13; 
-    }else if(sensorValue<10 and sensorValue>=0){
-        packet[0]=12;
+    */
+    if (sensorValue<10 and sensorValue>=0){
+        packet[0]=100;
+        packet[dIndex+1] = 255; 
+    }else if(sensorValue>1000){
+        packet[0]=101;
+        packet[dIndex+1] = 255;
+    }else{
+        packet[0]=102;
+        packet[dIndex+1] = 255;
     }
     
     Serial.print(" analog value ");
     Serial.println(sensorValue);
-    
+    CAN.sendMsgBuf(id,0,8,packet);
   
 }
 
@@ -113,24 +120,14 @@ void loop(){
     // digital 11 represents 0b in master
     // digital 10 represents 0a in master
     // digital 09 represents 09 in master
-    
-    for (i=0;i<len-1;i++){
-      digital[i] = 150; 
-      
-    }
-    timeC1 = 10095678;
-    sensorValue = 1023;
-    putClockIntoPacket(sensorValue,timeC1,0x03);
 
-    
-    /*
-    //sensorValue = (sensorValue+100) %1000;
-    sensorValue = analogRead(analogInPin);
-    if (sensorValue>=1000){
-        packet[0]=13; 
-    }else{
-        packet[0]=12;
+    // initial digital, choose 150 as control variable in putClockIntoPacket.
+    for (i=0;i<len-1;i++){
+      digital[i] = 150;
+      Serial.println(digital[i]);
     }
+   
+    sensorValue = analogRead(analogInPin);
     
     if(sensorValue != change and (sensorValue == 0 or sensorValue ==1023) ){
       
@@ -142,40 +139,26 @@ void loop(){
         //timeC1=1046100012; //maximum length of long vaiable is 10 digital
         
         change = sensorValue;
-    }   
-      // receive data from master
+    }  
+     
+    // receive data from master
     if(CAN_MSGAVAIL == CAN.checkReceive()){
-        
-        timeC2 = micros();
-        Serial.print("before read data : ");
-        Serial.println(timeC2);
+
         CAN.readMsgBuf(&reclen, buf);    // read data,  len: data length, buf: data buf
-        timeC2 = micros();
-        Serial.print("after reading data : ");
         Serial.println(timeC2);
         //Serial.println("get message");
         unsigned int canId = CAN.getCanId();
         if (canId == masterId){
-
             timeC2 = micros();
             Serial.println("master id is gooooooood");
-            packet[0]=14;
+            packet[0]=102;
             putClockIntoPacket(-1,timeC2,0x04);
             Serial.print("timeC2: ");
-            Serial.println(timeC2);
-            Serial.println("receive str from master");
-            unsigned char len = 0;
-            unsigned char buf[8];
-            CAN.readMsgBuf(&len, buf);  
-            for(int i = 0; i<len; i++){    // print the data
-                Serial.print(buf[i]);
-                Serial.print("\t");
-            }    
         }
       
     }
-    */
-    delay(1000);
+    
+    
 }
 
 /*********************************************************************************************************
