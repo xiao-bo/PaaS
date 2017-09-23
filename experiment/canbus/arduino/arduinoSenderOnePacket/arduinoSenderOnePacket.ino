@@ -124,7 +124,7 @@ void loop(){
     // initial digital, choose 150 as control variable in putClockIntoPacket.
     for (i=0;i<len-1;i++){
       digital[i] = 150;
-      Serial.println(digital[i]);
+      //Serial.println(digital[i]);
     }
    
     sensorValue = analogRead(analogInPin);
@@ -145,20 +145,22 @@ void loop(){
     if(CAN_MSGAVAIL == CAN.checkReceive()){
 
         CAN.readMsgBuf(&reclen, buf);    // read data,  len: data length, buf: data buf
-        Serial.println(timeC2);
+         
         //Serial.println("get message");
         unsigned int canId = CAN.getCanId();
         if (canId == masterId){
             timeC2 = micros();
+            Serial.print("timeC2: ");
+            Serial.println(timeC2);
             Serial.println("master id is gooooooood");
             packet[0]=102;
             putClockIntoPacket(-1,timeC2,0x04);
-            Serial.print("timeC2: ");
+           
         }
       
     }
     
-    
+    //delay(1000);
 }
 
 /*********************************************************************************************************

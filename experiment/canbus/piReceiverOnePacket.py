@@ -33,15 +33,13 @@ def sync(T2,T3,C21,C22,C23,R):
     print ("T2:"+str(T2))
     print ("T3:"+str(T3))
     print ("R:"+str(R))
-
-    print ("C23-C21: "+str((C23-C21)*R))
-    print ("C23-C22: "+str((C23-C22)*R))
+    print ("R*(C23-C21): "+str((C23-C21)*R))
+    print ("R*(C23-C22): "+str((C23-C22)*R))
     print ("T3-T2:"+str(T3-T2))
     print ("delay = ((T3-T2)-(C23-C22)*R)/2 = "+str(delay))
     print ("R= "+str(R))
     print ("actual T1 = T3 - delay - (C23-C21) * R =  "+str(T1))
     print ("sync") 
-
     return T1
 
 
@@ -142,25 +140,41 @@ if __name__ == "__main__":
         ## receiver data format is 
         ## 1504018295.064378        0001    000    8    0d 00 01 06 04 00 00 02
         receiveData = str(bus.recv())   ## receiver data
-        
+            
         ## split data = 
         ##['1504018295.064378', '0001', '000', '8', '0d', '00', '01', '06', '04', '00', '00', '02']
         
         receiveList = receiveData.split()
-        
+        print(receiveList)
         ## filter ID
         if receiveList[1] != "0003" and receiveList[1] != "0004":
             print("filter")
             continue
         
-        c21,target,value = getPayloadFromPacket(receiveList)
+        payload,target,value = getPayloadFromPacket(receiveList)
         #print(c21)
 
         ## c or d represent payload packet
         if (target =='c' or target == 'd'): 
             receiveT1 = receiveList[0]
+            c21 = payload
             print("receiveT1:{}".format(receiveT1))
 
+            ## alignRestart = 0 represent first align
+            if alignRestart == 0:
+                T2 = reply(msg,bus,alignRestart)
+                #print("T2:{}".format(T2))
+                fo.write("c21:"+str(c21)+":value:"+str(value)+":time:"+str(actualT1)+":receiveT1:"+str(receiveT1)+"\n")
+                #insertDataIntoDB(value,actualT1)
+                
+            ## alignRestart = 1 represent finish align, just calculate each message time
+            elif alignRestart == 1:
+                T1 = calculateAfterTime(oldc21,c21,actualT1,R)
+
+                print("c21:{}:value:{}:T1:{}:receiveT1:{}".format(c21,value,T1,receiveT1))
+                #print("value:{}:T1:{}".format(value,T1))
+                fo.write("c21:"+str(c21)+":value:"+str(value)+":time:"+str(T1)+":receiveT1:"+str(receiveT1)+"\n")
+                #insertDataIntoDB(value,T1)
         ##target e represent align packet
         elif target == 'e' and alignRestart ==0 : 
             
@@ -168,25 +182,11 @@ if __name__ == "__main__":
             T3 = receiveList[0]
             print("T3:{}".format(T3))
             ## receive c22
-            c22,tmp,tmp2 = getPayloadFromPacket(receiveList)
+            c22 = payload
+            #c22,tmp,tmp2 = getPayloadFromPacket(receiveList)
             actualT1 = sync(T2,T3,c21,c22,c22,R)
             oldc21 = c21
             print ("c21:{} value:{} actualT1:{}:receiveT1:{}".format(c21,value,actualT1,receiveT1))
             alignRestart =1
         
-        ## alignRestart = 0 represent first align
-        if alignRestart == 0:
-            T2 = reply(msg,bus,alignRestart)
-            #print("T2:{}".format(T2))
-            fo.write("c21:"+str(c21)+":value:"+str(value)+":time:"+str(actualT1)+":receiveT1:"+str(receiveT1)+"\n")
-            #insertDataIntoDB(value,actualT1)
-            
-        ## alignRestart = 1 represent finish align, just calculate each message time
-        elif alignRestart == 1:
-            T1 = calculateAfterTime(oldc21,c21,actualT1,R)
-
-            print("c21:{}:value:{}:T1:{}:receiveT1:{}".format(c21,value,T1,receiveT1))
-            #print("value:{}:T1:{}".format(value,T1))
-            fo.write("c21:"+str(c21)+":value:"+str(value)+":time:"+str(T1)+":receiveT1:"+str(receiveT1)+"\n")
-            #insertDataIntoDB(value,T1)
         #print("align:{}".format(alignRestart))
