@@ -14,6 +14,19 @@ def printSensor(sensorGroup):
     for x in range(0,len(sensorGroup)):
         print "sensor[{}].priority = {}".format(x,sensorGroup[x].priority)
     
+def search(sensorGroup,priority):
+    for x in sensorGroup:
+        if x.priority == priority:
+            index = sensorGroup.index(x)
+            return index
+def finialTest(sensorGroup):
+    for x in range(0,len(sensorGroup)):
+        if sa.isSchedule(sensorGroup,x):
+            continue
+        else:
+            return False
+        
+    return True
 
 def initialSensor(sensorGroup,assignedArray,unassignedArray):
     for x in range(0,len(sensorGroup)):
@@ -47,7 +60,7 @@ def priorityAssignmentAlgo(sensorGroup,assignedArray,unassignedArray):
     
     
     ## lowest priority first be assigned
-    x=3
+    count = 0
     
     while currentPriority >= 0 :
        
@@ -55,19 +68,16 @@ def priorityAssignmentAlgo(sensorGroup,assignedArray,unassignedArray):
 
         ## check currentPriority is assigned 
         if currentPriority in assignedPriority:
-            for x in sensorGroup:
-                ## search assigned sensor
-                if x.priority ==currentPriority:
-                    index = sensorGroup.index(x)
-
-                    ## check sensor is schedule?
-                    if sa.isSchedule(sensorGroup,index):
-                        print "sensor[{}] can schedule at priority {}".format(index,currentPriority)
-                        currentPriority = currentPriority -1
-                        break
-                    else:
-                        print "sensor[{}] can't be schedule at priority {}".format(index,currentPriority)
-                        return False
+            index = search(sensorGroup,currentPriority)
+            ## check sensor is schedule?
+            count = count +1
+            if sa.isSchedule(sensorGroup,index):
+                print "sensor[{}] can schedule at priority {}".format(index,currentPriority)
+                currentPriority = currentPriority -1
+                continue
+            else:
+                print "sensor[{}] can't be schedule at priority {}".format(index,currentPriority)
+                return False
         else:
                    
             for target in sensorGroup:
@@ -75,29 +85,33 @@ def priorityAssignmentAlgo(sensorGroup,assignedArray,unassignedArray):
                 printSensor(sensorGroup)           
                 print "target.priority={} weight={}".format(target.priority,target.weight)
                 print "current priority={}".format(currentPriority)
-
+                count = count +1
                 if target.priority == 0:
                     target.priority = currentPriority
                 else:
+                    print ""
                     continue
+                
                 index = sensorGroup.index(target)
 
                 ## check schedule.
                 if sa.isSchedule(sensorGroup,index):
                     print "target index:{} can schedule at priority {}  and jump".format(index,currentPriority)
+                    
                     break
                 else:
                     print "target index:{} can't schedule at priority {}".format(index,currentPriority)
-                
-                ## to avoid duplicate priority in sensor
-                target.priority = 0
+                    ## to avoid duplicate priority in sensor
+                    target.priority = 0
                 
             
             else:
-                return False
+                print "count = {}".format(count)
+                return finialTest(sensorGroup)
+                
             currentPriority = currentPriority - 1
     
-    
+    print "count = {}".format(count)
     printSensor(sensorGroup)
     return True
 
@@ -109,11 +123,11 @@ def main():
     b = Sensor(0.0,1.0,4.0,4,1)
     c = Sensor(0.0,1.0,4.0,5,2)
     '''
-    a = Sensor(0.0,1.0,5.0,0,1)
-    b = Sensor(0.0,2.0,6.0,1,0)
+    a = Sensor(0.0,1.0,5.0,0,2)
+    b = Sensor(0.0,2.0,6.0,1,1)
     c = Sensor(0.0,1.0,50.0,2,2)
     d = Sensor(0.0,1.0,100.0,3,5)
-    e = Sensor(0.0,1.0,100.0,4,3)
+    e = Sensor(0.0,1.0,100.0,4,4)
     print "main"
     
     sensorGroup = [a,b,c,d,e]

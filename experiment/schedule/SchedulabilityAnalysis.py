@@ -186,11 +186,11 @@ def main():
     b = Sensor(0.0,2.0,5.0,1,3)
     c = Sensor(0.0,1.0,4.0,2,2)
 
-    a = Sensor(0.0,1.0,5.0,0,1)
-    b = Sensor(0.0,2.0,6.0,1,0)
+    a = Sensor(0.0,1.0,5.0,0,3)
+    b = Sensor(0.0,2.0,6.0,1,4)
     c = Sensor(0.0,1.0,50.0,2,2)
     d = Sensor(0.0,1.0,100.0,3,5)
-    e = Sensor(0.0,1.0,100.0,4,3)
+    e = Sensor(0.0,1.0,100.0,4,1)
     print "main"
     
     sensorGroup = [a,b,c,d,e]
