@@ -20,6 +20,12 @@ def search(sensorGroup,priority):
             index = sensorGroup.index(x)
             return index
 def finialTest(sensorGroup):
+    count = 0
+    for x in sensorGroup:
+        if x.priority == 0:
+            count = count +1
+    if count >1:
+        return False
     for x in range(0,len(sensorGroup)):
         if sa.isSchedule(sensorGroup,x):
             continue
@@ -123,9 +129,9 @@ def main():
     b = Sensor(0.0,1.0,4.0,4,1)
     c = Sensor(0.0,1.0,4.0,5,2)
     '''
-    a = Sensor(0.0,1.0,5.0,0,2)
-    b = Sensor(0.0,2.0,6.0,1,1)
-    c = Sensor(0.0,1.0,50.0,2,2)
+    a = Sensor(0.0,1.0,3.0,0,2)
+    b = Sensor(0.0,2.0,6.0,1,2)
+    c = Sensor(0.0,1.0,50.0,2,4)
     d = Sensor(0.0,1.0,100.0,3,5)
     e = Sensor(0.0,1.0,100.0,4,4)
     print "main"
