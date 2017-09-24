@@ -174,29 +174,32 @@ def main():
     #a = Sensor(0.0,1.0,4.0,4,1)
     #b = Sensor(0.0,3.0,6.0,7,2)
     #c = Sensor(0.0,1.0,4.0,5,3)
-    a = Sensor(0.0,3.0,20.0,4,0)
-    b = Sensor(0.0,2.0,5.0,7,1)
-    c = Sensor(0.0,2.0,9.0,5,2)
-
+    #a = Sensor(0.0,3.0,9.0,4,2)
+    #b = Sensor(0.0,1.0,4.0,7,1)
+    #c = Sensor(0.0,1.0,6.0,5,0)
     a = Sensor(0.0,2.0,6.0,4,2)
     b = Sensor(0.0,2.0,6.0,7,1)
     c = Sensor(0.0,3.0,10.0,5,3)
 
-    a = Sensor(0.0,1.0,3.0,0,4)
-    b = Sensor(0.0,2.0,5.0,1,3)
-    c = Sensor(0.0,1.0,4.0,2,2)
-
-    a = Sensor(0.0,1.0,5.0,0,3)
-    b = Sensor(0.0,2.0,6.0,1,4)
-    c = Sensor(0.0,1.0,50.0,2,2)
-    d = Sensor(0.0,1.0,100.0,3,5)
-    e = Sensor(0.0,1.0,100.0,4,1)
+    a = Sensor(0.2,1.08,3.0,0,4)
+    b = Sensor(0.2,1.08,4.0,1,8)
+    c = Sensor(0.2,0.52,4.5,2,3)
+    d = Sensor(0  ,1.08,200,3,5)
+    '''
+    a = Sensor(0.0,5.0,40.0,0,8)
+    b = Sensor(0.0,2.0,50.0,1,7)
+    c = Sensor(0.0,1.0,9.0,2,1)
+    d = Sensor(0.0,1.0,8.0,3,2)
+    e = Sensor(0.0,2.0,7.0,4,6)
+    f = Sensor(0.0,1.0,15.0,4,5)
+    '''
     print "main"
     
-    sensorGroup = [a,b,c,d,e]
+    sensorGroup = [a,b,c,d]#,e,f]
+
     for x in range(0,len(sensorGroup)):
         ans = isSchedule(sensorGroup,x)
-        print ans    
+        print "{}:{}".format(x,ans)
     #target = 2
     #ans = isSchedule(sensorGroup,target)
     #print "schedule result = {}".format(ans)

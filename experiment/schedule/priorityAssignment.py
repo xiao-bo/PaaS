@@ -20,6 +20,7 @@ def search(sensorGroup,priority):
             index = sensorGroup.index(x)
             return index
 def finialTest(sensorGroup):
+    
     count = 0
     for x in sensorGroup:
         if x.priority == 0:
@@ -55,8 +56,11 @@ def priorityAssignmentAlgo(sensorGroup,assignedArray,unassignedArray):
 
     
     assignedPriority = [x.priority for x in assignedArray]
-    currentPriority = len(sensorGroup)-1
-
+    if assignedPriority:
+        currentPriority = max(assignedPriority)+len(unassignedArray)
+    else:
+        currentPriority = len(unassignedArray)
+    finialPriority = []
     print "==="
     for x in range(0,10):
         if x in assignedPriority:
@@ -74,6 +78,9 @@ def priorityAssignmentAlgo(sensorGroup,assignedArray,unassignedArray):
 
         ## check currentPriority is assigned 
         if currentPriority in assignedPriority:
+            currentPriority = currentPriority -1
+            continue
+            '''
             index = search(sensorGroup,currentPriority)
             ## check sensor is schedule?
             count = count +1
@@ -84,6 +91,7 @@ def priorityAssignmentAlgo(sensorGroup,assignedArray,unassignedArray):
             else:
                 print "sensor[{}] can't be schedule at priority {}".format(index,currentPriority)
                 return False
+            '''
         else:
                    
             for target in sensorGroup:
@@ -110,39 +118,52 @@ def priorityAssignmentAlgo(sensorGroup,assignedArray,unassignedArray):
                     ## to avoid duplicate priority in sensor
                     target.priority = 0
                 
-            
+            '''
             else:
                 print "count = {}".format(count)
+                print "finial test"
                 return finialTest(sensorGroup)
-                
+            ''' 
             currentPriority = currentPriority - 1
     
     print "count = {}".format(count)
     printSensor(sensorGroup)
-    return True
+    return finialTest(sensorGroup)
+    #return True
 
 def main():
     
     ### arrival time, transmission time, deadLine, weight, priority
+    a = Sensor(0.1,1.08,3.0,7,0)
+    b = Sensor(0.1,1.08,4.0,4,1)
+    c = Sensor(0.1,0.52,4.5,5,2)
+    d = Sensor(0.0,1.08,100,4,5)
     '''
-    a = Sensor(0.0,3.0,6.0,7,0)
-    b = Sensor(0.0,1.0,4.0,4,1)
-    c = Sensor(0.0,1.0,4.0,5,2)
+    a = Sensor(0.0,5.0,40.0,0,1)
+    b = Sensor(0.0,2.0,50.0,1,3)
+    c = Sensor(0.0,1.0,9.0,2,1)
+    d = Sensor(0.0,1.0,8.0,3,2)
+    e = Sensor(0.0,2.0,7.0,4,4)
+    f = Sensor(0.0,1.0,15.0,4,5)
     '''
-    a = Sensor(0.0,1.0,3.0,0,2)
-    b = Sensor(0.0,2.0,6.0,1,2)
-    c = Sensor(0.0,1.0,50.0,2,4)
-    d = Sensor(0.0,1.0,100.0,3,5)
-    e = Sensor(0.0,1.0,100.0,4,4)
     print "main"
     
-    sensorGroup = [a,b,c,d,e]
-    assignedArray = [c,d]
-    unassignedArray = [a,b,e]
-    if priorityAssignmentAlgo(sensorGroup,assignedArray,unassignedArray):
-        print "==== sensorGroup can be schedulable"
-    else:
-        print "====can't be schedulable"
+    sensorGroup = [a,b,c,d]#,d,e,f]
+    assignedArray = [d]
+    unassignedArray = [a,b,c]
 
+    #assignedArray = [c,d,f]
+    #unassignedArray = [a,b,e]
+    for x in assignedArray:
+        if x.priority ==0:
+            print ("please remove priority 0 in assigned Array")
+            break
+    else:        
+        if priorityAssignmentAlgo(sensorGroup,assignedArray,unassignedArray):
+            print "==== sensorGroup can be schedulable"
+        else:
+            print "====can't be schedulable"
+
+    printSensor(sensorGroup)
 if __name__ == "__main__":
     main()
