@@ -80,18 +80,6 @@ def priorityAssignmentAlgo(sensorGroup,assignedArray,unassignedArray):
         if currentPriority in assignedPriority:
             currentPriority = currentPriority -1
             continue
-            '''
-            index = search(sensorGroup,currentPriority)
-            ## check sensor is schedule?
-            count = count +1
-            if sa.isSchedule(sensorGroup,index):
-                print "sensor[{}] can schedule at priority {}".format(index,currentPriority)
-                currentPriority = currentPriority -1
-                continue
-            else:
-                print "sensor[{}] can't be schedule at priority {}".format(index,currentPriority)
-                return False
-            '''
         else:
                    
             for target in sensorGroup:
@@ -118,18 +106,12 @@ def priorityAssignmentAlgo(sensorGroup,assignedArray,unassignedArray):
                     ## to avoid duplicate priority in sensor
                     target.priority = 0
                 
-            '''
-            else:
-                print "count = {}".format(count)
-                print "finial test"
-                return finialTest(sensorGroup)
-            ''' 
+            
             currentPriority = currentPriority - 1
     
     print "count = {}".format(count)
     printSensor(sensorGroup)
     return finialTest(sensorGroup)
-    #return True
 
 def main():
     
