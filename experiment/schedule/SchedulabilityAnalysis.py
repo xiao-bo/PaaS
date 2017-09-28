@@ -1,13 +1,14 @@
 import math
 
 class Sensor:
-    def __init__(self,arrivalTime,transmissionTime,deadLine,weight,priority = 0):
+    def __init__(self,arrivalTime,transmissionTime,deadLine,weight,priority,index):
         self.arrivalTime = arrivalTime
         self.transmissionTime = transmissionTime
         self.deadLine = deadLine
         self.weight = weight
 
         self.priority = priority
+        self.index = index
 
 
 def gcd(a,b):
@@ -177,25 +178,27 @@ def main():
     #a = Sensor(0.0,3.0,9.0,4,2)
     #b = Sensor(0.0,1.0,4.0,7,1)
     #c = Sensor(0.0,1.0,6.0,5,0)
-    a = Sensor(0.0,2.0,6.0,4,2)
-    b = Sensor(0.0,2.0,6.0,7,1)
-    c = Sensor(0.0,3.0,10.0,5,3)
-
+    a = Sensor(0,3.0,5.0,3,1,1)
+    b = Sensor(0,1.0,4.0,4,2,6)
+    c = Sensor(0,1.0,6.0,2,3,3)
+    d = Sensor(0.0,1.0,2.0,10,4,4)
+    e = Sensor(0.0,1.0,100.0,10,5,5)
+    '''
     a = Sensor(0.2,1.08,3.0,0,4)
     b = Sensor(0.2,1.08,4.0,1,8)
     c = Sensor(0.2,0.52,4.5,2,3)
     d = Sensor(0  ,1.08,200,3,5)
-    '''
-    a = Sensor(0.0,5.0,40.0,0,8)
-    b = Sensor(0.0,2.0,50.0,1,7)
+    
+    a = Sensor(0.0,5.0,40.0,0,6)
+    b = Sensor(0.0,2.0,50.0,1,5)
     c = Sensor(0.0,1.0,9.0,2,1)
     d = Sensor(0.0,1.0,8.0,3,2)
-    e = Sensor(0.0,2.0,7.0,4,6)
-    f = Sensor(0.0,1.0,15.0,4,5)
+    e = Sensor(0.0,2.0,7.0,4,3)
+    f = Sensor(0.0,1.0,15.0,4,4)
     '''
     print "main"
     
-    sensorGroup = [a,b,c,d]#,e,f]
+    sensorGroup = [a,c,e]#,d,e,f]
 
     for x in range(0,len(sensorGroup)):
         ans = isSchedule(sensorGroup,x)
