@@ -99,12 +99,15 @@ def main():
         diffArray.append(diff)
         print "x = {}".format(x)
         del sensorGroup
-        
-    print maximumSelect
-    print maximumExhausted
+
+    print selectArray
+    print "=="
+    print exhaustedArray
+    print "=="
     print diffArray
-    fo.write(maximumSelect)
-    fo.write(maximumExhausted)
+
+    fo.write(selectArray)
+    fo.write(exhaustedArray)
     fo.write(diffArray)
 if __name__ == "__main__":
     main()
