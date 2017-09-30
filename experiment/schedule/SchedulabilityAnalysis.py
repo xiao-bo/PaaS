@@ -38,7 +38,7 @@ def isSchedule(sensorGroup,target):
             /sensorGroup[x].deadLine
 
     if utilijation > 1:
-        print "utilijation >1, no schedule"
+        #print "utilijation >1, no schedule"
         return False
     
 
