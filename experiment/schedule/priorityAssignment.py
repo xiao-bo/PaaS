@@ -13,6 +13,7 @@ class Sensor:
 def printSensorPriority(sensorGroup):
     for x in range(0,len(sensorGroup)):
         print "sensor[{}].priority = {}, index ={}".format(x,sensorGroup[x].priority, sensorGroup[x].index)
+
 def printSensorAllProperty(sensorGroup):
 
     for x in range(0,len(sensorGroup)):
@@ -25,6 +26,7 @@ def search(sensorGroup,priority):
         if x.priority == priority:
             index = sensorGroup.index(x)
             return index
+
 def finialTest(sensorGroup):
     
     count = 0
@@ -48,18 +50,13 @@ def initialSensor(sensorGroup,assignedArray,unassignedArray):
             continue
         sensorGroup[x].priority = 0
 
-
-
 def priorityAssignmentAlgo(sensorGroup,assignedArray,unassignedArray):
-
-
 
     #########
     
     initialSensor(sensorGroup,assignedArray,unassignedArray)
     
     ## note unassigned sensor index
-
     
     assignedPriority = [x.priority for x in assignedArray]
     if assignedPriority:
@@ -69,8 +66,6 @@ def priorityAssignmentAlgo(sensorGroup,assignedArray,unassignedArray):
     finialPriority = []
   
     #print currentPriority
-
-    
     
     ## lowest priority first be assigned
     count = 0

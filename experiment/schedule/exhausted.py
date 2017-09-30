@@ -53,7 +53,7 @@ def oneRound(assignedArray,unassignedArray):
     total = newGroup(assignedArray,maxGroup)
     maximum = getSumOfWeight(total)
     #print maximum
-    print "finial run==========~~~"
+    #print "finial run==========~~~"
     pa.priorityAssignmentAlgo(total,assignedArray,maxGroup)
     #pa.printSensorPriority(total)
     return maximum

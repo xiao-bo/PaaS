@@ -3,7 +3,7 @@ import numpy as np
 import math
 import random
 import priorityAssignment as pa
-
+import time
 from exhausted import oneRound
 from greedy import select
 
@@ -25,8 +25,6 @@ def produceSensor(totalNumber,assignedNumber):
         sensorGroup.append(copy.deepcopy(a))
    
     #pa.printSensorPriority(sensorGroup)
-    #a.priority = 2
-    #pa.printSensorPriority(sensorGroup)
 
     return produceUniformData(sensorGroup,sensorGroup[:assignedNumber],sensorGroup[assignedNumber:])
     
@@ -37,7 +35,7 @@ def produceUniformData(sensorGroup,assignedArray,unassignedArray):
     for x in sensorGroup:
 
         x.transmissionTime = 64 + 8 * math.ceil(np.random.uniform(0,8,1))
-        x.deadLine = x.transmissionTime + 128 + math.ceil(np.random.uniform(0,100,1))
+        x.deadLine = x.transmissionTime + 128 + math.ceil(np.random.uniform(0,500,1))
         x.weight = math.ceil(np.random.uniform(0,20,1))
         x.arrivalTime = math.ceil(np.random.uniform(0,1000,1))
         x.index = index
@@ -67,7 +65,6 @@ def main():
     
     ### arrival time, transmission time, deadLine, weight, priority, index
 
-
     totalNumber = 10
     assignedNumber = 0
     diffArray = []
@@ -76,21 +73,24 @@ def main():
     fo = open(filename,"w")
     selectArray = []
     exhaustedArray = []
-    for x in range(0,100):
+    for x in range(0,10):
         sensorGroup = produceSensor(totalNumber,assignedNumber)
         #pa.printSensorPriority(sensorGroup)
 
-        print "???????????????????"
+        print "start selectArray time = {}".format(time.time())
         maximumSelect = select(sensorGroup[:assignedNumber],sensorGroup[assignedNumber:])
         selectArray.append(maximumSelect)
-        print "???????????????????"
+        print "end selectArray: {}  time = {}".format(maximumSelect,time.time())
         
+        print "exhausted: time= {}".format(time.time())
         maximumExhausted = oneRound(sensorGroup[:assignedNumber],sensorGroup[assignedNumber:])
-        exhaustedArray.append(maximumExhausted)
+        print "maximumExhausted:{}  time = {}".format(maximumExhausted,time.time())
 
+        exhaustedArray.append(maximumExhausted)
         diff = maximumExhausted - maximumSelect
         diffArray.append(diff)
-        print "x = {}".format(x)
+
+        print "round = {}".format(x)
         del sensorGroup
 
     print selectArray
@@ -99,8 +99,8 @@ def main():
     print "=="
     print diffArray
 
-    fo.write("select = "+str(selectArray)+"\n")
-    fo.write("exhausted = "+str(exhaustedArray)+"\n")
-    fo.write("diff = "+str(diffArray))
+    fo.write(str(selectArray)+"\n")
+    fo.write(str(exhaustedArray)+"\n")
+    fo.write(str(diffArray))
 if __name__ == "__main__":
     main()

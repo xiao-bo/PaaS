@@ -90,7 +90,7 @@ def select(assignedArray,unassignedArray):
                 ## and break loop. 
                 sensorGroup = newGroup(assignedArray,selectGroup)
                 pa.priorityAssignmentAlgo(sensorGroup,assignedArray,selectGroup)
-                print "break"
+                #print "break"
                 break
             randIndex = random.randrange(0,len(unassignedArray))
             selectGroup.append(unassignedArray[randIndex])
