@@ -39,7 +39,7 @@ def produceUniformData(sensorGroup,assignedArray,unassignedArray):
         x.transmissionTime = 64 + 8 * math.ceil(np.random.uniform(0,8,1))
         x.deadLine = x.transmissionTime + 128 + math.ceil(np.random.uniform(0,100,1))
         x.weight = math.ceil(np.random.uniform(0,20,1))
-        x.arrivalTime = math.ceil(np.random.uniform(0,100,1))
+        x.arrivalTime = math.ceil(np.random.uniform(0,1000,1))
         x.index = index
         index = index + 1
 
@@ -67,13 +67,6 @@ def main():
     
     ### arrival time, transmission time, deadLine, weight, priority, index
 
-    '''
-    a = Sensor(62.0,96.0,226.0,74,0,1)
-    b = Sensor(50.0,72.0,220.0,2,0,2)
-    c = Sensor(43.0,96.0,252.0,90,0,3)
-    d = Sensor(48.0,96.0,230.0,62,0,4)
-    sensorGroup = [a,b,c,d]
-    '''
 
     totalNumber = 10
     assignedNumber = 0
@@ -106,8 +99,8 @@ def main():
     print "=="
     print diffArray
 
-    fo.write(selectArray)
-    fo.write(exhaustedArray)
-    fo.write(diffArray)
+    fo.write("select = "+str(selectArray)+"\n")
+    fo.write("exhausted = "+str(exhaustedArray)+"\n")
+    fo.write("diff = "+str(diffArray))
 if __name__ == "__main__":
     main()

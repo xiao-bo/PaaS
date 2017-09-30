@@ -3,7 +3,6 @@ import SchedulabilityAnalysis as sa
 import copy
 from greedy import newGroup, getSumOfWeight
 import time
-import progressbar
 
 
 class Sensor:
