@@ -1,15 +1,5 @@
 import math
-
-class Sensor:
-    def __init__(self,arrivalTime,transmissionTime,deadLine,weight,priority,index):
-        self.arrivalTime = arrivalTime
-        self.transmissionTime = transmissionTime
-        self.deadLine = deadLine
-        self.weight = weight
-
-        self.priority = priority
-        self.index = index
-
+from sensor import Sensor
 
 def gcd(a,b):
     while b:
@@ -37,7 +27,7 @@ def isSchedule(sensorGroup,target):
         utilijation = utilijation + sensorGroup[x].transmissionTime \
             /sensorGroup[x].deadLine
 
-    if utilijation > 1:
+    if utilijation > 0.35:
         #print "utilijation >1, no schedule"
         return False
     
@@ -178,11 +168,14 @@ def main():
     #a = Sensor(0.0,3.0,9.0,4,2)
     #b = Sensor(0.0,1.0,4.0,7,1)
     #c = Sensor(0.0,1.0,6.0,5,0)
-    a = Sensor(0,3.0,5.0,3,1,1)
-    b = Sensor(0,1.0,4.0,4,2,6)
-    c = Sensor(0,1.0,6.0,2,3,3)
-    d = Sensor(0.0,1.0,2.0,10,4,4)
-    e = Sensor(0.0,1.0,100.0,10,5,5)
+    
+    
+    
+    a = Sensor(851.0,120.0,2862.0,12.0,0,1)
+    b = Sensor(977.0,112.0,457.0,4,2,6)
+    c = Sensor(156.0,104.0,931.0,2,3,3)
+    d = Sensor(210.0,120.0,509.0,10,4,4)
+    e = Sensor(701.0,128.0,516.0,10,5,5)
     '''
     a = Sensor(0.2,1.08,3.0,0,4)
     b = Sensor(0.2,1.08,4.0,1,8)
@@ -199,7 +192,7 @@ def main():
     print "main"
     
     sensorGroup = [a,c,e]#,d,e,f]
-
+    
     for x in range(0,len(sensorGroup)):
         ans = isSchedule(sensorGroup,x)
         print "{}:{}".format(x,ans)

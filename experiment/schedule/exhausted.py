@@ -3,18 +3,9 @@ import SchedulabilityAnalysis as sa
 import copy
 from greedy import newGroup, getSumOfWeight
 import time
-
-
-class Sensor:
-    def __init__(self,arrivalTime,transmissionTime,deadLine,weight,priority,index):
-        
-        self.arrivalTime = arrivalTime
-        self.transmissionTime = transmissionTime
-        self.deadLine = deadLine
-        self.weight = weight
-
-        self.priority = priority
-        self.index = index
+from sensor import Sensor
+from sensor import printSensorAllProperty
+from sensor import printSensorPriority
 
 def exhaustedProgram(maximum,target,assignedArray,unassignedArray,maxGroup,count):
     
@@ -23,18 +14,17 @@ def exhaustedProgram(maximum,target,assignedArray,unassignedArray,maxGroup,count
         
         newTarget.append(unassignedArray[i])
         new = newGroup(assignedArray,newTarget)
-        if pa.priorityAssignmentAlgo(new,assignedArray,newTarget):
-     
-            #pa.printSensorPriority(new)
-            #print "==="
- 
-            tmp,maxGroup,count = exhaustedProgram(maximum, newTarget,assignedArray,unassignedArray[i+1:],maxGroup,count)
-            if tmp > getSumOfWeight(newTarget):
-                maximum = tmp
+        #printSensorPriority(new)
+        #print "==="
+        tmp,maxGroup,count = exhaustedProgram(maximum, newTarget,assignedArray,unassignedArray[i+1:],maxGroup,count)
+        if tmp > getSumOfWeight(newTarget):
+            maximum = tmp
 
-            else:
-                maximum = getSumOfWeight(newTarget)
-                maxGroup = newTarget
+        else:
+            maximum = getSumOfWeight(newTarget)
+            maxGroup = newTarget
+        pa.priorityAssignmentAlgo(new,assignedArray,newTarget)
+    
     if not unassignedArray:
         count = count +1
     return maximum,maxGroup,count
@@ -46,6 +36,7 @@ def oneRound(assignedArray,unassignedArray):
     now = time.time()
     #print now
     maximum,maxGroup,count = exhaustedProgram(maximum,[],assignedArray,unassignedArray,[],0)
+    #maximum,maxGroup,count = exhaustedProgram(maximum,[],[],[1,2,3,4,5],[],0)
     now = time.time()
     #print now
     print "count={}".format(count)
@@ -55,7 +46,7 @@ def oneRound(assignedArray,unassignedArray):
     #print maximum
     #print "finial run==========~~~"
     pa.priorityAssignmentAlgo(total,assignedArray,maxGroup)
-    #pa.printSensorPriority(total)
+    #printSensorPriority(total)
     return maximum
 def main():
     
@@ -67,7 +58,7 @@ def main():
     e = Sensor(0.0,1.0,100.0,5,5,5)
     f = Sensor(0.0,1.0,100.0,6,6,6)
    
-    assignedArray = [e,f]
+    assignedArray = []
     unassignedArray = [a,b,c,d]
       
     oneRound(assignedArray,unassignedArray)

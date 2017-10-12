@@ -1,17 +1,8 @@
 import priorityAssignment as pa
 import random
-
-class Sensor:
-    def __init__(self,arrivalTime,transmissionTime,deadLine,weight,priority,index):
-        
-        self.arrivalTime = arrivalTime
-        self.transmissionTime = transmissionTime
-        self.deadLine = deadLine
-        self.weight = weight
-
-        self.priority = priority
-        self.index = index
-
+from sensor import Sensor
+from sensor import printAll
+from sensor import printSensorAllProperty
 def smallestSensorIndex(sensorGroup):
     
     smallest = 1
@@ -24,24 +15,6 @@ def smallestSensorIndex(sensorGroup):
             index = sensorGroup.index(x)
     return index
 
-
-def printAll(sensorGroup,assignedArray,unassignedArray,selectGroup):
-    
-    print "sensorGroup:"
-    for x in range(0,len(sensorGroup)):
-        print "sensorGroup[{}].priority ={} , index = {}".format(x,sensorGroup[x].priority,sensorGroup[x].index)
-    
-    print "assignedArray"
-    for x in range(0,len(assignedArray)):
-        print "assignedArray[{}].priority = {}, index = {}".format(x,assignedArray[x].priority,assignedArray[x].index)
-
-    print "unassignedArray"
-    for x in range(0,len(unassignedArray)):
-        print "unassignedArray[{}].priority = {}, index = {}".format(x,unassignedArray[x].priority,unassignedArray[x].index)
-
-    print "selectGroup"
-    for x in range(0,len(selectGroup)):
-        print "selectGroup[{}].priority = {}, index = {}".format(x,selectGroup[x].priority,selectGroup[x].index)
 
 def newGroup(assignedArray,selectGroup):
     new = []
@@ -79,8 +52,10 @@ def select(assignedArray,unassignedArray):
         #printAll(sensorGroup,assignedArray,unassignedArray,selectGroup)
 
         
-        ## when sensorGroup can't be schedule 
-        while not pa.priorityAssignmentAlgo(sensorGroup,assignedArray,selectGroup):        
+        ## when sensorGroup can't be schedule
+        
+        ans,saCount = pa.priorityAssignmentAlgo(sensorGroup,assignedArray,selectGroup)
+        while not ans: 
         
             #print "remove new element from selectGroup and move random one \
             #from unassignedArray"
@@ -106,7 +81,7 @@ def select(assignedArray,unassignedArray):
         convergenceMaximum = convergenceMaximum +1
 
     #print "greedy select: "
-    #pa.printSensorAllProperty(sensorGroup)
+    #printSensorAllProperty(sensorGroup)
     return maximum
 
 

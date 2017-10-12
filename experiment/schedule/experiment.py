@@ -6,25 +6,16 @@ import priorityAssignment as pa
 import time
 from exhausted import oneRound
 from greedy import select
-
-class Sensor:
-    def __init__(self,arrivalTime,transmissionTime,deadLine,weight,priority,index):
-        
-        self.arrivalTime = arrivalTime
-        self.transmissionTime = transmissionTime
-        self.deadLine = deadLine
-        self.weight = weight
-
-        self.priority = priority
-        self.index = index
-
+from sensor import Sensor
+from sensor import printSensorPriority
+from sensor import printSensorAllProperty
 def produceSensor(totalNumber,assignedNumber):
     sensorGroup = []
     a = Sensor(1.0,1.0,1.0,1,1,1)
     for x in range(0,totalNumber):
         sensorGroup.append(copy.deepcopy(a))
    
-    #pa.printSensorPriority(sensorGroup)
+    #printSensorPriority(sensorGroup)
 
     return produceUniformData(sensorGroup,sensorGroup[:assignedNumber],sensorGroup[assignedNumber:])
     
@@ -35,7 +26,7 @@ def produceUniformData(sensorGroup,assignedArray,unassignedArray):
     for x in sensorGroup:
 
         x.transmissionTime = 64 + 8 * math.ceil(np.random.uniform(0,8,1))
-        x.deadLine = x.transmissionTime + 128 + math.ceil(np.random.uniform(0,500,1))
+        x.deadLine = x.transmissionTime + 128 + math.ceil(np.random.uniform(1000*10,3000*10,1))
         x.weight = math.ceil(np.random.uniform(0,20,1))
         x.arrivalTime = math.ceil(np.random.uniform(0,1000,1))
         x.index = index
@@ -56,7 +47,7 @@ def produceUniformData(sensorGroup,assignedArray,unassignedArray):
             x.priority = priority[i]
             i = i + 1
 
-    #pa.printSensorAllProperty(sensorGroup)
+    #printSensorAllProperty(sensorGroup)
    
     return sensorGroup
 
@@ -65,7 +56,7 @@ def main():
     
     ### arrival time, transmission time, deadLine, weight, priority, index
 
-    totalNumber = 10
+    totalNumber =10
     assignedNumber = 0
     diffArray = []
 
@@ -73,9 +64,31 @@ def main():
     fo = open(filename,"w")
     selectArray = []
     exhaustedArray = []
-    for x in range(0,10):
+    '''
+    for x in range(0,1000):
         sensorGroup = produceSensor(totalNumber,assignedNumber)
-        #pa.printSensorPriority(sensorGroup)
+        tmp = time.time()
+        #maximumSelect = select(sensorGroup[:assignedNumber],sensorGroup[assignedNumber:])
+        #print "select  time = {}".format(time.time()-tmp)
+        tmp = time.time()
+        ans,saCount = pa.priorityAssignmentAlgo(sensorGroup,sensorGroup[:assignedNumber],sensorGroup[assignedNumber:])
+        elapsed =time.time()-tmp
+        print "round = {}  ans = {} saCount = {}  just pa time = {}".format(x,ans,saCount,elapsed)
+        fo.write("round = "+str(x)+"  ans =  "+str(ans)+" saCount = "+str(saCount)+" just pa time = "+str(elapsed)+"\n")
+        if saCount ==101:
+            
+            printSensorAllProperty(sensorGroup)
+            break
+    print "fixed group"
+    for x in range(0,10):
+        tmp = time.time()
+        ans,saCount = pa.priorityAssignmentAlgo(sensorGroup,sensorGroup[:assignedNumber],sensorGroup[assignedNumber:])
+        elapsed =time.time()-tmp
+        print "round = {}  ans = {} saCount = {}  just pa time = {}".format(x,ans,saCount,elapsed)
+    '''
+    for x in range(0,5):
+        sensorGroup = produceSensor(totalNumber,assignedNumber)
+        #printSensorPriority(sensorGroup)
 
         print "start selectArray time = {}".format(time.time())
         maximumSelect = select(sensorGroup[:assignedNumber],sensorGroup[assignedNumber:])
@@ -89,10 +102,13 @@ def main():
         exhaustedArray.append(maximumExhausted)
         diff = maximumExhausted - maximumSelect
         diffArray.append(diff)
-
         print "round = {}".format(x)
+        print selectArray
+        print "=="
+        print exhaustedArray
+        print "=="
+        print diffArray
         del sensorGroup
-
     print selectArray
     print "=="
     print exhaustedArray

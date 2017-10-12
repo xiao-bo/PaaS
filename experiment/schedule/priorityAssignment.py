@@ -1,25 +1,8 @@
 import SchedulabilityAnalysis as sa
-
-
-class Sensor:
-    def __init__(self,arrivalTime,transmissionTime,deadLine,weight,priority ,index):
-        self.arrivalTime = arrivalTime
-        self.transmissionTime = transmissionTime
-        self.deadLine = deadLine
-        self.weight = weight
-
-        self.priority = priority
-        self.index = index
-def printSensorPriority(sensorGroup):
-    for x in range(0,len(sensorGroup)):
-        print "sensor[{}].priority = {}, index ={}".format(x,sensorGroup[x].priority, sensorGroup[x].index)
-
-def printSensorAllProperty(sensorGroup):
-
-    for x in range(0,len(sensorGroup)):
-        
-        print "sensor[{}] arrival time = {}, transmission = {}, deadLine ={} weight = {}, priority = {}, index ={}".format(x,sensorGroup[x].arrivalTime, sensorGroup[x].transmissionTime, \
-            sensorGroup[x].deadLine,sensorGroup[x].weight,sensorGroup[x].priority, sensorGroup[x].index)
+import time
+from sensor import Sensor
+from sensor import printSensorPriority
+from sensor import printSensorAllProperty
 
 def search(sensorGroup,priority):
     for x in sensorGroup:
@@ -28,20 +11,21 @@ def search(sensorGroup,priority):
             return index
 
 def finialTest(sensorGroup):
-    
+    saCount = 0 
     count = 0
     for x in sensorGroup:
         if x.priority == 0:
             count = count +1
     if count >1:
-        return False
+        return False,saCount
     for x in range(0,len(sensorGroup)):
         if sa.isSchedule(sensorGroup,x):
+            saCount = saCount +1
             continue
         else:
-            return False
+            return False,saCount
         
-    return True
+    return True,saCount
 
 def initialSensor(sensorGroup,assignedArray,unassignedArray):
     for x in range(0,len(sensorGroup)):
@@ -64,7 +48,7 @@ def priorityAssignmentAlgo(sensorGroup,assignedArray,unassignedArray):
     else:
         currentPriority = len(unassignedArray)
     finialPriority = []
-  
+    saCount = 0
     #print currentPriority
     
     ## lowest priority first be assigned
@@ -95,6 +79,7 @@ def priorityAssignmentAlgo(sensorGroup,assignedArray,unassignedArray):
                 index = sensorGroup.index(target)
 
                 ## check schedule.
+                saCount = saCount +1
                 if sa.isSchedule(sensorGroup,index):
                     #print "target index:{} can schedule at priority {}  and jump".format(index,currentPriority)
                     
@@ -107,37 +92,37 @@ def priorityAssignmentAlgo(sensorGroup,assignedArray,unassignedArray):
             
             currentPriority = currentPriority - 1
     
-    #print "count = {}".format(count)
     #printSensorPriority(sensorGroup)
-    return finialTest(sensorGroup)
+    ans, finialCount = finialTest(sensorGroup)
+    saCount = saCount+finialCount
+    return ans,saCount
 
 def main():
     
     ### arrival time, transmission time, deadLine, weight, priority, index
-    a = Sensor(0,3.0,5.0,1,1,1)
-    b = Sensor(0,1.0,4.0,2,0,2)
-    c = Sensor(0,1.0,6.0,3,0,3)
-    d = Sensor(0.0,1.0,5.0,4,0,4)
-    e = Sensor(0.0,1.0,100.0,5,5,5)
-    f = Sensor(0.0,1.0,100.0,6,6,6)
-   
+    a = Sensor(851.0,120.0,2862.0,12.0,1,1)
+    b = Sensor(977.0,112.0,457.0,4,2,6)
+    c = Sensor(156.0,104.0,931.0,2,3,3)
+    d = Sensor(210.0,120.0,509.0,10,4,4)
+    e = Sensor(701.0,128.0,516.0,10,5,5)
     print "main"
     
-    sensorGroup = [b,c,d,e,f]
-    assignedArray = [e,f]
-    unassignedArray = [b,c,d]
+    sensorGroup = [a,b,c,d,e]
+    assignedArray = []
+    unassignedArray = [a,b,c,d,e]
 
-   
+    print time.time() 
     for x in assignedArray:
         if x.priority ==0:
             print ("please remove priority 0 in assigned Array")
             break
     else:        
-        if priorityAssignmentAlgo(sensorGroup,assignedArray,unassignedArray):
+        ans,saCount = priorityAssignmentAlgo(sensorGroup,assignedArray,unassignedArray)
+        if ans:
             print "==== sensorGroup can be schedulable"
         else:
             print "====can't be schedulable"
-
+    print time.time()
     printSensorPriority(sensorGroup)
 if __name__ == "__main__":
     main()
