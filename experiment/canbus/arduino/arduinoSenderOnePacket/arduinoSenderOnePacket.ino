@@ -36,7 +36,8 @@ int i;
 unsigned long tmp;
 
 int len=0;
-String id = "0x02";
+//String id = "0x01"; 
+
 
 void putClockIntoPacket(int sensorValue,long timeC,int id){
     tmp = timeC;
@@ -88,7 +89,10 @@ void putClockIntoPacket(int sensorValue,long timeC,int id){
     
     Serial.print(" analog value ");
     Serial.println(sensorValue);
-    CAN.sendMsgBuf(id,0,8,packet);
+
+    //CAN.sendMsgBuf(INT8U id, INT8U extend frame, INT8U length, data_content);
+    //ACM0 = id 10, ACM1 = id11, ACM2 = id12
+    CAN.sendMsgBuf(0x10,0,8,packet);
   
 }
 
