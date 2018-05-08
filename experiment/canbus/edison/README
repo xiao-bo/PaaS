@@ -1,4 +1,3 @@
-#file purpose
-
-edisonAsClient.c: edison can read analog signal and paste timestamp to data.
+edisonSender.py : edison can read analog signal and paste timestamp to data. This file is writen by python and its accuracy is lower than edisonAsClient.c
+edisonAsClient.c: edison can read analog signal and paste timestamp to data. this file is writen by c and its accuracy is higher than edisonSender.py
 make.sh : can compiler edisonAsClient.c

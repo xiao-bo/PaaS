@@ -1,5 +1,8 @@
 from influxdb import InfluxDBClient
 import time
+## this file is for demo 9/1 
+## this file will query influxDB to get timestamp of pi and arduino
+## and calculate their difference and insert into influxDB
 
 def toMillisecond(time):
 	hour = float(time.split(":")[0])

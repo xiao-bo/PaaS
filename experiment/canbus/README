@@ -1,0 +1,10 @@
+computeR.py : compute arduino R 
+piMultiReceiver.py : pi as master and do data alignment with multi arduino board. It have to use python3 to run this file
+piReceiver.py: pi as master and do data alignment with single arduino board. It have to use python3 to run this file
+picanExample.py : example of pi can run pican. It have to use python3 to run this file
+
+grovepi.cpp : pi can read analog signal through grove board
+grovepi.h : grovepi.cpp's header file
+errorForArduinoPi.py : for demo 9/1, this file can real-time display the error between arduino and edison.
+draw.py: this file can draw single curve or muiti curve
+data_process.py : this file can compute error between edison and arduino's timestamp
