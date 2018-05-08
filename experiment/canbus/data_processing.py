@@ -3,24 +3,33 @@ sys.path.insert(0,'/home/newslab/Desktop/PaaS/experiment/ptpd')
 #import period
 import numpy
 import draw
-def read_file(filename,index):
+def ReadArduinoFile(filename,index):
 	##read data and append list
 	file_read=open(filename,'r')
-	timestamp=[]
+	S0timestamp = []
+        S1timestamp = []
+        S2timestamp = []
 	for line in file_read:
-            ans=line.split(":")[index]
-	    timestamp.append(float(ans))
-
-	return timestamp
-
+            ans=line.split(":")
+            if ans[1]=="0010":
+	        S0timestamp.append(float(ans[index]))
+            elif ans[1]=="0011":
+	        S1timestamp.append(float(ans[index]))
+            elif ans[1]=="0012":
+	        S2timestamp.append(float(ans[index]))
+	return S0timestamp,S1timestamp,S2timestamp
+def ReadEdisonFile(filename,index):
+	##read data and append list
+	file_read = open(filename,'r')
+        Etimestamp = []
+	for line in file_read:
+            ans=line.split(":")
+            Etimestamp.append(float(ans[index]))
+        return Etimestamp
 def compute_delay(list_1,list_2):
 	delay=[]
 	for first,second in zip(list_1,list_2):
-		if first==0 or second==0 :
-			continue
-		elif abs(first-second)<50:
-		### minute different will lead value larger 50
-			delay.append(abs(first-second)*1000)
+	    delay.append(abs(first-second)*1000)
 			
 	return delay
 
@@ -72,96 +81,20 @@ def compute_statistics(delay_list):
 	return [numpy.mean(delay_list),numpy.std(delay_list)]
 
 
-def data_process_2(list_former,list_backer):
+def dataProcess(list_former,list_backer):
 
 	### insert integer 0.0 to recover miss part 
-	timestamp_former=align(list_former)
-	timestamp_backer=align(list_backer)
+	#timestamp_former=align(list_former)
+	#timestamp_backer=align(list_backer)
 	### compute delay between list
-	delay=compute_delay(timestamp_former,timestamp_backer)
-	#delay=compute_delay(list_former,list_backer)
+	#delay=compute_delay(timestamp_former,timestamp_backer)
+	delay=compute_delay(list_former,list_backer)
 	
 	#if delay:## check list is empty
 	#	compute_statistics(delay)
 	return delay
 	
 
-def data_process():
-	###read data and append list
-	timestamp_arduino=read_file("arduino/data.txt",1)
-	timestamp_edison_send=read_file('edison/data.txt',2)
-	#timestamp_edison_receive=read_file('edison/data.txt',3)
-	#timestamp_serial=read_file("serial/data.txt",2)
-	#offset=period.period("ptpd/data.txt")
-	#print offset
-	
-	### insert integer 0.0 to recover miss part
-	#timestamp_arduino=align(timestamp_arduino)
-	#timestamp_edison_send=align(timestamp_edison_send)
-	#timestamp_edison_receive=align(timestamp_edison_receive)
-	#timestamp_serial=align(timestamp_serial)
-	
-	#timestamp_edison_receive=time_sync(timestamp_edison_receive,offset)
-	#print timestamp_edison_receive	
-
-	##debug message
-	print '------------\ntimestamp_arduino\n------------'
-	print timestamp_arduino
-	print '------------\ntimestamp_edison_send\n------------'
-	print timestamp_edison_send	
-	'''
-	print '------------\ntimestamp_serial\n------------'
-	print timestamp_serial
-	print '------------\ntimestamp_edison_receive\n------------'
-	print timestamp_edison_receive
-	
-	'''
-        arduino_tmp=[]
-        edison_tmp=[]
-        for x in timestamp_arduino:
-            arduino_tmp.append(x/1000000000)
-        for y in timestamp_edison_send:
-            edison_tmp.append(x/1000000000)
-	delay_arduino_edison=compute_delay(arduino_tmp,edison_tmp)
-	### compute delay between list
-	#delay_arduino_edison=compute_delay(timestamp_arduino,timestamp_edison_send)
-	#delay_arduino_serial=compute_delay(timestamp_arduino,timestamp_serial)
-	#delay_edison_serial=compute_delay(timestamp_edison_send,timestamp_serial)
-	#delay_edison_receive_send=compute_delay(timestamp_edison_receive,
-	#	timestamp_edison_send)
-	print '------------\ndelay_arduino_edison\n------------'
-	print delay_arduino_edison
-	
-	'''
-	print '------------\ndelay_arduino_serial\n------------'
-	print delay_arduino_serial
-	print '------------\ndelay_edison_serial\n------------'
-	print delay_edison_serial
-	print '------------\ndelay_edison_receive_send\n------------'
-	print delay_edison_receive_send
-	
-	'''
-	
-	##evalute average , standard deviation, mean square error
-	'''
-	if delay_arduino_edison:## check list is empty
-		compute_statistics(delay_arduino_edison)
-	if delay_arduino_serial:
-		compute_statistics(delay_arduino_serial)
-	if delay_edison_serial:
-		compute_statistics(delay_edison_serial)
-	if delay_edison_receive_send:
-		compute_statistics(delay_edison_receive_send)
-	'''
-	###debug message
-	
-	
-	return [delay_arduino_edison]
-	'''
-	#return offset
-	#return [delay_edison_receive_send,max(delay_edison_receive_send)]
-	return delay_edison_receive_send
-	'''
 if __name__=='__main__':
-        error_data=data_process()
+        error_data=dataProcess()
         draw.curve(error_data,"s")
