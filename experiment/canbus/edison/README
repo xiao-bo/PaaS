@@ -1,0 +1,4 @@
+#file purpose
+
+edisonAsClient.c: edison can read analog signal and paste timestamp to data.
+make.sh : can compiler edisonAsClient.c
