@@ -41,13 +41,20 @@ def sync(T2,T3,C21,C22,C23,R):
     print ("sync") 
     return T1
 
+def computeR(counter,hz):
+    R = 0
+    #print(len(counter))
+    return R
 
-def calculateAfterTime(oldc21,currentc21,oldT1,R):
+def calculateAfterTime(oldc21,currentc21,oldT1,R,shift,hz):
     currentc21 = Decimal(currentc21)
     oldc21 = Decimal(oldc21)
     R = Decimal(R) * Decimal(0.000001)
-
+    shift = Decimal(shift)/Decimal(hz)
+    #shift = 0
+    #print(Decimal(0.0000133)/Decimal(hz))
     currentT1 = oldT1 + (currentc21 - oldc21) * R 
+    currentT1 = currentT1+shift*Decimal(0.0000133)
     #print "calculateAfterTime oldc21:"+str(oldc21)+" current21 "+str(c21)+" oldT1:"+str(oldT1)+"new:"+str(currentT1)
     return currentT1
 
@@ -90,11 +97,14 @@ if __name__ == "__main__":
 
     ## data part 1 or part 2 
     part = 1
-    
+    ## fix function generator shift value
+    shift = [1,1,1] 
+    hz = 1
     ## initial packet 
     msg = can.Message(arbitration_id=0x00,data=[0, 25, 0, 1, 3, 1, 4, 1])
-    #R=1.00016319556 ## too high
-    R=1.00036
+    #R=1.00015950652 ## for board 1
+    #R=1.00036
+    R =[1.00025294419,1.00015855438,0.999520553099]
     receiveT1 = ""
     T3 = ""
     T2 = ""
@@ -110,7 +120,7 @@ if __name__ == "__main__":
     
     
     fo = open(filename,"w")
-     
+    counter = []
     while True:
         ## receiver data format is 
         ## 1504018295.064378        0001    000    8    0d 00 01 06 04 00 00 02
@@ -121,20 +131,28 @@ if __name__ == "__main__":
         
         receiveList = receiveData.split()
         #print(receiveList)
-        ## filter ID
-        '''
-        if receiveList[1] != "0003" and receiveList[1] != "0004":
-            print("filter")
+        ## filter ID because it is background traffic
+        if receiveList[1] == "0013" :
+            #print("filter")
             continue
-        '''
         messageID = receiveList[1]
         if messageID == '0010':
             ID = 0
+            shift[ID] = shift[ID]+1
         elif messageID=='0011':
             ID = 1
-        elif messageID=='0012':
+            shift[ID] = shift[ID]+1
+        elif messageID=='0018':
             ID = 2
+            shift[ID] = shift[ID]+1
         payload,target,value = getPayloadFromPacket(receiveList)
+        '''
+        counter.append(payload)
+        print(counter)
+        
+        
+        '''
+        
         #print(c21[ID])
         ## c or d represent payload packet
         if (target =='c' or target == 'd'): 
@@ -142,6 +160,7 @@ if __name__ == "__main__":
             c21[ID] = payload
             #print("receiveT1:{}".format(receiveT1))
 
+            ## fix function generator shift value
             ## alignRestart = 0 represent first align
             if alignRestart[ID] == 0:
                 T2 = reply(msg,bus,alignRestart[ID])
@@ -150,9 +169,9 @@ if __name__ == "__main__":
                 
             ## alignRestart = 1 represent finish align, just calculate each message time
             elif alignRestart[ID] == 1:
-                T1 = calculateAfterTime(oldc21[ID],c21[ID],actualT1[ID],R)
+                T1 = calculateAfterTime(oldc21[ID],c21[ID],actualT1[ID],R[ID],shift[ID],hz)
 
-                #print("messageID:{}:c21:{}:value:{}:T1:{}:receiveT1:{}".format(messageID,c21[ID],value,T1,receiveT1))
+                #print("messageID:{}:c21:{}:value:{}:T1:{}:receiveT1:{},shift[{}].{}".format(messageID,c21[ID],value,T1,receiveT1,ID,shift[ID]))
                 #print("value:{}:T1:{}".format(value,T1))
                 fo.write("ID:"+str(messageID)+":c21:"+str(c21[ID])+":value:"+str(value)+":time:"+str(T1)+":receiveT1:"+str(receiveT1)+"\n")
         ##target e represent align packet
@@ -164,7 +183,7 @@ if __name__ == "__main__":
             ## receive c22
             c22 = payload
             #c22,tmp,tmp2 = getPayloadFromPacket(receiveList)
-            actualT1[ID] = sync(T2,T3,c21[ID],c22,c22,R)
+            actualT1[ID] = sync(T2,T3,c21[ID],c22,c22,R[ID])
             oldc21[ID] = c21[ID]
             #print ("messageID:{} c21:{} value:{} actualT1:{}:receiveT1:{}".format(messageID,c21[ID],value,actualT1[ID],receiveT1))
             alignRestart[ID] =1
