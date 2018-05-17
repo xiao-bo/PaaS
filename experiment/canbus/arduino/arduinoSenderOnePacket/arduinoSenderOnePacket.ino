@@ -24,7 +24,13 @@ int dIndex;
 unsigned long timeC1;
 unsigned long timeC2;
 unsigned long timeC3;
+// for high frequency
 
+// 1000000 = 1s 
+// 1hz = 500000
+int hz = 10;
+int elapsedCounter = 0;
+int period = 1;
 //packet
 unsigned char packet[8] = {};
 int pIndex;
@@ -92,8 +98,8 @@ void putClockIntoPacket(int sensorValue,long timeC,int id){
     Serial.println(sensorValue);
     
     //CAN.sendMsgBuf(INT8U id, INT8U extend frame, INT8U length, data_content);
-    //ACM0 = id 10, ACM1 = id11, ACM2 = id12
-    CAN.sendMsgBuf(0x12,0,8,packet);
+    //ACM0 = id 10, ACM1 = id11, ACM2 = id18
+    CAN.sendMsgBuf(0x10 ,0,8,packet);
     //delay(1000);
 }
 
@@ -108,6 +114,7 @@ void setup()
         delay(100);
     }
     Serial.println("CAN BUS Shield init ok!");
+    
 }
 
 
@@ -126,6 +133,9 @@ void loop(){
     // digital 10 represents 0a in master
     // digital 09 represents 09 in master
 
+   
+ 
+    
     // initial digital, choose 150 as control variable in putClockIntoPacket.
     for (i=0;i<len-1;i++){
       digital[i] = 150;
@@ -136,14 +146,23 @@ void loop(){
     
     if(sensorValue != change and (sensorValue == 0 or sensorValue ==1023) ){
       
-        timeC1 = micros();  
-        Serial.print("timeC1: ");
-        Serial.println(timeC1);
-        putClockIntoPacket(sensorValue,timeC1,0x03);
+          //elapsedCounter++;
+          
+          
+          //if (elapsedCounter >= hz*period){
+          //  elapsedCounter = 0;
+            timeC1 = micros();  
+            
+            Serial.print("timeC1: ");
+            Serial.println(timeC1);   
+            
+            putClockIntoPacket(sensorValue,timeC1,0x03);
+            //timeC1=1046100012; //maximum length of long vaiable is 10 digital
         
-        //timeC1=1046100012; //maximum length of long vaiable is 10 digital
+            
+          //}
+          change = sensorValue;
         
-        change = sensorValue;
     }  
      
     // receive data from master
