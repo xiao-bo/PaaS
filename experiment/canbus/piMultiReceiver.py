@@ -4,6 +4,7 @@ import can
 from decimal import Decimal
 from datetime import datetime
 import sys
+import json
 def reply(msg,bus,alignRestart):
     T2 =0
     if alignRestart == 0:
@@ -12,7 +13,7 @@ def reply(msg,bus,alignRestart):
         print("reply")
     return T2
 
-def sync(T2,T3,C21,C22,C23,R):
+def sync(T2,T3,C21,C22,C23,R,ID):
     T2 = Decimal(T2)
     T3 = Decimal(T3)
     C21 = Decimal(C21)
@@ -25,7 +26,7 @@ def sync(T2,T3,C21,C22,C23,R):
     delay = ((T3 - T2) - (C23 - C22) * R) / 2
     #delay = Decimal(0.0004)
     T1 = T3 - delay - (C23 - C21) * R
-    
+    print ("ID:"+str(ID))
     print ("C21:"+str(C21))
     print ("C22:"+str(C22))
     print ("C23:"+str(C23))
@@ -39,22 +40,27 @@ def sync(T2,T3,C21,C22,C23,R):
     print ("R= "+str(R))
     print ("actual T1 = T3 - delay - (C23-C21) * R =  "+str(T1))
     print ("sync") 
+    
     return T1
 
-def computeR(counter,hz):
-    R = 0
-    #print(len(counter))
-    return R
+def writeSyncData(ID,oldc21,actualT1,R,shift,hz,t2,t3,c22):
+    filename = str(ID)+'.txt'
+    #ans = {"ID":ID,"oldc21":oldc21,"actualT1":float(actualT1),"R":R,"shift":shift,"hz":hz}
+    
+    ans = "ID:"+str(ID)+":oldc21:"+str(oldc21)+":actualT1:"+str(float(actualT1))+":R:"+str(R)+":shift:"+str(shift)+":hz:"+str(hz)
+    ans = ans+":t2:"+str(t2)+":t3:"+str(t3)+":c22:"+str(c22)
 
-def calculateAfterTime(oldc21,currentc21,oldT1,R,shift,hz):
+    fo = open(filename,"w")
+
+    fo.write(str(ans))
+
+
+def calculateAfterTime(oldc21,currentc21,oldT1,R):
     currentc21 = Decimal(currentc21)
     oldc21 = Decimal(oldc21)
     R = Decimal(R) * Decimal(0.000001)
-    shift = Decimal(shift)/Decimal(hz)
-    #shift = 0
-    #print(Decimal(0.0000133)/Decimal(hz))
+    
     currentT1 = oldT1 + (currentc21 - oldc21) * R 
-    currentT1 = currentT1+shift*Decimal(0.0000133)
     #print "calculateAfterTime oldc21:"+str(oldc21)+" current21 "+str(c21)+" oldT1:"+str(oldT1)+"new:"+str(currentT1)
     return currentT1
 
@@ -99,12 +105,13 @@ if __name__ == "__main__":
     part = 1
     ## fix function generator shift value
     shift = [1,1,1] 
-    hz = 1
+    hz = 10
     ## initial packet 
     msg = can.Message(arbitration_id=0x00,data=[0, 25, 0, 1, 3, 1, 4, 1])
     #R=1.00015950652 ## for board 1
     #R=1.00036
-    R =[1.00025294419,1.00015855438,0.999520553099]
+    R =[1.00025294419,1.00015855438,0.999512398675]
+    #R =[0.997680504837,0.997594811932,0.999520553099]
     receiveT1 = ""
     T3 = ""
     T2 = ""
@@ -120,7 +127,6 @@ if __name__ == "__main__":
     
     
     fo = open(filename,"w")
-    counter = []
     while True:
         ## receiver data format is 
         ## 1504018295.064378        0001    000    8    0d 00 01 06 04 00 00 02
@@ -169,8 +175,7 @@ if __name__ == "__main__":
                 
             ## alignRestart = 1 represent finish align, just calculate each message time
             elif alignRestart[ID] == 1:
-                T1 = calculateAfterTime(oldc21[ID],c21[ID],actualT1[ID],R[ID],shift[ID],hz)
-
+                T1 = calculateAfterTime(oldc21[ID],c21[ID],actualT1[ID],R[ID])
                 #print("messageID:{}:c21:{}:value:{}:T1:{}:receiveT1:{},shift[{}].{}".format(messageID,c21[ID],value,T1,receiveT1,ID,shift[ID]))
                 #print("value:{}:T1:{}".format(value,T1))
                 fo.write("ID:"+str(messageID)+":c21:"+str(c21[ID])+":value:"+str(value)+":time:"+str(T1)+":receiveT1:"+str(receiveT1)+"\n")
@@ -183,8 +188,9 @@ if __name__ == "__main__":
             ## receive c22
             c22 = payload
             #c22,tmp,tmp2 = getPayloadFromPacket(receiveList)
-            actualT1[ID] = sync(T2,T3,c21[ID],c22,c22,R[ID])
+            actualT1[ID] = sync(T2,T3,c21[ID],c22,c22,R[ID],messageID)
             oldc21[ID] = c21[ID]
+            writeSyncData(messageID,oldc21[ID],actualT1[ID],R[ID],shift[ID],hz,T2,T3,c22)
             #print ("messageID:{} c21:{} value:{} actualT1:{}:receiveT1:{}".format(messageID,c21[ID],value,actualT1[ID],receiveT1))
             alignRestart[ID] =1
         #print("align:{}".format(alignRestart))

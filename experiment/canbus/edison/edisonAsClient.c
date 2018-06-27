@@ -21,7 +21,7 @@ volatile sig_atomic_t adc_value;//signal for ctrl-c
 struct timespec tv1;
 mraa_aio_context adc_a0;
 long millsecond;
-
+char millsecondStr[15];
 //volatile uint16_t adc_value = 0; //analog read value
 
 void inthand(int signum){
@@ -43,6 +43,9 @@ int main(){
 	int change = 0;	
 	int previous;
 	int current;
+
+	int elapsedCounter = 0;
+	int hz = 10;
 	//long millsecond;
     char message[1024];
     char tmp[100];
@@ -69,14 +72,27 @@ int main(){
 	signal(SIGINT,inthand);
 	adc_a0 = mraa_aio_init(1);// pin position
 	adc_value=0;
+	
+
 	while(!stop){
 		sigsuspend(&wait_signals);
 		if(adc_value!=change && (adc_value==0 || adc_value ==1023)){
-			// get current time
-			clock_gettime(CLOCK_REALTIME, &tv1);
-			millsecond=tv1.tv_nsec/1.0e2;
 
-			fprintf(wFile_all,"%d:%d.%d\n",adc_value,tv1.tv_sec,millsecond);
+			//elapsedCounter++;
+			//if(elapsedCounter>=hz){
+			//	elapsedCounter = 0;
+				// get current time
+				clock_gettime(CLOCK_REALTIME, &tv1);
+				millsecond=tv1.tv_nsec/1.0e2;
+				if(millsecond<1000000 && millsecond > 100000){
+					// avoid 0.056789 => 0.56789
+					fprintf(wFile_all,"%d:%d.0%d\n",adc_value,tv1.tv_sec,millsecond);
+				}else if(millsecond <100000){
+					fprintf(wFile_all,"%d:%d.00%d\n",adc_value,tv1.tv_sec,millsecond);
+				}else {
+					fprintf(wFile_all,"%d:%d.%d\n",adc_value,tv1.tv_sec,millsecond);
+				} 
+			//}
 			//printf("%d:%d.%d\n",adc_value,tv1.tv_sec,millsecond);
 			change = adc_value;
 		}
