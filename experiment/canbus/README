@@ -8,3 +8,31 @@ grovepi.h : grovepi.cpp's header file
 errorForArduinoPi.py : for demo 9/1, this file can real-time display the error between arduino and edison.
 draw.py: this file can draw single curve or muiti curve
 data_process.py : this file can compute error between edison and arduino's timestamp
+
+First, piMultiReceiver will collect sensor 1, sensor 2 and sensor 3's counter into 1.txt
+and recorded data of alignment sync part into 0010.txt, 0011.txt, 0018.txt
+However, arduino's counter will overflow when time is elapsed for 1 hours. 
+piMultiReceiver's data alignment protocol will be useless.
+In order to fix this problem, we will solve in step 2 and step 5
+
+edison/edisonAsClient.c will collect edison's sendtime into edison.txt
+
+Second, we will use analyzeData.py's function "fixOverflow" to fix overflow problem 
+and produce offline1.txt.
+
+Three, we will use analyzeData.py's function "checkEdisonReadTwice" to fix edison's 
+problem that edison sometime read same signal twice. So, we use this function to 
+remove read second reading. This function will produce edisonRT.txt. 
+We have to rename edisonRT.txt into edison.txt
+
+Four, we will use analyzeData.py's function "getEdison0or1023" to split edison.txt
+into edison_0.txt and edison_1023.txt. We rename edison.txt into edison_all.txt.
+
+Five, we will use dataAlignment.py to run data alignment protocol in offline situation.
+we will used 0010.txt made by step1 to get sync data and redo data alignment.
+We have to find correct R and we only try and error.
+step 5 will produce offline001x_all.txt, offline001x_0.txt or offline001x_1023.txt
+
+Six, will use draw.py to plot result about edison_all.txt and offline001x_all.txt.
+
+

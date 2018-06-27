@@ -38,13 +38,14 @@ def curve(input_list,title,statistics):
 	axTable.axes.get_xaxis().set_visible(False)
 	axTable.axes.get_yaxis().set_visible(False)
 	
-	table_columns = ('Mean', 'Standard Deviation')
+	table_columns = ('Mean', 'Standard Deviation','Standard Error')
         cell_text=statistics
         
 	table_size=axTable.table(cellText=statistics, loc='bottom',
 		colLabels=table_columns)
 
 	## set table size and font
+        table_size.auto_set_font_size(False)
 	table_size.set_fontsize(40)
 	table_size.scale(1.2,3)
 
@@ -66,7 +67,7 @@ def multicurve(input_list,title,statistics):
 	   		line=curve.plot(x,input_list[i])#,label=legeng_label[i])	
 			plt.setp(line, linewidth=2)
 	curve.axes.set_xlabel("sampling")
-	curve.axes.set_ylabel("error in milliSecond")
+	curve.axes.set_ylabel("variation in milliSecond")
 	curve.axes.set_title(title)
 	
 	
@@ -94,28 +95,85 @@ def multicurve(input_list,title,statistics):
 
 
 if __name__=="__main__":
-        ## main code for multicurve
 
 	print "draw.py"
+        dire = '/home/newslab/Desktop/PaaS/experiment/canbus/data/1v3/1hz/35%/'
 	
-        Etimestamp=dp.ReadEdisonFile('/home/newslab/Desktop/PaaS/experiment/canbus/data/multiSender/1v3/edison_all.txt',1)##edison sender
-	
-        S0timestamp,S1timestamp,S2timestamp=dp.ReadArduinoFile('/home/newslab/Desktop/PaaS/experiment/canbus/data/multiSender/1v3/3.txt',7)##arduino sender
-        print Etimestamp
-        '''
-        '''
-        ES0data=dp.dataProcess(Etimestamp,S0timestamp)
-        ES0title = '1hz,500kbit/s,1vs3,no background,ES0'
+        ## 1hz
+        #value ="0.txt"
+        #value ="1023.txt"
+        value ="all.txt"
+        Etimestamp=dp.ReadEdisonFile(dire+'edison_'+value,1)##edison sender
+        S0timestamp,S1timestamp,S2timestamp=dp.ReadArduinoFile(dire+'offline0010_'+value,7)##arduino sender
+        
+        length = 12000
+
+        ES0data=dp.computeError(Etimestamp,S0timestamp,length)
+        ES0title = '1hz,500kbit/s,1vs3,background 80%,backpri=13,pri=10,ES0'
 	ES0statistics=dp.compute_statistics(ES0data) 
-        print ES0data
         curve(ES0data,ES0title,[ES0statistics])
         
-        ES1data=dp.dataProcess(Etimestamp,S1timestamp)
-        ES1title = '1hz,500kbit/s,1vs3,no background,ES1'
+        ###board1
+        ES1data=dp.computeError(Etimestamp,S1timestamp,length)
+        ES1title = '1hz,500kbit/s,1vs3,background 80%,backpri=13,pri=11,ES1'
 	ES1statistics=dp.compute_statistics(ES1data) 
         curve(ES1data,ES1title,[ES1statistics])
-
-        ES2data=dp.dataProcess(Etimestamp,S2timestamp)
-        ES2title = '1hz,500kbit/s,1vs3,no background,ES2'
+        ##board2
+        
+        
+        ES2data=dp.computeError(Etimestamp,S2timestamp,length)
 	ES2statistics=dp.compute_statistics(ES2data) 
+        ES2title = '1hz,500kbit/s,1vs3,background 80%,backpri=13,pri=18,ES2'
         curve(ES2data,ES2title,[ES2statistics])
+        '''
+        ## delay 
+        fileRead = open(dire+'delay.txt','r')
+        delay = []
+        x = 0
+        for line in fileRead:
+            
+            delay.append(float(line))
+            x = x +1
+            if x> length:
+                break
+        delayStat = dp.compute_statistics(delay)
+        curve(delay,"delay between arduino's sendTime and pi's receiveTime",[delayStat])
+
+        ## difference
+          
+        fileRead = open(dire+'rtime.txt','r')
+        odiff = []
+        ediff = []
+        length = 999
+        x = 0
+        for line in fileRead:
+            ans = line.split(":")   
+            odiff.append(abs(float(ans[1])))
+            ediff.append(abs(float(ans[3])))
+            x = x +1
+            if x> length:
+                break
+        odiffStat = dp.compute_statistics(odiff)
+        ediffStat = dp.compute_statistics(ediff)
+        curve(odiff,"the variation of pi's receiveTime interval",[odiffStat])
+        curve(ediff,"the variation of edison's sendTime interval",[ediffStat])
+        '''
+        '''
+        ## counter 
+        fileRead = open(dire+'counter0018.txt','r')
+        counterdiff = []
+        length = 4634120
+        x = 0
+        for line in fileRead:
+            ans = line.split(":")   
+            counterdiff.append(float(ans[2]))
+            x = x +1
+            if x> length:
+                break
+        counterdiffStat = dp.compute_statistics(counterdiff)
+        print counterdiff.index(min(counterdiff))
+        print min(counterdiff)
+        #for x in range(3000,3200):
+        #    print counterdiff[x]
+        curve(counterdiff,"period of the variation of arduino's counter interval(100,0018 board)",[counterdiffStat])
+        '''  

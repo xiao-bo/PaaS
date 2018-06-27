@@ -1,7 +1,7 @@
 import sys
 import numpy
 import draw
-
+import math
 def ReadArduinoFile(filename,index):
     ##read data and append list
     file_read=open(filename,'r')
@@ -27,16 +27,28 @@ def ReadEdisonFile(filename,index):
         ans=line.split(":")
         Etimestamp.append(float(ans[index]))
     return Etimestamp
-def compute_delay(list_1,list_2):
+def computeError(list_1,list_2,length):
     delay=[]
     #shift = 0.0000065
     shift = 0 
     i = 0
     for first,second in zip(list_1,list_2):
-	delay.append(abs(first-second-shift*i)*1000)
+	delay.append(abs(first-second)*1000)
 	i=i+1
+        #print abs(first-second)
+        if i > length:
+            break
     return delay
 
+def computeConfidience(list1,mean,std,):
+    normal = []
+    for x in list1:
+        if x-mean<std :
+            normal.append(x)
+    
+    confidience = float(len(normal))/float(len(list1))
+    
+    print ("confidience :{}").format(confidience)
 
 def align(time_list):
     ## count number of zero because x can't ++ in 
@@ -73,23 +85,17 @@ def time_sync(edison,offset):
 def compute_statistics(delay_list):
     ##evalute average , standard deviation, mean square error
     delay_list=numpy.array(delay_list)
-
-    print "mean: "+str(numpy.mean(delay_list))
-    print "standard deviation: "+str(numpy.std(delay_list))
+    length = len(delay_list)
+    mean = numpy.mean(delay_list)
+    std = numpy.std(delay_list)
+    ste = std/math.sqrt(length)
+    samplingError = ste/mean*100
+    print "mean: "+str(mean)
+    print "standard deviation: "+str(std)
+    print "standard error:"+str(ste)
+    print "sampling error:"+str(samplingError)+"%"
     
-    return [numpy.mean(delay_list),numpy.std(delay_list)]
-
-
-def dataProcess(list_former,list_backer):
-
-    ### insert integer 0.0 to recover miss part 
-    #timestamp_former=align(list_former)
-    #timestamp_backer=align(list_backer)
-    ### compute delay between list
-    #delay=compute_delay(timestamp_former,timestamp_backer)
-    delay=compute_delay(list_former,list_backer)
-
-    return delay
+    return [numpy.mean(delay_list),numpy.std(delay_list),ste]
 	
 
 if __name__=='__main__':
