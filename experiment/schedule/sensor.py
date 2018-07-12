@@ -13,13 +13,13 @@ class Sensor:
 
 def printSensorPriority(sensorGroup):
     for x in range(0,len(sensorGroup)):
-        print "sensor[{}].priority = {}, index ={}".format(x,sensorGroup[x].priority, sensorGroup[x].index)
+        print "s[{}].p = {}, index ={}, weight = {}".format(x,sensorGroup[x].priority, sensorGroup[x].index,sensorGroup[x].weight)
 
 def printSensorAllProperty(sensorGroup):
 
     for x in range(0,len(sensorGroup)):
         
-        print "sensor[{}] kind = {} arrival time = {}, transmission = {}, deadLine ={} weight = {}, priority = {}, index ={}".format(x,\
+        print "sensor[{}] kind = {} arrival time = {}, transmission = {}, deadLine ={} \n weight = {}, priority = {}, index ={}".format(x,\
             sensorGroup[x].kind,sensorGroup[x].arrivalTime, sensorGroup[x].transmissionTime, \
             sensorGroup[x].deadLine,sensorGroup[x].weight,sensorGroup[x].priority,\
              sensorGroup[x].index)
@@ -43,6 +43,17 @@ def printAll(sensorGroup,assignedArray,unassignedArray,selectGroup):
     for x in range(0,len(selectGroup)):
         print "selectGroup[{}].priority = {}, index = {}".format(x,selectGroup[x].priority,selectGroup[x].index)
 
+def writeSensorData(sensorGroup,fo,count):
+    #fo = open(filename,'w')
+    for x in range(0,len(sensorGroup)):
+        ans = ":sensor["+str(x)+"] kind :"+str(sensorGroup[x].kind)+":arrival time:"\
+            +str(sensorGroup[x].arrivalTime)+":transmission:"+str(sensorGroup[x].transmissionTime)\
+            +":deadLine:"+str(sensorGroup[x].deadLine)+":weight:"+str(sensorGroup[x].weight)\
+            +":priority:"+str(sensorGroup[x].priority)+":index:"+str(sensorGroup[x].index)
+        fo.write("count:"+str(count)+ans+"\n")
+
+def readSensorData():
+    print ""
 
 def main():
     

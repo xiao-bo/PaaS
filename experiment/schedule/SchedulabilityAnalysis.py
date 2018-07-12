@@ -26,14 +26,16 @@ def isSchedule(sensorGroup,target):
     for x in range(0,length):
         utilijation = utilijation + sensorGroup[x].transmissionTime \
             /sensorGroup[x].deadLine
-
-    if utilijation > 0.35:
+ 
+    ### what is it???
+    #if utilijation > 0.35:
         #print "utilijation >1, no schedule"
-        return False
+    #    return False
     
 
     #print "target = {}".format(target)
     responseTime = getResponseTime(sensorGroup,target)
+    #print "responseTime = {}".format(responseTime)
     if responseTime <= sensorGroup[target].deadLine+sensorGroup[target].arrivalTime:
         return True
     else:
@@ -104,18 +106,27 @@ def getResponseTime(sensorGroup,targetIndex):
     
     ## lowerPrioirty is not empty. in other word, 
     ## there have lower priority object in sensorGroup
+    '''
+    maxblock = 0
     if lowerPriority: 
         ## get maximum priority in lower priority
-        maxlp = min(lowerPriority)  
+        #maxlp = min(lowerPriority)  
         ## search priority maxlp in sensorGroup
         for i in range(0,length): 
-            if maxlp == sensorGroup[i].priority:
-                blockingTime = sensorGroup[i].transmissionTime
-                break
-
+            if maxblock < sensorGroup[i].transmissionTime and sensorGroup[i].priority > 0:
+                maxblock = sensorGroup[i].transmissionTime
+                print i
+        blockingTime = maxblock 
     
+    print "blockingTime = {}".format(blockingTime)
+    '''
+    ### get blockTime
+    maxblock = 0
+    for x in sensorGroup:
+        if sensorGroup[targetIndex].priority < x.priority  and maxblock < x.transmissionTime :
+            maxblock = x.transmissionTime
+    blockingTime = maxblock
     #print "blockingTime = {}".format(blockingTime)
-    
    
     ## initial tm^0
     tm = sensorGroup[targetIndex].transmissionTime

@@ -63,6 +63,7 @@ def selectCPSet(assignedArray,unassignedArray):
 
 
         #print printSensorAllProperty(sensorGroup)
+    #ans,saCount = pa.priorityAssignmentAlgo(sensorGroup,assignedArray,sensorGroup)
     return sensorGroup
 
 

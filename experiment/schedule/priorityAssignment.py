@@ -33,7 +33,39 @@ def initialSensor(sensorGroup,assignedArray,unassignedArray):
             #print "sensor[{}] in assignedArray".format(x)
             continue
         sensorGroup[x].priority = 0
+def nestedLoop(sensorGroup,currentPriority,assignedPriority):
+    
+    if currentPriority in assignedPriority:
+        return "continue"
+    else:
+               
+        for target in sensorGroup:
+            tmp = True
+            #print "sensorGroup"
+            #printSensorPriority(sensorGroup)           
+            #print "target.priority={} weight={} index={}".format(target.priority,target.weight,target.index)
+            #print "current priority={}".format(currentPriority)
+            if target.priority == 0:
+                target.priority = currentPriority
+            else:
+                #print "target have priority"
+                continue
+            
+            index = sensorGroup.index(target)
 
+            ## check schedule.
+            if sa.isSchedule(sensorGroup,index):
+                #print "target index:{} can schedule at priority {}  and jump".format(target.index,currentPriority)
+                ## jump to outer loop
+                return "continue"
+
+            else:
+                #print "target index:{} can't schedule at priority {}".format(target.index,currentPriority)
+                ## to avoid duplicate priority in sensor
+                target.priority = 0
+        #print "can't schedulable"
+        return "no"
+    
 def priorityAssignmentAlgo(sensorGroup,assignedArray,unassignedArray):
 
     #########
@@ -52,50 +84,58 @@ def priorityAssignmentAlgo(sensorGroup,assignedArray,unassignedArray):
     #print currentPriority
     
     ## lowest priority first be assigned
-    count = 0
+    #count = 0
     
-    while currentPriority >= 0 :
-       
+    while currentPriority >=1: 
+        ans = nestedLoop(sensorGroup,currentPriority,assignedPriority)    
+        #printSensorAllProperty(sensorGroup)
+        currentPriority = currentPriority-1
+        if ans == 'no':
+            #print "break"
+            break
         #print "currentPriority:{}".format(currentPriority)
 
-        ## check currentPriority is assigned 
-        if currentPriority in assignedPriority:
-            currentPriority = currentPriority -1
-            continue
-        else:
-                   
-            for target in sensorGroup:
-                #print "sensorGroup"
-                #printSensorPriority(sensorGroup)           
-                #print "target.priority={} weight={}".format(target.priority,target.weight)
-                #print "current priority={}".format(currentPriority)
-                count = count +1
-                if target.priority == 0:
-                    target.priority = currentPriority
-                else:
-                    #print ""
-                    continue
-                
-                index = sensorGroup.index(target)
-
-                ## check schedule.
-                saCount = saCount +1
-                if sa.isSchedule(sensorGroup,index):
-                    #print "target index:{} can schedule at priority {}  and jump".format(index,currentPriority)
-                    
-                    break
-                else:
-                    #print "target index:{} can't schedule at priority {}".format(index,currentPriority)
-                    ## to avoid duplicate priority in sensor
-                    target.priority = 0
-                
-            
-            currentPriority = currentPriority - 1
-    
+    #print ans
     #printSensorPriority(sensorGroup)
     ans, finialCount = finialTest(sensorGroup)
     saCount = saCount+finialCount
     return ans,saCount
+def tmp():
+    print "tmp"
+    '''
+    ## check currentPriority is assigned 
+    if currentPriority in assignedPriority:
+        currentPriority = currentPriority -1
+        continue
+    else:
+               
+        for target in sensorGroup:
+            #print "sensorGroup"
+            #printSensorPriority(sensorGroup)           
+            #print "target.priority={} weight={} index={}".format(target.priority,target.weight,target.index)
+            #print "current priority={}".format(currentPriority)
+            #count = count +1
+            if target.priority == 0:
+                target.priority = currentPriority
+            else:
+                #print "target have priority"
+                continue
+            
+            index = sensorGroup.index(target)
+
+            ## check schedule.
+            saCount = saCount +1
+            if sa.isSchedule(sensorGroup,index):
+                print "target index:{} can schedule at priority {}  and jump".format(index,currentPriority)
+                currentPriority = currentPriority - 1
+                ## jump to outer loop
+                break 
+
+            else:
+                print "target index:{} can't schedule at priority {}".format(index,currentPriority)
+                ## to avoid duplicate priority in sensor
+                target.priority = 0
+    '''
 
 def main():
     

@@ -3,6 +3,69 @@ from decimal import Decimal
 import data_processing as dp
 
 def checkEdisonReadTwice(dire):
+    ## maybe it can replace checkEdisonTwice function
+    ## no it can not replace
+    fileRead = open(dire+"edison.txt",'r')
+    fo = open(dire+'edisonRT.txt','w')
+    Etime = []
+    value = []
+    x = 0
+    for line in fileRead:
+        ans = line.split(":")
+        value.append(ans[0])
+        Etime.append(ans[1])
+        if x >0:
+            #print "tmp = {} ans[0]={}".format(tmp,ans[0])
+            if tmp !=ans[0]:
+                tmp = ans[0]
+            else:
+                ## print  number of line about jitter and remove jitter
+                print x
+                continue
+        fo.write(str(value[x])+":"+str(Decimal(Etime[x]))+"\n")
+        tmp = ans[0]
+        x = x+1
+    '''
+    for x in range(1,len(Etime)-1):
+        if Etime[x]-Etime[x-1]<0.01:
+            print x
+            continue
+    '''
+def checkArduinoMessageCount(dire):
+    fileRead = open(dire+"offline0010.txt",'r')
+    '''
+    x = 0.0
+    index = 1
+    for line in fileRead:
+        ans = line.split(":")
+        if x != float(ans[11]):
+            print "different"
+            print index
+        x = (x+1.0)%100
+        index = index +1
+        if index >44170:
+            break
+    '''
+    count = 0.0
+    tmp = 0.0
+    x = 0
+    index = 0
+    for line in fileRead:
+        ans = line.split(":")
+        diff=float(ans[11])-tmp
+        if index >0:
+            if diff > 1.0 :
+                count = count +diff
+                print "index = {} tmp = {} diff = {}".format(index,tmp,diff)
+            elif diff > -99 and diff <0 :
+                print "index = {} tmp = {} diff = {}".format(index,tmp,diff)
+                diff = diff+99
+                count = count + diff
+        tmp = float(ans[11])
+        
+        index = index +1
+    print "count = {} miss % = {}".format(count,float(count/index*100))
+def checkEdisonMissData(dire):
     
     fileRead = open(dire+"edison.txt",'r')
     Etime = []
@@ -15,7 +78,14 @@ def checkEdisonReadTwice(dire):
     ## print  number of line about jitter and remove jitter
     fo = open(dire+'edisonRT.txt','w')
     for x in range(1,len(Etime)-1):
-        if Etime[x]-Etime[x-1]<0.1:
+        if Etime[x]-Etime[x-1]<0.01:
+            print x
+            continue
+        ## print  number of line about jitter and remove jitter
+        fo.write(str(value[x])+":"+str(Decimal(Etime[x]))+"\n")
+    print "miss data"
+    for x in range(1,len(Etime)-1):
+        if Etime[x]-Etime[x-1]>0.1:
             print x
             continue
         ## print  number of line about jitter and remove jitter
@@ -123,8 +193,25 @@ def getEdison0or1023(dire):
             fo_0.write(line)
         elif ans[0] == '1023':
             fo_1023.write(line)
+def computeDelayTime(dire):
+    fileRead = open(dire+'2.txt','r')
+    time = []
+    summ = 0.0
+    tmp = 0.0
+    x = 0
+    for line in fileRead:
+        ans = line.split(":") 
+        diff = float(ans[0])-tmp
+        if x>1:## remove first 
+            time.append(diff)
+            summ = summ + diff 
+        tmp = float(ans[0])
+        x = x+1
+    ave = summ / len(time)
+    print "len:{} sum:{} average:{}".format(len(time),summ,ave)
+    print sum(time) / float(len(time))
+    print sum(time)
 
-    
 def fixOverflow(dire):
     
     filename = dire+'1.txt'
@@ -134,6 +221,7 @@ def fixOverflow(dire):
     S0value,S1value,S2value = dp.ReadArduinoFile(filename,5)
     S0Rtime,S1Rtime,S2Rtime = dp.ReadArduinoFile(filename,9)
     S0Stime,S1Stime,S2Stime = dp.ReadArduinoFile(filename,7)
+    S0messCount,S1messCount,S2messCount= dp.ReadArduinoFile(filename,11)
 
     ## S0
     length = len(S0counter)
@@ -152,9 +240,10 @@ def fixOverflow(dire):
             S0overCount = S0overCount + 1
             print "x:{},count:{}".format(x,S0overCount)
         S0counter[x] = S0counter[x]+4294967295.0 * S0overCount
-    for x in range(length-1):
-        fo.write("ID:0010:c21:"+str(S0counter[x])+":value:"+str(S0value[x])+":time:"+str(Decimal(S0Stime[x]))+":receiveT1:"+str(Decimal(S0Rtime[x]))+"\n")
 
+    for x in range(length-1):
+        fo.write("ID:0010:c21:"+str(S0counter[x])+":value:"+str(S0value[x])+":time:"+str(Decimal(S0Stime[x]))+":receiveT1:"+str(Decimal(S0Rtime[x]))+":messCount:"+str(S0messCount[x])+":\n")
+        
     ##S1
     length = len(S1counter)
     S1index = [] 
@@ -171,7 +260,7 @@ def fixOverflow(dire):
             print "x:{},count:{}".format(x,S1overCount)
         S1counter[x] = S1counter[x]+4294967295.0 * S1overCount
     for x in range(length-1):
-        fo.write("ID:0011:c21:"+str(S1counter[x])+":value:"+str(S1value[x])+":time:"+str(Decimal(S1Stime[x]))+":receiveT1:"+str(Decimal(S1Rtime[x]))+"\n")
+        fo.write("ID:0011:c21:"+str(S1counter[x])+":value:"+str(S1value[x])+":time:"+str(Decimal(S1Stime[x]))+":receiveT1:"+str(Decimal(S1Rtime[x]))+":messCount:"+str(S1messCount[x])+":\n")
     ###s2
     length = len(S2counter)
     S2index = [] 
@@ -191,14 +280,18 @@ def fixOverflow(dire):
         S2counter[x] = S2counter[x]+4294967295.0 * S2overCount
 
     for x in range(length-1):
-        fo.write("ID:0018:c21:"+str(S2counter[x])+":value:"+str(S2value[x])+":time:"+str(Decimal(S2Stime[x]))+":receiveT1:"+str(Decimal(S2Rtime[x]))+"\n")
+        fo.write("ID:0018:c21:"+str(S2counter[x])+":value:"+str(S2value[x])+":time:"+str(Decimal(S2Stime[x]))+":receiveT1:"+str(Decimal(S2Rtime[x]))+":messCount:"+str(S2messCount[x])+":\n")
 
 if __name__ == '__main__':
-    dire = '/home/newslab/Desktop/PaaS/experiment/canbus/data/1v3/1hz/35%/'
+    dire = '/home/newslab/Desktop/PaaS/experiment/canbus/data/1v3/10hz/0%another/'
+    #computeDelayTime(dire)
     #fixOverflow(dire)
+    #checkArduinoMessageCount(dire)
     #checkEdisonReadTwice(dire)
-    #getEdison0or1023(dire)
+    #checkEdisonMissData(dire)
+
+    getEdison0or1023(dire)
     #getDatatime(dire)
-    checkCounter(dire)
+    #checkCounter(dire)
     #checkDelayTime(dire)
     #checkDataAlignment(dire)

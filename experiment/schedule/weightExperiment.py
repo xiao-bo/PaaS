@@ -1,4 +1,5 @@
 import copy
+
 import math
 import numpy as np
 import random
@@ -6,6 +7,7 @@ from operator import attrgetter
 from sensor import Sensor
 from sensor import printSensorAllProperty
 from sensor import printSensorPriority
+from sensor import writeSensorData
 from optimal import selectOptimalSet
 from cp import selectCPSet
 
@@ -24,9 +26,14 @@ def produceUniformData(sensorGroup,assignedArray,unassignedArray):
     ## temperature sensor's frequency = 20hz,10hz,8hz,4hz,2hz,1hz
     temperatureDeadline = [50000,100000,125000,250000,500000,1000000]
     ## pressure sensor's frequency 100hz,20hz,10hz,8hz,4hz,2hz,1hz
-    pressureDeadline = [10000,50000,100000,125000,250000,500000,1000000]
+    #pressureDeadline = [10000,50000,100000,125000,250000,500000,1000000]
     ## distance sensor's frequency 100hz,20hz,10hz,8hz,4hz,2hz,1hz
-    distanceDeadline = [10000,50000,100000,125000,250000,500000,1000000]
+    #distanceDeadline = [10000,50000,100000,125000,250000,500000,1000000]
+    
+    ## remove 10000 for meeting slide
+    pressureDeadline = [50000,100000,125000,250000,500000,1000000]
+    ## distance sensor's frequency 100hz,20hz,10hz,8hz,4hz,2hz,1hz
+    distanceDeadline = [50000,100000,125000,250000,500000,1000000]
     
     deadLine = [10000,50000,100000,200000,1000000]
 
@@ -89,6 +96,7 @@ def temperatureUtility(x):
     elif freq >= 5:
         utilityValue = 10.0
 
+    #utilityValue = 10.0
     #print "temperature sensor utility Value = {}".format(utilityValue)
     return utilityValue
 
@@ -101,6 +109,7 @@ def distanceUtility(x):
     elif freq >= 2:
         utilityValue = 5.0
 
+    #utilityValue = 10.0
     #print "distance sensor utility Value = {}".format(utilityValue)
     return utilityValue
 
@@ -113,21 +122,33 @@ def pressureUtility(x):
     elif freq >= 5:
         utilityValue = 10.0
 
+    #utilityValue = 10.0
     #print "pressure sensor utility Value = {}".format(utilityValue)
     return utilityValue
 
-def getSumUtility(sensorGroup):
+def getSumUtility(totalGroup,sensorGroup):
     sumUtility = 0.0
     p = len(sensorGroup)
     
     for x in sensorGroup:
         if x.kind == 0:
-            sumUtility = sumUtility + temperatureUtility(x)
+            sumUtility = sumUtility + 2*temperatureUtility(x)*x.weight*x.weight
         elif x.kind == 1:
-            sumUtility = sumUtility + pressureUtility(x)
+            sumUtility = sumUtility + 2*pressureUtility(x)*x.weight*x.weight
         elif x.kind ==2:
-            sumUtility = sumUtility + distanceUtility(x)
-        
+            sumUtility = sumUtility + 2*distanceUtility(x)*x.weight*x.weight
+    for x in totalGroup:
+        if x.kind == 0:
+            sumUtility = sumUtility + -1*temperatureUtility(x)*x.weight*x.weight
+        elif x.kind == 1:
+            sumUtility = sumUtility + -1*pressureUtility(x)*x.weight*x.weight
+        elif x.kind ==2:
+            sumUtility = sumUtility + -1*distanceUtility(x)*x.weight*x.weight
+            
+    # sum (Ui*Wi*Yi) Yi = {-1,1}
+    # for code, sum(Ui*Wi*Yi) Yi={0,2} + totalSum(Uj*Wj*-1) = above
+    ##  i = 0 to sensorGroup (select sensor)
+    ##  j = 0 to totalGroup (all sensor)
     
     return sumUtility
 
@@ -143,16 +164,18 @@ def main():
     
     ### arrival time, transmission time, deadLine, weight, priority, index
 
-    totalNumber = 80
+    totalNumber = 10
     assignedNumber = 0
     diffArray = []
 
     filename = "1.txt" 
     fo = open(filename,"w")
-    
     fo.write("number sensor :"+str(totalNumber)+"\n")
-    
-    for x in range(0,100):
+    dire = ""
+    foptimalSet = open(dire+"optimalSet.txt","w")
+    fCPSet = open(dire+"CPSet.txt",'w')
+    ftotalSet = open(dire +"totalSet.txt",'w')
+    for x in range(0,70000):
         sensorGroup = produceSensor(totalNumber,assignedNumber)
         print x
         
@@ -171,27 +194,31 @@ def main():
         #printSensorAllProperty(CPSet)
    
         
+        sumUtilityofTotalSet = getSumUtility(sensorGroup,sensorGroup)
         #print "=="
-        sumUtilityofOptimalSet = getSumUtility(optimalSet)
+        sumUtilityofOptimalSet = getSumUtility(sensorGroup,optimalSet)
 
-        print "optimal utility :" + str(sumUtilityofOptimalSet)
-        sumUtilityofCPSet = getSumUtility(CPSet)
-        print "CP weight :" + str(sumUtilityofCPSet)
-        print "diff:" + str(sumUtilityofOptimalSet-sumUtilityofCPSet)
-
-        
-        '''
-        if (sumWeightofOptimalSet-sumWeightofCPSet)<0:
-            print "get optimal"
-            printSensorAllProperty(optimalSet)
-            print "optimal weight :" + str(sumWeightofOptimalSet)
-            print "get cp"
-            printSensorAllProperty(CPSet)
-            print "CP weight :" + str(sumWeightofCPSet)
-            print "diff:" + str(sumWeightofOptimalSet-sumWeightofCPSet)
-        '''
-        fo.write("optimalSet weight : "+str(sumUtilityofOptimalSet)+":CP weight : "+
-            str(sumUtilityofCPSet)+":diff:"+str(sumUtilityofOptimalSet-sumUtilityofCPSet)+"\n")
+        #print "optimal utility :{}".format(sumUtilityofOptimalSet)
+        sumUtilityofCPSet = getSumUtility(sensorGroup,CPSet)
+        #print "CP weight :{}".format(sumUtilityofCPSet)
+        difference = sumUtilityofOptimalSet-sumUtilityofCPSet
+        #print "difference :{}".format(difference)
+        #if difference!=0:
+        print "all sensor"
+        #printSensorAllProperty(sensorGroup)
+        writeSensorData(sensorGroup,ftotalSet,x)
+        #print "get optimal"
+        #printSensorAllProperty(optimalSet)
+        #print "optimal utility :{}".format(sumUtilityofOptimalSet)
+        writeSensorData(optimalSet,foptimalSet,x)
+        #print "get cp"
+        #printSensorAllProperty(CPSet)
+        #print "CP weight :{}".format(sumUtilityofCPSet)
+        writeSensorData(CPSet,fCPSet,x)
+        #print "difference :{}".format(difference)
+        #break
+        fo.write("total utility:"+str(sumUtilityofTotalSet)+":optimalSet utility : "+str(sumUtilityofOptimalSet)+":CP utility : "+
+            str(sumUtilityofCPSet)+":difference:"+str(difference)+"\n")
         
     
 
