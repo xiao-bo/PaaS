@@ -7,19 +7,20 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import data_processing as dp
 import matplotlib.patches as mpatches
-
+from matplotlib.pyplot import figure, draw
 
 
 
 def curve(input_list,title,statistics):	
 	output_list=[]
-	
+        #plt.figure(figsize=[6, 6])	
 	##set subplot position 
-	rect_curve = [0.1, 0.3, 0.8, 0.6]#left,bottom,width,height
-	rect_table = [0.1, 0.2 ,0.8, 0.8]
+	#rect_curve = [0.1, 0.3, 0.8, 0.6]#left,bottom,width,height
+	#rect_curve = [0.1, 0.3, 0.8, 0.6]#left,bottom,width,height
+	#rect_table = [0.1, 0.2 ,0.8, 0.8]
 
 	##curve
-	curve = plt.axes(rect_curve)
+	curve = plt.axes()
 	x = np.linspace(0, len(input_list),len(input_list))
 	with plt.style.context('fivethirtyeight'):
 	    line=curve.plot(x,input_list)	
@@ -27,7 +28,8 @@ def curve(input_list,title,statistics):
 	curve.axes.set_xlabel("sampling")
 	curve.axes.set_ylabel("Error in Millisecond")
 	curve.axes.set_title(title)
-        plt.ylim([0,40])
+        '''
+        #plt.ylim([0,40])
         font = {'family' : 'normal',
                 'weight' : 'bold',
                 'size'   : 24}
@@ -43,13 +45,13 @@ def curve(input_list,title,statistics):
         
 	table_size=axTable.table(cellText=statistics, loc='bottom',
 		colLabels=table_columns)
-
+    
 	## set table size and font
         table_size.auto_set_font_size(False)
 	table_size.set_fontsize(40)
 	table_size.scale(1.2,3)
-
-	
+        '''
+        plt.savefig("/home/newslab/Desktop/test.svg")
 	plt.show()
 def multicurve(input_list,title,statistics):	
 	output_list=[]
@@ -97,34 +99,49 @@ def multicurve(input_list,title,statistics):
 if __name__=="__main__":
 
 	print "draw.py"
-        dire = '/home/newslab/Desktop/PaaS/experiment/canbus/data/1v3/1hz/35%/'
+        #dire = '/home/newslab/Desktop/PaaS/experiment/canbus/data/1v3/10hz/0%another/'
+        dire = '/home/newslab/Desktop/PaaS/experiment/canbus/data/1v3/1hz/0%/long/'
 	
         ## 1hz
-        #value ="0.txt"
-        #value ="1023.txt"
-        value ="all.txt"
-        Etimestamp=dp.ReadEdisonFile(dire+'edison_'+value,1)##edison sender
-        S0timestamp,S1timestamp,S2timestamp=dp.ReadArduinoFile(dire+'offline0010_'+value,7)##arduino sender
+        #value ="_0.txt"
+        value ="_1023.txt"
+        #value ="_all.txt"
+        Etimestamp=dp.ReadEdisonFile(dire+'edison'+value,1)##edison sender
+        S0timestamp,S1timestamp,S2timestamp=dp.ReadArduinoFile(dire+'offline0018'+value,9)##arduino sender
+        length = 30000
         
-        length = 12000
 
+        '''
         ES0data=dp.computeError(Etimestamp,S0timestamp,length)
-        ES0title = '1hz,500kbit/s,1vs3,background 80%,backpri=13,pri=10,ES0'
+        #ES0title = '10hz,back 0%,with jitter, backpri=13,pri=10,ES0'
+        ES0title = '1hz,back 0%, with jitter,backpri=13,pri=10,ES0 '
 	ES0statistics=dp.compute_statistics(ES0data) 
         curve(ES0data,ES0title,[ES0statistics])
+        '''
         
+        '''
         ###board1
         ES1data=dp.computeError(Etimestamp,S1timestamp,length)
-        ES1title = '1hz,500kbit/s,1vs3,background 80%,backpri=13,pri=11,ES1'
+        #ES1title = '10hz,back 0%,with jitter backpri=13,pri=11,ES1'
+        ES1title = '1hz,back 0%, with jitter,backpri=13,pri=11,ES1'
 	ES1statistics=dp.compute_statistics(ES1data) 
         curve(ES1data,ES1title,[ES1statistics])
+        
+        
+        '''
         ##board2
-        
-        
+
         ES2data=dp.computeError(Etimestamp,S2timestamp,length)
 	ES2statistics=dp.compute_statistics(ES2data) 
-        ES2title = '1hz,500kbit/s,1vs3,background 80%,backpri=13,pri=18,ES2'
+        #ES2title = '10hz,back 0%,with jitter backpri=13,pri=18,ES2'
+        ES2title = '1hz,500kbit/s,1vs3,background 0%, with jitter,backpri=13,pri=18,ES2'
         curve(ES2data,ES2title,[ES2statistics])
+        '''
+        '''
+        '''
+        
+        '''
+        
         '''
         ## delay 
         fileRead = open(dire+'delay.txt','r')
@@ -155,7 +172,7 @@ if __name__=="__main__":
                 break
         odiffStat = dp.compute_statistics(odiff)
         ediffStat = dp.compute_statistics(ediff)
-        curve(odiff,"the variation of pi's receiveTime interval",[odiffStat])
+            curve(odiff,"the variation of pi's receiveTime interval",[odiffStat])
         curve(ediff,"the variation of edison's sendTime interval",[ediffStat])
         '''
         '''
