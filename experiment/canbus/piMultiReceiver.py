@@ -91,8 +91,9 @@ def getPayloadFromPacket(receiveList):
             #print('0'+tmp)
             tmp = '0'+tmp
         ans = ans+tmp
-
-    return ans,target,value
+    messageCount = int(payload[startIndex-1],16)
+    #print(messageCount)
+    return ans,target,value,messageCount
 
 
 if __name__ == "__main__":
@@ -136,7 +137,6 @@ if __name__ == "__main__":
         ##['1504018295.064378', '0001', '000', '8', '0d', '00', '01', '06', '04', '00', '00', '02']
         
         receiveList = receiveData.split()
-        #print(receiveList)
         ## filter ID because it is background traffic
         if receiveList[1] == "0013" :
             #print("filter")
@@ -151,7 +151,8 @@ if __name__ == "__main__":
         elif messageID=='0018':
             ID = 2
             shift[ID] = shift[ID]+1
-        payload,target,value = getPayloadFromPacket(receiveList)
+        payload,target,value,messageCount= getPayloadFromPacket(receiveList)
+        #print(payload)
         '''
         counter.append(payload)
         print(counter)
@@ -178,7 +179,7 @@ if __name__ == "__main__":
                 T1 = calculateAfterTime(oldc21[ID],c21[ID],actualT1[ID],R[ID])
                 #print("messageID:{}:c21:{}:value:{}:T1:{}:receiveT1:{},shift[{}].{}".format(messageID,c21[ID],value,T1,receiveT1,ID,shift[ID]))
                 #print("value:{}:T1:{}".format(value,T1))
-                fo.write("ID:"+str(messageID)+":c21:"+str(c21[ID])+":value:"+str(value)+":time:"+str(T1)+":receiveT1:"+str(receiveT1)+"\n")
+                fo.write("ID:"+str(messageID)+":c21:"+str(c21[ID])+":value:"+str(value)+":time:"+str(T1)+":receiveT1:"+str(receiveT1)+":messageCount:"+str(messageCount)+"\n")
         ##target e represent align packet
         elif target == 'e' and alignRestart[ID] ==0 : 
             

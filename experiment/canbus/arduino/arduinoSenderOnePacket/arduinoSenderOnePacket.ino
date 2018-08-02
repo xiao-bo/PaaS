@@ -43,11 +43,19 @@ unsigned long tmp;
 
 int len=0;
 //String id = "0x01"; 
+int messageCount = 0;
 
+// test overflow
+int test = 0;
 
-void putClockIntoPacket(int sensorValue,long timeC,int id){
+void putClockIntoPacket(int sensorValue,long timeC,int id,int mCount){
     tmp = timeC;
-        
+
+	// clear packet into 00 avoid counter overflow.
+	for(i=0;i<8;i++){
+		packet[i] = '00';
+	}        
+
     // timeC1 is split into digital(0-9) assigned to digital
     for(i=0;tmp>0;i++){
       digital[i] = tmp%100;
@@ -84,22 +92,30 @@ void putClockIntoPacket(int sensorValue,long timeC,int id){
     
     if (sensorValue<10 and sensorValue>=0){
         packet[0]=100;
-        packet[dIndex+1] = 255; 
+        //packet[dIndex+1] = 255; 
     }else if(sensorValue>1000){
         packet[0]=101;
-        packet[dIndex+1] = 255;
+        //packet[dIndex+1] = 255;
     }else{
         packet[0]=102;
-        packet[dIndex+1] = 255;
+        //packet[dIndex+1] = 255;
     }
-
+    packet[dIndex+1] = 255;
+    packet[dIndex+2] = mCount;
+    /*
+    for(i=0;i<8;i++){
+       Serial.print(packet[i]);
+       Serial.print(" ");
+    }
+    Serial.println("");
     
     Serial.print(" analog value ");
     Serial.println(sensorValue);
-    
+    */
     //CAN.sendMsgBuf(INT8U id, INT8U extend frame, INT8U length, data_content);
-    //ACM0 = id 10, ACM1 = id11, ACM2 = id18
-    CAN.sendMsgBuf(0x10 ,0,8,packet);
+    //ACM3 = id 10, ACM1 = id11, ACM2 = id18
+    CAN.sendMsgBuf(0x18  ,0,8,packet);
+ 
     //delay(1000);
 }
 
@@ -143,25 +159,22 @@ void loop(){
     }
    
     sensorValue = analogRead(analogInPin);
-    
+    //Serial.println(sensorValue);
     if(sensorValue != change and (sensorValue == 0 or sensorValue ==1023) ){
-      
-          //elapsedCounter++;
+    
+		 
+        timeC1 = micros();  
+        //timeC1 = timeC1 + 4280000000;
+        Serial.print("timeC1: ");
+        Serial.print(timeC1);   
+        Serial.print("    count: ");
+        Serial.println(messageCount);
+        putClockIntoPacket(sensorValue,timeC1,0x03,messageCount);
+        //timeC1=1046100012; //maximum length of long vaiable is 10 digital
           
-          
-          //if (elapsedCounter >= hz*period){
-          //  elapsedCounter = 0;
-            timeC1 = micros();  
-            
-            Serial.print("timeC1: ");
-            Serial.println(timeC1);   
-            
-            putClockIntoPacket(sensorValue,timeC1,0x03);
-            //timeC1=1046100012; //maximum length of long vaiable is 10 digital
-        
-            
-          //}
-          change = sensorValue;
+        change = sensorValue;
+		    messageCount = (messageCount+1)%100;
+		    //delay(500);     
         
     }  
      
@@ -178,9 +191,10 @@ void loop(){
             Serial.println(timeC2);
             Serial.println("master id is gooooooood");
             packet[0]=102;
-            putClockIntoPacket(-1,timeC2,0x04);
-           
+            putClockIntoPacket(-1,timeC2,0x04,0);
+            messageCount = 0;
         }
+        
       
     }
     
