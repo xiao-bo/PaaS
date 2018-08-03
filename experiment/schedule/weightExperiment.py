@@ -3,17 +3,25 @@ import copy
 import math
 import numpy as np
 import random
+import time
+import sys
+
 from operator import attrgetter
 from sensor import Sensor
 from sensor import printSensorAllProperty
 from sensor import printSensorPriority
 from sensor import writeSensorData
+from sensor import temperatureUtility
+from sensor import pressureUtility
+from sensor import distanceUtility
+from sensor import getSumUtility
+from sensor import deadLineToFreq
 from optimal import selectOptimalSet
 from cp import selectCPSet
 
 def produceSensor(totalNumber,assignedNumber):
     sensorGroup = []
-    a = Sensor(0,1.0,1.0,1.0,1,1,1)
+    a = Sensor(0,1.0,1.0,1.0,1,1,1,0,0)
     for x in range(0,totalNumber):
         sensorGroup.append(copy.deepcopy(a))
    
@@ -26,16 +34,16 @@ def produceUniformData(sensorGroup,assignedArray,unassignedArray):
     ## temperature sensor's frequency = 20hz,10hz,8hz,4hz,2hz,1hz
     temperatureDeadline = [50000,100000,125000,250000,500000,1000000]
     ## pressure sensor's frequency 100hz,20hz,10hz,8hz,4hz,2hz,1hz
+    pressureDeadline = [10000,50000,100000,125000,250000,500000,1000000]
+    ## distance sensor's frequency 100hz,20hz,10hz,8hz,4hz,2hz,1hz
+    distanceDeadline = [10000,50000,100000,125000,250000,500000,1000000]
+    
+    ## remove 10000 for meeting slide
     #pressureDeadline = [10000,50000,100000,125000,250000,500000,1000000]
     ## distance sensor's frequency 100hz,20hz,10hz,8hz,4hz,2hz,1hz
     #distanceDeadline = [10000,50000,100000,125000,250000,500000,1000000]
     
-    ## remove 10000 for meeting slide
-    pressureDeadline = [50000,100000,125000,250000,500000,1000000]
-    ## distance sensor's frequency 100hz,20hz,10hz,8hz,4hz,2hz,1hz
-    distanceDeadline = [50000,100000,125000,250000,500000,1000000]
-    
-    deadLine = [10000,50000,100000,200000,1000000]
+    #deadLine = [10000,50000,100000,200000,1000000]
 
     arrivalTime = [100000,200000,300000,400000,500000,600000,700000,800000,900000,1000000]
     kinds = [0,1,2]
@@ -64,94 +72,108 @@ def produceUniformData(sensorGroup,assignedArray,unassignedArray):
     if unassignedArray:
         for x in unassignedArray:
             x.priority = 0
-
+            x.origin = 0
+            x.classes = 0
 
     ## initial priority of assignedArray 
     if assignedArray:
         priority = random.sample(xrange(1,len(assignedArray)+1),len(assignedArray))  
         i = 0
+        
 
         for x in assignedArray:
             x.priority = priority[i]
+            x.origin = 1
+            x.classes = 0
             i = i + 1
 
     #printSensorAllProperty(sensorGroup)
    
     return sensorGroup
-
-def deadLineToFreq(x):
-    freq = 0.0
-    ## 5hz = 200ms = 200000us
-    ## 10hz = 100ms = 100000us
-    freq = 1.0/(float(x.deadLine)/1000000.0)
-    #print "hz={}".format(freq)
-    return freq
-
-def temperatureUtility(x):
-    utilityValue = 0.0
-    
-    freq = deadLineToFreq(x)
-    if freq < 5:
-        utilityValue = (4.0/9.0)*freq*freq
-    elif freq >= 5:
-        utilityValue = 10.0
-
-    #utilityValue = 10.0
-    #print "temperature sensor utility Value = {}".format(utilityValue)
-    return utilityValue
-
-def distanceUtility(x):
-    utilityValue = 0.0
-    
-    freq = deadLineToFreq(x)
-    if freq < 2:
-        utilityValue = 4.0*freq*freq
-    elif freq >= 2:
-        utilityValue = 5.0
-
-    #utilityValue = 10.0
-    #print "distance sensor utility Value = {}".format(utilityValue)
-    return utilityValue
-
-def pressureUtility(x):
-    utilityValue = 0.0
-    
-    freq = deadLineToFreq(x)
-    if freq < 5:
-        utilityValue = (2.0/1000)*freq*freq
-    elif freq >= 5:
-        utilityValue = 10.0
-
-    #utilityValue = 10.0
-    #print "pressure sensor utility Value = {}".format(utilityValue)
-    return utilityValue
-
-def getSumUtility(totalGroup,sensorGroup):
-    sumUtility = 0.0
-    p = len(sensorGroup)
-    
-    for x in sensorGroup:
-        if x.kind == 0:
-            sumUtility = sumUtility + 2*temperatureUtility(x)*x.weight*x.weight
-        elif x.kind == 1:
-            sumUtility = sumUtility + 2*pressureUtility(x)*x.weight*x.weight
-        elif x.kind ==2:
-            sumUtility = sumUtility + 2*distanceUtility(x)*x.weight*x.weight
+def getUtility(x):
+    utility = 0
+    if x.kind == 0:
+        utility = temperatureUtility(x)
+    elif x.kind == 1:
+        utility = pressureUtility(x)
+    elif x.kind ==2:
+        utility = distanceUtility(x)
+    return utility 
+def classification(totalGroup,sensorGroup):
+    category = [[],[],[],[],[],[],[],[],[],[]]
+    utilityWeight = []
+    for x in totalGroup :
+        #print "weight:{} utility:{}".format(x.weight,getUtility(x))
+        utilityWeight.append(x.weight*getUtility(x))
+    #print utilityWeight
+    a = np.array(utilityWeight)
+    #a = np.array([1,2,3,4,5,6,7,8,9,10])
+    p = np.percentile(a,10)
     for x in totalGroup:
-        if x.kind == 0:
-            sumUtility = sumUtility + -1*temperatureUtility(x)*x.weight*x.weight
-        elif x.kind == 1:
-            sumUtility = sumUtility + -1*pressureUtility(x)*x.weight*x.weight
-        elif x.kind ==2:
-            sumUtility = sumUtility + -1*distanceUtility(x)*x.weight*x.weight
-            
-    # sum (Ui*Wi*Yi) Yi = {-1,1}
-    # for code, sum(Ui*Wi*Yi) Yi={0,2} + totalSum(Uj*Wj*-1) = above
-    ##  i = 0 to sensorGroup (select sensor)
-    ##  j = 0 to totalGroup (all sensor)
+        #print "utility:{}".format(x.weight*getUtility(x))
+        if x.weight*getUtility(x) < np.percentile(a,10):
+            #print "10%:{}".format(np.percentile(a,10))
+            category[0].append(x)    
+        elif x.weight*getUtility(x) >= np.percentile(a,10) and x.weight*getUtility(x) < np.percentile(a,20):
+            #print "20%:{}".format(np.percentile(a,20))
+            category[1].append(x)    
+        elif x.weight*getUtility(x) >= np.percentile(a,20) and x.weight*getUtility(x) < np.percentile(a,30):
+            #print "30%:{}".format(np.percentile(a,30))
+            category[2].append(x)    
+        elif x.weight*getUtility(x) >= np.percentile(a,30) and x.weight*getUtility(x) < np.percentile(a,40):
+            #print "40%:{}".format(np.percentile(a,40))
+            category[3].append(x)    
+        elif x.weight*getUtility(x) >= np.percentile(a,40) and x.weight*getUtility(x) < np.percentile(a,50):
+            #print "50%:{}".format(np.percentile(a,50))
+            category[4].append(x)    
+        elif x.weight*getUtility(x) >= np.percentile(a,50) and x.weight*getUtility(x) < np.percentile(a,60):
+            #print "60%:{}".format(np.percentile(a,60))
+            category[5].append(x)    
+        elif x.weight*getUtility(x) >= np.percentile(a,60) and x.weight*getUtility(x) < np.percentile(a,70):
+            #print "70%:{}".format(np.percentile(a,70))
+            category[6].append(x)    
+        elif x.weight*getUtility(x) >= np.percentile(a,70) and x.weight*getUtility(x) < np.percentile(a,80):
+            category[7].append(x)    
+            #print "80%:{}".format(np.percentile(a,80))
+        elif x.weight*getUtility(x) >= np.percentile(a,80) and x.weight*getUtility(x) < np.percentile(a,90):
+            #print "90%:{}".format(np.percentile(a,90))
+            category[8].append(x)    
+        elif x.weight*getUtility(x) >= np.percentile(a,90):
+            category[9].append(x)
+    z = 10
+    '''
+    for x in category:
+        for y in x:
+            print "{}%:{}".format(z,y.weight*getUtility(y))
+        z = z+10
+        #print "===="
+    '''
+    return category
+def computeCategoryProportion(category,sensorGroup):
+    ## print all length of cols
+    ## get every class length
+    allClassLength = map(len,category)
+    #print allClassLength
     
-    return sumUtility
-
+    #print sensorGroup
+    SensorCount = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
+    for x in sensorGroup:
+        for i in range(0,10):
+            if x in category[i]:
+                ## if x belongs class i
+                SensorCount[i] = SensorCount[i]+1.0
+                x.classes = (i+1)
+                break  
+    #print SensorCount
+    proportion = []
+    for x in range(0,len(SensorCount)):
+        if SensorCount[x]!=0:
+            proportionTmp = SensorCount[x]/float(allClassLength[x]) 
+        else:
+            proportionTmp = 0.0
+        print "class{}:{}".format(x,proportionTmp)
+        proportion.append(proportionTmp)
+    return proportion
 def test():
     sumWeight = 0
     
@@ -162,51 +184,76 @@ def test():
 
 def main():
     
+
     ### arrival time, transmission time, deadLine, weight, priority, index
 
-    totalNumber = 10
+    totalNumber = 70
     assignedNumber = 0
     diffArray = []
 
-    filename = "1.txt" 
+    dire = "data/tmp3/"
+    filename = dire+"1.txt" 
     fo = open(filename,"w")
     fo.write("number sensor :"+str(totalNumber)+"\n")
-    dire = ""
     foptimalSet = open(dire+"optimalSet.txt","w")
     fCPSet = open(dire+"CPSet.txt",'w')
     ftotalSet = open(dire +"totalSet.txt",'w')
-    for x in range(0,70000):
-        sensorGroup = produceSensor(totalNumber,assignedNumber)
+    for x in range(0,100):
+        totalGroup = produceSensor(totalNumber,assignedNumber)
+        start_time = time.time()
         print x
         
-        #printSensorAllProperty(sensorGroup)
+        printSensorAllProperty(totalGroup)
         #print "get optimal"
-        
-        optimalSet = selectOptimalSet(sensorGroup[:assignedNumber],sensorGroup[assignedNumber:])
+
+        category = classification(totalGroup,totalGroup)     
+    
+        optimalSet = selectOptimalSet(totalGroup[:assignedNumber],totalGroup[assignedNumber:])
         #printSensorAllProperty(optimalSet)
         #print "get cp"
-        CPSet = selectCPSet(sensorGroup[:assignedNumber],sensorGroup[assignedNumber:])
-        #printSensorAllProperty(CPSet)
         
+
+        #print "optimal utility :{}".format(sumUtilityofOptimalSet)
+        CPSet = selectCPSet(totalGroup[:assignedNumber],totalGroup[assignedNumber:])
+        #printSensorAllProperty(CPSet)
         ## sort CPset by weight with descending order
         CPSet = sorted(CPSet,key=attrgetter("weight"),reverse=True)
         #print "get cp"
         #printSensorAllProperty(CPSet)
+        sumUtilityofTotalSet = getSumUtility(totalGroup,totalGroup)
+        sumUtilityofOptimalSet = getSumUtility(totalGroup,optimalSet)
+        sumUtilityofCPSet = getSumUtility(totalGroup,CPSet)
+        difference = sumUtilityofOptimalSet-sumUtilityofCPSet
    
+        ProportionOfOptimal = computeCategoryProportion(category,optimalSet)
+        ProportionOfCP = computeCategoryProportion(category,CPSet) 
+        print "optimal {}".format(ProportionOfOptimal)
+        print "CP {}".format(ProportionOfCP)
+        fo.write("optimalSet proportion : ")
+        for i in range(0,len(ProportionOfOptimal)):
+            fo.write(str(ProportionOfOptimal[i])+":")
         
-        sumUtilityofTotalSet = getSumUtility(sensorGroup,sensorGroup)
-        #print "=="
-        sumUtilityofOptimalSet = getSumUtility(sensorGroup,optimalSet)
+        fo.write("CP proportion : ")
+        for i in range(0,len(ProportionOfCP)):
+            fo.write(str(ProportionOfCP[i])+":")
+        fo.write("total utility:"+str(sumUtilityofTotalSet)+":optimalSet utility : "+str(sumUtilityofOptimalSet)+":CP utility : "+
+            str(sumUtilityofCPSet)+":difference:"+str(difference)+"\n")
+        writeSensorData(totalGroup,ftotalSet,x)
+        writeSensorData(optimalSet,foptimalSet,x)
+        writeSensorData(CPSet,fCPSet,x)
+        elapsed_time = time.time() - start_time
+        print "x = {} elaspsetTime= {}".format(x,elapsed_time)
+        
 
-        #print "optimal utility :{}".format(sumUtilityofOptimalSet)
-        sumUtilityofCPSet = getSumUtility(sensorGroup,CPSet)
-        #print "CP weight :{}".format(sumUtilityofCPSet)
+        print "total utility :{}".format(sumUtilityofTotalSet)
+        print "optimal utility :{}".format(sumUtilityofOptimalSet)
+        print "CP utility :{}".format(sumUtilityofCPSet)
+        '''  
         difference = sumUtilityofOptimalSet-sumUtilityofCPSet
         #print "difference :{}".format(difference)
         #if difference!=0:
-        print "all sensor"
-        #printSensorAllProperty(sensorGroup)
-        writeSensorData(sensorGroup,ftotalSet,x)
+        #printSensorAllProperty(totalGroup)
+        writeSensorData(totalGroup,ftotalSet,x)
         #print "get optimal"
         #printSensorAllProperty(optimalSet)
         #print "optimal utility :{}".format(sumUtilityofOptimalSet)
@@ -219,15 +266,16 @@ def main():
         #break
         fo.write("total utility:"+str(sumUtilityofTotalSet)+":optimalSet utility : "+str(sumUtilityofOptimalSet)+":CP utility : "+
             str(sumUtilityofCPSet)+":difference:"+str(difference)+"\n")
-        
-    
+        elapsed_time = time.time() - start_time
+        print "x = {} elaspsetTime= {}".format(x,elapsed_time)
+        '''
 
 
 if __name__ == "__main__":
     main()
     ### kind,arrival time, transmission time, deadLine, weight, priority, index
 
-    a = Sensor(1,0,1.0,400000.0,1,1,1)
+    a = Sensor(1,0,1.0,400000.0,1,1,1,1,0)
     #temperatureUtility(a)
     #distanceUtility(a)
     #pressureUtility(a)
