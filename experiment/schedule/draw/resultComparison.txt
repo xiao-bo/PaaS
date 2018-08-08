@@ -1,0 +1,10 @@
+x : 1:number of large:152:number of same:712:number of small:136:
+x : 2:number of large:281:number of same:543:number of small:176:
+x : 3:number of large:127:number of same:587:number of small:286:
+x : 4:number of large:43:number of same:543:number of small:414:
+x : 5:number of large:120:number of same:493:number of small:387:
+x : 6:number of large:210:number of same:481:number of small:309:
+x : 7:number of large:74:number of same:478:number of small:448:
+x : 8:number of large:13:number of same:406:number of small:581:
+x : 9:number of large:1:number of same:573:number of small:426:
+x : 10:number of large:0:number of same:952:number of small:48:
