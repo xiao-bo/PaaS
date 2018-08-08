@@ -17,39 +17,36 @@ def compute_statistics(delay_list):
     std = np.std(delay_list)
     ste = std/math.sqrt(length)
     samplingError = ste/mean*100
-    print "mean: "+str(mean)
-    print "standard deviation: "+str(std)
-    print "standard error:"+str(ste)
-    print "sampling error:"+str(samplingError)+"%"
+    print ("mean: {}".format(mean))
+    print ("standard deviation: {}".format(std))
+    print ("standard error: {} ".format(ste))
+    print ("sampling error: {} %".format(samplingError))
     
     return [np.mean(delay_list),np.std(delay_list),ste]
 
 
 def curve(input_list,title,statistics):	
-	output_list=[]
+    output_list=[]
+    ##curve
+    curve = plt.axes()
+    x = np.linspace(0, len(input_list),len(input_list))
+    with plt.style.context('fivethirtyeight'):
+        line=curve.plot(x,input_list)	
+        plt.setp(line, linewidth=2)
+    curve.axes.set_xlabel("sampling")
+    curve.axes.set_ylabel("Error (ms)")
+    curve.axes.set_title(title)
 
-
-	##curve
-	curve = plt.axes()
-	x = np.linspace(0, len(input_list),len(input_list))
-	with plt.style.context('fivethirtyeight'):
-	    line=curve.plot(x,input_list)	
-	    plt.setp(line, linewidth=2)
-	curve.axes.set_xlabel("sampling")
-	curve.axes.set_ylabel("Error (ms)")
-	curve.axes.set_title(title)
-
-        ## set y seies range from 0 to 40
-        #plt.ylim([0,40])
-
-        ## set font property
-        '''
-        font = {'family' : 'normal',
-                'weight' : 'bold',
-                'size'   : 40}
-        plt.rc('font',**font)
-
-        ## set table	
+    ## set y seies range from 0 to 40
+    #plt.ylim([0,40])
+    
+    ## set font property
+    '''
+    font = {'family' : 'normal',
+            'weight' : 'bold',
+            'size'   : 40}
+    plt.rc('font',**font)
+    ## set table	
 	#table
 	axTable = plt.axes(rect_table, frameon =False)
 	axTable.axes.get_xaxis().set_visible(False)
@@ -65,27 +62,26 @@ def curve(input_list,title,statistics):
         table_size.auto_set_font_size(False)
 	table_size.set_fontsize(40)
 	table_size.scale(1.2,3)
-        '''
+    '''
         
-        ## save svg file 
-        #plt.savefig("/home/newslab/Desktop/test.svg")
-	plt.show()
+    ## save svg file 
+    #plt.savefig("test.svg")
+    plt.show()
 
 
 if __name__=="__main__":
 
-        filename = "10hzBack0ES0data.txt"
-        fileRead = open(filename,'r')
-        ES0data = []
-        ## read error data
-        for x in fileRead:
-            ES0data.append(float(x))
+    filename = "10hzBack0ES0data.txt"
+    fileRead = open(filename,'r')
+    ES0data = []
+    ## read error data
+    for x in fileRead:
+        ES0data.append(float(x))
 
-        ## set title
-        ES0title = '10hz,back 0%, with jitter,backpri=13,pri=10,ES0 '
-
-        ## get mean,std,std_err
-	ES0statistics=compute_statistics(ES0data) 
-        
-        ## draw
-        curve(ES0data,ES0title,[ES0statistics])
+    ## set title
+    ES0title = '10hz,back 0%, with jitter,backpri=13,pri=10,ES0 '
+    ## get mean,std,std_err
+    ES0statistics=compute_statistics(ES0data) 
+       
+    ## draw
+    curve(ES0data,ES0title,[ES0statistics])
