@@ -36,18 +36,26 @@ def singleClass(diff,title):
 
     ## save svg file
     #plt.savefig(dire+"class"+number+".svg")
-    
-    plt.show()
 
+    ## set x and y series range
+    #plt.axis([0, 1000, -100, 100])
+    plt.show()
+    
 if __name__=="__main__":
     #test()
     #dire = 'data/70sensor1000iterationFinally/'
     number = '1'
     fd = open("differenceClass"+number+".txt",'r')
     difference = []
+    x = 0
     for line in fd:
-    	difference.append(str(float(line)))
-    
+        difference.append(int(float(line)))
+        x = x + 1 
+        #if x > 5 :
+        #    break
     
     singleClass(difference,number)
+  
+   
+
 
