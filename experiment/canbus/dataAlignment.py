@@ -115,6 +115,7 @@ if __name__=='__main__':
     value = '0.txt'
     value = '1023.txt'
     #value = 'all.txt'
+    
     fo0010 = open(dire+'offline0010_'+value,'w')
     z = 0
     #s0['R'] = 0.9995558414 #for 95%
@@ -130,16 +131,7 @@ if __name__=='__main__':
         elif S0value[x]==1023.0:
             r = 1
             #continue
-            #s0['R'] = 1.00020020414
-        ## for 10hz, 95% data
-        if x> 8000 and x < 16000:
-            s0['R'] = 0.9995488414
-        elif x >= 16000 and x <= 20000:
-            s0['R'] = 0.9995458414
-        elif x >= 20000 and x<=24000:
-            s0['R'] = 0.9995428414
-        elif x >= 24000 :
-            s0['R'] = 0.9995408414
+            
         st0,R=calculateAfterTime(s0['oldc21'],S0counter[x],s0['actualT1'],s0['R'])
         S0Stime.append(st0)
         fo0010.write("ID:"+str(s0['ID'])+":c21:"+str(S0counter[x])+":value:"+str(S0value[x])+":time:"+str(S0Stime[z])+":receiveT1:"+str(Decimal(S0Rtime[x]))+"\n")
@@ -166,20 +158,7 @@ if __name__=='__main__':
         elif S1value[x]==1023.0:
             r = 1
             #continue
-        ## for 10hz,95% data
-        if x> 22000 and x <30000:
-            s1['R'] = 1.00019000414
-        ## for 1hz 35% data
-        if x> 0 and x <7000:
-            s1['R'] = 1.00015900414
-        elif x >= 7000 and x<11000:
-            s1['R'] = 1.00015700414
-        elif x >= 11000 and x < 12000:
-            s1['R'] = 1.00015850414
-        elif x >= 12000 and x < 13000:
-            s1['R'] = 1.00015950414
-        elif x >= 13000 :
-            s1['R'] = 1.00015990414
+        
         st1,R=calculateAfterTime(s1['oldc21'],S1counter[x],s1['actualT1'],s1['R'])
         S1Stime.append(st1)
         fo0011.write("ID:"+str(s1['ID'])+":c21:"+str(S1counter[x])+":value:"+str(S1value[x])+":time:"+str(S1Stime[z])+":receiveT1:"+str(Decimal(S1Rtime[x]))+"\n")
@@ -204,25 +183,7 @@ if __name__=='__main__':
         elif S2value[x]==1023.0:
             r = 1 
             #continue
-        '''
-        
-        ### for 10hz, 95% data
-        if x> 16000 and x <20000:
-            s2['R'] = 1.00028830416
-        elif x >= 20000 and x<24000:
-            s2['R'] = 1.00028530416
-        elif x >= 24000 and x<30000:
-            s2['R'] = 1.00028330416
-        ## for 35% data
-        if x> 0 and x <6000:
-            s2['R'] = 1.00025130416
-        elif x >= 6000 and x<7000:
-            s2['R'] = 1.00024930416
-        elif x >= 7000 and x<11000:
-            s2['R'] = 1.00024830416
-        elif x >= 11000 and x<12000:
-            s2['R'] = 1.00024930416
-        '''
+       
         st2,R=calculateAfterTime(s2['oldc21'],S2counter[x],s2['actualT1'],s2['R'])
         S2Stime.append(st2)
         fo0018.write("ID:"+str(s2['ID'])+":c21:"+str(S2counter[x])+":value:"+str(S2value[x])+":time:"+str(S2Stime[z])+":receiveT1:"+str(Decimal(S2Rtime[x]))+"\n")
