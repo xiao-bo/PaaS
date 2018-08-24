@@ -1,0 +1,21 @@
+Run schedule experiment
+
+weightExperiment.py : can adjust experiment paraments and run weight
+experiment.
+
+resultComparison.py:draw multibar result from class1 to class10.
+
+maximal.py : run maximal schedulable sensor selection algorithm
+
+cp.py : run cp-based alogrithm
+
+draw.py:draw class_i result
+
+data_process.py : do data process 
+
+Schedulability analysis.py : run canbus schedulability analysis
+
+priorityAssignment.py : run priority assignment algorithm
+
+sensor.py : initiate sensor class
+
