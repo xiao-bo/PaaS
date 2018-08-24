@@ -182,12 +182,12 @@ def main():
     
     
     
-    a = Sensor(851.0,120.0,2862.0,12.0,0,1)
+    a = Sensor(851.0,120.0,2862.0,12.0,0,1,1,2,3)
+    '''
     b = Sensor(977.0,112.0,457.0,4,2,6)
     c = Sensor(156.0,104.0,931.0,2,3,3)
     d = Sensor(210.0,120.0,509.0,10,4,4)
     e = Sensor(701.0,128.0,516.0,10,5,5)
-    '''
     a = Sensor(0.2,1.08,3.0,0,4)
     b = Sensor(0.2,1.08,4.0,1,8)
     c = Sensor(0.2,0.52,4.5,2,3)
@@ -202,7 +202,7 @@ def main():
     '''
     print "main"
     
-    sensorGroup = [a,c,e]#,d,e,f]
+    sensorGroup = [a]#,c,e]#,d,e,f]
     
     for x in range(0,len(sensorGroup)):
         ans = isSchedule(sensorGroup,x)
