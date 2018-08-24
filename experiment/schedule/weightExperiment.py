@@ -16,7 +16,7 @@ from sensor import pressureUtility
 from sensor import distanceUtility
 from sensor import getSumUtility
 from sensor import deadLineToFreq
-from optimal import selectOptimalSet
+from maximal import selectMaximalSet
 from cp import selectCPSet
 
 def produceSensor(totalNumber,assignedNumber):
@@ -171,9 +171,10 @@ def computeCategoryProportion(category,sensorGroup):
             proportionTmp = SensorCount[x]/float(allClassLength[x]) 
         else:
             proportionTmp = 0.0
-        print "class{}:{}".format(x,proportionTmp)
+        #print "class{}:{}".format(x,proportionTmp)
         proportion.append(proportionTmp)
     return proportion
+
 def test():
     sumWeight = 0
     
@@ -187,15 +188,15 @@ def main():
 
     ### arrival time, transmission time, deadLine, weight, priority, index
 
-    totalNumber = 70
+    totalNumber = 10
     assignedNumber = 0
     diffArray = []
 
-    dire = "data/tmp3/"
+    dire = ""
     filename = dire+"1.txt" 
     fo = open(filename,"w")
     fo.write("number sensor :"+str(totalNumber)+"\n")
-    foptimalSet = open(dire+"optimalSet.txt","w")
+    fmaximalSet = open(dire+"maximalSet.txt","w")
     fCPSet = open(dire+"CPSet.txt",'w')
     ftotalSet = open(dire +"totalSet.txt",'w')
     for x in range(0,100):
@@ -204,16 +205,16 @@ def main():
         print x
         
         printSensorAllProperty(totalGroup)
-        #print "get optimal"
+        #print "get maximal"
 
         category = classification(totalGroup,totalGroup)     
     
-        optimalSet = selectOptimalSet(totalGroup[:assignedNumber],totalGroup[assignedNumber:])
-        #printSensorAllProperty(optimalSet)
+        maximalSet = selectMaximalSet(totalGroup[:assignedNumber],totalGroup[assignedNumber:])
+        #printSensorAllProperty(maximalSet)
         #print "get cp"
         
 
-        #print "optimal utility :{}".format(sumUtilityofOptimalSet)
+        #print "maximal utility :{}".format(sumUtilityofmaximalSet)
         CPSet = selectCPSet(totalGroup[:assignedNumber],totalGroup[assignedNumber:])
         #printSensorAllProperty(CPSet)
         ## sort CPset by weight with descending order
@@ -221,54 +222,34 @@ def main():
         #print "get cp"
         #printSensorAllProperty(CPSet)
         sumUtilityofTotalSet = getSumUtility(totalGroup,totalGroup)
-        sumUtilityofOptimalSet = getSumUtility(totalGroup,optimalSet)
+        sumUtilityofMaximalSet = getSumUtility(totalGroup,maximalSet)
         sumUtilityofCPSet = getSumUtility(totalGroup,CPSet)
-        difference = sumUtilityofOptimalSet-sumUtilityofCPSet
+        difference = sumUtilityofMaximalSet-sumUtilityofCPSet
    
-        ProportionOfOptimal = computeCategoryProportion(category,optimalSet)
+        ProportionOfMaximal = computeCategoryProportion(category,maximalSet)
         ProportionOfCP = computeCategoryProportion(category,CPSet) 
-        print "optimal {}".format(ProportionOfOptimal)
+        print "maximal {}".format(ProportionOfMaximal)
         print "CP {}".format(ProportionOfCP)
-        fo.write("optimalSet proportion : ")
-        for i in range(0,len(ProportionOfOptimal)):
-            fo.write(str(ProportionOfOptimal[i])+":")
+        fo.write("maximalSet proportion : ")
+        for i in range(0,len(ProportionOfMaximal)):
+            fo.write(str(ProportionOfMaximal[i])+":")
         
         fo.write("CP proportion : ")
         for i in range(0,len(ProportionOfCP)):
             fo.write(str(ProportionOfCP[i])+":")
-        fo.write("total utility:"+str(sumUtilityofTotalSet)+":optimalSet utility : "+str(sumUtilityofOptimalSet)+":CP utility : "+
+        fo.write("total utility:"+str(sumUtilityofTotalSet)+":maximalSet utility : "+str(sumUtilityofMaximalSet)+":CP utility : "+
             str(sumUtilityofCPSet)+":difference:"+str(difference)+"\n")
         writeSensorData(totalGroup,ftotalSet,x)
-        writeSensorData(optimalSet,foptimalSet,x)
+        writeSensorData(maximalSet,fmaximalSet,x)
         writeSensorData(CPSet,fCPSet,x)
         elapsed_time = time.time() - start_time
         print "x = {} elaspsetTime= {}".format(x,elapsed_time)
         
 
         print "total utility :{}".format(sumUtilityofTotalSet)
-        print "optimal utility :{}".format(sumUtilityofOptimalSet)
+        print "maximal utility :{}".format(sumUtilityofMaximalSet)
         print "CP utility :{}".format(sumUtilityofCPSet)
-        '''  
-        difference = sumUtilityofOptimalSet-sumUtilityofCPSet
-        #print "difference :{}".format(difference)
-        #if difference!=0:
-        #printSensorAllProperty(totalGroup)
-        writeSensorData(totalGroup,ftotalSet,x)
-        #print "get optimal"
-        #printSensorAllProperty(optimalSet)
-        #print "optimal utility :{}".format(sumUtilityofOptimalSet)
-        writeSensorData(optimalSet,foptimalSet,x)
-        #print "get cp"
-        #printSensorAllProperty(CPSet)
-        #print "CP weight :{}".format(sumUtilityofCPSet)
-        writeSensorData(CPSet,fCPSet,x)
-        #print "difference :{}".format(difference)
-        #break
-        fo.write("total utility:"+str(sumUtilityofTotalSet)+":optimalSet utility : "+str(sumUtilityofOptimalSet)+":CP utility : "+
-            str(sumUtilityofCPSet)+":difference:"+str(difference)+"\n")
-        elapsed_time = time.time() - start_time
-        print "x = {} elaspsetTime= {}".format(x,elapsed_time)
-        '''
+       
 
 
 if __name__ == "__main__":

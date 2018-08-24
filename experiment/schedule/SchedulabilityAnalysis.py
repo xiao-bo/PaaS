@@ -72,8 +72,11 @@ def gettm(tm,blockingTime,higherPriority,target):
             higherTime = higherTime + math.ceil(\
                 (tm + higherPriority[x].arrivalTime)/higherPriority[x].deadLine)\
                 *higherPriority[x].transmissionTime
+         
+        
         higherTime = higherTime + math.ceil(\
                 (tm + target.arrivalTime)/target.deadLine)*target.transmissionTime
+
         #print "higherTime = {}".format(higherTime)
         tm = blockingTime + higherTime
         
@@ -81,6 +84,7 @@ def gettm(tm,blockingTime,higherPriority,target):
         
         if tm == tmp:
             break
+
         tmIndex = tmIndex +1
 
     return tm
@@ -103,23 +107,6 @@ def getResponseTime(sensorGroup,targetIndex):
         elif sensorGroup[i].priority < sensorGroup[targetIndex].priority:
             higherPriority.append(sensorGroup[i])
     
-    
-    ## lowerPrioirty is not empty. in other word, 
-    ## there have lower priority object in sensorGroup
-    '''
-    maxblock = 0
-    if lowerPriority: 
-        ## get maximum priority in lower priority
-        #maxlp = min(lowerPriority)  
-        ## search priority maxlp in sensorGroup
-        for i in range(0,length): 
-            if maxblock < sensorGroup[i].transmissionTime and sensorGroup[i].priority > 0:
-                maxblock = sensorGroup[i].transmissionTime
-                print i
-        blockingTime = maxblock 
-    
-    print "blockingTime = {}".format(blockingTime)
-    '''
     ### get blockTime
     maxblock = 0
     for x in sensorGroup:
@@ -135,7 +122,7 @@ def getResponseTime(sensorGroup,targetIndex):
     tm = gettm(tm,blockingTime,higherPriority,sensorGroup[targetIndex])
     ## get Qm
     Qm = math.ceil((tm+sensorGroup[targetIndex].arrivalTime)/sensorGroup[targetIndex].deadLine)
-    
+
     #print "Qm={}".format(Qm)
     #print "tm={}".format(tm)
     
